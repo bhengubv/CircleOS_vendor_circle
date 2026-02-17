@@ -1,28 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Circle OS Design System — Comfortaa font family
-  Used for all headlines (Display + Headline scales).
-
-  TTF files must be placed alongside this file:
-    comfortaa_regular.ttf  (weight 400)
-    comfortaa_medium.ttf   (weight 500)
-    comfortaa_bold.ttf     (weight 700)
-
   Source: Google Fonts — Comfortaa (OFL licence)
-  Prebuilt TTFs live in: vendor/circle/prebuilt/fonts/
-  Symlinks or copies placed here at build time via Android.bp.
+  File: comfortaa_variable.ttf (variable font, wght axis 300–700)
+  Prebuilt TTFs in: vendor/circle/prebuilt/fonts/
+
+  Uses fontVariationSettings to select weight from the variable font.
+  Requires API 26+ (Android O) — all CircleOS targets qualify.
 -->
 <font-family xmlns:android="http://schemas.android.com/apk/res/android">
     <font
         android:fontStyle="normal"
         android:fontWeight="400"
-        android:font="@font/comfortaa_regular" />
+        android:fontVariationSettings="'wght' 400"
+        android:font="@font/comfortaa_variable" />
     <font
         android:fontStyle="normal"
         android:fontWeight="500"
-        android:font="@font/comfortaa_medium" />
+        android:fontVariationSettings="'wght' 500"
+        android:font="@font/comfortaa_variable" />
     <font
         android:fontStyle="normal"
         android:fontWeight="700"
-        android:font="@font/comfortaa_bold" />
+        android:fontVariationSettings="'wght' 700"
+        android:font="@font/comfortaa_variable" />
 </font-family>

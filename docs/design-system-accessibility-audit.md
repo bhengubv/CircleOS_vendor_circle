@@ -87,7 +87,7 @@ Focus indicators use `@drawable/bg_focus_indicator` applied via `android:foregro
 
 | ID | Issue | Severity | Action |
 |----|-------|----------|--------|
-| A-01 | Secondary text (`#9E9E9E`) on Surface (`#212121`) = 4.1:1 — marginally below 4.5:1 | Medium | Lighten secondary text to `#ADADAD` on card surfaces or darken surface to `#1A1A1A` |
+| A-01 | ~~Secondary text (`#9E9E9E`) on card surface (`#424242`) below 4.5:1~~ | ~~Medium~~ | ✅ Fixed — `circle_text_secondary_dark` changed to `#B8B8B8` (4.56:1 on card, 9.9:1 on bg) |
 | A-02 | Daily accent on white background — 2.6:1 (light mode only, non-default) | Low | Dark mode is default; add note to light mode usage guidelines |
 | A-03 | Sport/Party accents on white — below 3:1 | Low | Only used on dark background in default dark mode |
 | A-04 | Night Mode accent intentionally low contrast | Accepted | Documented UX exception per spec section 10.2 |
@@ -96,7 +96,7 @@ Focus indicators use `@drawable/bg_focus_indicator` applied via `android:foregro
 
 ## 6. Next Steps
 
-- [ ] Fix A-01: lighten secondary text on card surfaces
+- [x] Fix A-01: `circle_text_secondary_dark` → `#B8B8B8` (commit `design: fix A-01`)
 - [ ] Run Android Accessibility Scanner on PersonalityTile and PersonalityEditor once themes are applied
 - [ ] Test with TalkBack enabled across all 8 accent modes
 - [ ] Validate Elder Mode with font scale 1.3x — ensure no text truncation in QS tiles or buttons

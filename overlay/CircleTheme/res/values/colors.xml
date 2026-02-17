@@ -47,7 +47,7 @@
     <color name="circle_surface_dark">#212121</color>
     <color name="circle_card_dark">#424242</color>
     <color name="circle_text_primary_dark">#FFFFFF</color>
-    <color name="circle_text_secondary_dark">#9E9E9E</color>
+    <color name="circle_text_secondary_dark">#B8B8B8</color><!-- A-01 fix: 4.56:1 on card (#424242), 9.9:1 on bg (#0A0A0A) — WCAG AA pass -->
     <color name="circle_divider_dark">#424242</color>
 
     <!-- ── Pressed / Disabled States ─────────────────────────────────────── -->
