@@ -112,4 +112,5 @@
     <string name="community_loading">Loading store…</string>
     <string name="community_no_modes">No community modes available</string>
     <string name="community_import_mode_title">Import \'%1$s\'?</string>
+    <string name="community_tier_bundle_note">This is a Tier %1$d mode. A bundle download will be required before it can be activated.</string>
 </resources>
