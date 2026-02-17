@@ -1,0 +1,17 @@
+# SELinux policy for CirclePrivacyManagerService
+#
+# CirclePrivacyManagerService runs within the system_server process.
+# This policy grants it access to Circle-specific data paths.
+
+# Type declaration for Circle privacy data files
+type circle_privacy_data_file, file_type, data_file_type;
+
+# Allow system_server to read/write Circle privacy data
+allow system_server circle_privacy_data_file:dir { create search add_name remove_name rw_dir_perms };
+allow system_server circle_privacy_data_file:file { create read write append getattr setattr unlink rw_file_perms };
+
+# Allow CirclePrivacyManagerService to bind to its binder interface
+allow system_server system_server:binder { call transfer };
+
+# Allow system_server to access Circle audit database
+allow system_server circle_privacy_data_file:sock_file { create read write };

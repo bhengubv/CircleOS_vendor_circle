@@ -1,0 +1,16 @@
+# SELinux policy for CircleFirewallService / NetworkPermissionEnforcer
+#
+# Network permission enforcement runs within system_server and interacts
+# with netd via binder IPC.
+
+# Type declaration for Circle firewall rules/grants database
+type circle_firewall_data_file, file_type, data_file_type;
+
+# Allow system_server (NetworkPermissionEnforcer) to manage grant database
+allow system_server circle_firewall_data_file:dir { create search add_name remove_name rw_dir_perms };
+allow system_server circle_firewall_data_file:file { create read write append getattr setattr unlink rw_file_perms };
+
+# Allow system_server to communicate with netd for UID-based firewall rules
+# (netd_service is already accessible by system_server in AOSP base policy;
+#  this block is a placeholder for any Circle-specific netd calls)
+allow system_server netd_service:service_manager find;

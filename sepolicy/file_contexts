@@ -1,0 +1,17 @@
+# File contexts for Circle OS data paths
+# Applied by restorecon during first boot and OTA.
+
+# Circle privacy framework data root
+/data/circle(/.*)?                          u:object_r:circle_privacy_data_file:s0
+
+# Audit log (SQLCipher encrypted)
+/data/circle/privacy/audit\.db              u:object_r:circle_privacy_data_file:s0
+
+# Contact scopes database
+/data/circle/privacy/contact_scopes\.db     u:object_r:circle_privacy_data_file:s0
+
+# Network permission grants database
+/data/circle/privacy/network_grants\.db     u:object_r:circle_firewall_data_file:s0
+
+# Threat intelligence seed database (read-only at runtime)
+/data/circle/threat_intel\.db               u:object_r:circle_privacy_data_file:s0
