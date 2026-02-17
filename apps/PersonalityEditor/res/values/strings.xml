@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Mode Editor</string>
+    <string name="editor_title">Edit Mode</string>
+    <string name="editor_title_new">New Mode</string>
+    <string name="app_visibility_title">App Visibility</string>
+
+    <string name="label_name">Mode name</string>
+    <string name="label_description">Description</string>
+    <string name="label_dnd">Do Not Disturb</string>
+    <string name="label_notification_level">Notification level</string>
+    <string name="label_wifi">Wi-Fi</string>
+    <string name="label_data">Mobile data</string>
+    <string name="label_bluetooth">Bluetooth</string>
+    <string name="label_location">Location</string>
+    <string name="label_theme">Theme</string>
+    <string name="label_enforce_vpn">Enforce VPN</string>
+    <string name="label_privacy_level">Privacy level</string>
+    <string name="label_cloud_sync">Cloud sync</string>
+    <string name="btn_manage_apps">Manage app visibility</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_cancel">Cancel</string>
+
+    <string name="menu_import">Import modes</string>
+    <string name="menu_export">Export modes</string>
+    <string name="action_new_mode">New mode</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_clone">Clone</string>
+    <string name="action_delete">Delete</string>
+
+    <string name="tier1_badge">Built-in</string>
+    <string name="custom_badge">Custom</string>
+    <string name="active_badge">Active</string>
+
+    <string name="error_name_empty">Mode name cannot be empty</string>
+    <string name="error_save_failed">Failed to save mode</string>
+    <string name="error_delete_failed">Cannot delete built-in mode</string>
+    <string name="export_success">Modes exported to Downloads</string>
+    <string name="export_failed">Export failed</string>
+    <string name="import_success">Modes imported</string>
+    <string name="import_failed">Import failed</string>
+
+    <string-array name="notification_levels">
+        <item>Silent</item>
+        <item>Priority only</item>
+        <item>Alarms only</item>
+        <item>All notifications</item>
+    </string-array>
+
+    <string-array name="theme_modes">
+        <item>Auto</item>
+        <item>Light</item>
+        <item>Dark</item>
+    </string-array>
+
+    <string-array name="privacy_levels">
+        <item>Normal</item>
+        <item>Enhanced</item>
+        <item>Maximum</item>
+    </string-array>
+</resources>
