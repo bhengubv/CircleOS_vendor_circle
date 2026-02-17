@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Inference Bridge</string>
+    <string name="notif_channel_name">Inference Bridge</string>
+    <string name="notif_channel_desc">Keeps the on-device AI inference bridge running</string>
+    <string name="notif_title">On-device AI active</string>
+    <string name="notif_text">Inference Bridge is running on 127.0.0.1:11434</string>
+</resources>

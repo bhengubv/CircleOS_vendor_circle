@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2024 CircleOS
+  SPDX-License-Identifier: Apache-2.0
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="za.co.circleos.inferencebridge">
+
+    <!-- Must hold ACCESS_INFERENCE to connect to the system service -->
+    <uses-permission android:name="com.circleos.permission.ACCESS_INFERENCE" />
+    <!-- Needed to run as a foreground service -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <!-- Receive boot-completed to auto-start -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <application
+        android:label="@string/app_name"
+        android:icon="@drawable/ic_bridge"
+        android:allowBackup="false"
+        android:persistent="true">
+
+        <!-- Bridge foreground service -->
+        <service
+            android:name=".InferenceBridgeService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <!-- Token ContentProvider — requires ACCESS_INFERENCE to read -->
+        <provider
+            android:name=".BridgeTokenProvider"
+            android:authorities="za.co.circleos.inferencebridge"
+            android:exported="true"
+            android:readPermission="com.circleos.permission.ACCESS_INFERENCE"
+            android:writePermission="com.circleos.permission.MANAGE_PRIVACY" />
+
+        <!-- Auto-start on boot -->
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+</manifest>

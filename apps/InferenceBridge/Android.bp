@@ -1,0 +1,23 @@
+// Copyright (C) 2024 CircleOS
+// SPDX-License-Identifier: Apache-2.0
+//
+// InferenceBridge — HTTP REST+SSE bridge exposing CircleInferenceService
+// to MAUI and non-platform apps on 127.0.0.1:11434.
+
+android_app {
+    name: "InferenceBridge",
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest.xml",
+    sdk_version: "current",
+    min_sdk_version: "33",
+    certificate: "platform",
+    privileged: true,
+    platform_apis: true,
+    static_libs: [
+        "circle_inference_client",
+    ],
+    optimize: {
+        enabled: false,
+    },
+}
