@@ -75,6 +75,9 @@ public class ModeChooserActivity extends Activity {
                 String label = mode.name;
                 if (mode.id.equals(activeModeId)) {
                     label += getString(R.string.mode_active_suffix);
+                } else if ((mode.tier == 2 || mode.tier == 3)
+                        && !mService.isBundleDownloaded(mode.id)) {
+                    label += getString(R.string.mode_download_suffix);
                 }
                 labels.add(label);
             }
@@ -139,7 +142,17 @@ public class ModeChooserActivity extends Activity {
         progress.setTitle(getString(R.string.bundle_downloading_title));
         progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         progress.setMax(100);
-        progress.setCancelable(false);
+        progress.setCancelable(true);
+        progress.setButton(ProgressDialog.BUTTON_NEGATIVE,
+                getString(android.R.string.cancel), (d, w) -> {
+                    try {
+                        if (mService != null) mService.cancelBundleDownload(modeId);
+                    } catch (RemoteException e) {
+                        Log.w(TAG, "cancelBundleDownload failed", e);
+                    }
+                    finish();
+                });
+        progress.setOnCancelListener(d -> finish());
         progress.show();
 
         IBundleCallback callback = new IBundleCallback.Stub() {
