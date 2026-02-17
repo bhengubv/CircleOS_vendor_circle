@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Circle OS Design System — Work Mode accent override -->
+<resources>
+    <color name="circle_accent">#607D8B</color>
+    <color name="circle_accent_pressed">#CC607D8B</color>
+    <color name="circle_accent_ripple">#1A607D8B</color>
+    <color name="circle_focus_outline">#607D8B</color>
+</resources>

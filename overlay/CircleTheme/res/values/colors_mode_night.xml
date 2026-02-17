@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Circle OS Design System — Night Mode accent override -->
+<resources>
+    <color name="circle_accent">#5D4037</color>
+    <color name="circle_accent_pressed">#CC5D4037</color>
+    <color name="circle_accent_ripple">#1A5D4037</color>
+    <color name="circle_focus_outline">#5D4037</color>
+    <color name="circle_night_dim_overlay">#80000000</color>
+</resources>

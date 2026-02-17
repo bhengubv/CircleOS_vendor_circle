@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Mortarboard square top (flat diamond/square rotated) -->
+    <path
+        android:strokeColor="@color/circle_accent"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M12,3 L22,8 L12,13 L2,8 Z" />
+    <!-- Graduation cap brim / trapezoid body hanging down -->
+    <path
+        android:strokeColor="@color/circle_accent"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M7,10.5 L7,16 Q7,19 12,19 Q17,19 17,16 L17,10.5" />
+    <!-- Tassel string -->
+    <path
+        android:strokeColor="@color/circle_accent"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M22,8 L22,14" />
+</vector>

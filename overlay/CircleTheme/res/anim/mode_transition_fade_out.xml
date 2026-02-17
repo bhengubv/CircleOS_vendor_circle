@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Circle OS Design System — Mode Transition: fade out current mode
+  Phase 1 of 3: 0ms → 150ms  (fade current content to 0)
+  Duration scale: Standard (200ms base) — start of crossfade
+-->
+<alpha xmlns:android="http://schemas.android.com/apk/res/android"
+    android:interpolator="@android:interpolator/accelerate_quad"
+    android:fromAlpha="1.0"
+    android:toAlpha="0.0"
+    android:duration="150"
+    android:fillAfter="true" />

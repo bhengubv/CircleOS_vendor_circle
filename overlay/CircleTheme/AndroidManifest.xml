@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Circle OS Design System — Theme Overlay
+  Version: 1.0  |  Owner: The Geek (Pty) Ltd
+  Extends: The Geek Network Design System v2.1
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="za.co.circleos.theme"
+    android:versionCode="1"
+    android:versionName="1.0">
+
+    <overlay
+        android:targetPackage="android"
+        android:priority="1"
+        android:isStatic="true" />
+
+    <application android:hasCode="false" />
+
+</manifest>

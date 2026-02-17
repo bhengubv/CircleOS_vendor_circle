@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Circle OS Design System — Sport Mode accent override -->
+<resources>
+    <color name="circle_accent">#FF5722</color>
+    <color name="circle_accent_pressed">#CCFF5722</color>
+    <color name="circle_accent_ripple">#1AFF5722</color>
+    <color name="circle_focus_outline">#FF5722</color>
+</resources>

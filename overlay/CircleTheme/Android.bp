@@ -1,0 +1,9 @@
+// Copyright (C) 2024 CircleOS
+// SPDX-License-Identifier: Apache-2.0
+
+runtime_resource_overlay {
+    name: "CircleTheme",
+    manifest: "AndroidManifest.xml",
+    resource_dirs: ["res"],
+    certificate: "platform",
+}

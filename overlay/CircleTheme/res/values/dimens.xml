@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Circle OS Design System — Spacing & Dimension Tokens
+  Base unit: 8dp
+-->
+<resources>
+
+    <!-- ── Spacing Scale ─────────────────────────────────────────────────── -->
+    <dimen name="circle_space_xxs">2dp</dimen>   <!-- Tight inline spacing -->
+    <dimen name="circle_space_xs">4dp</dimen>    <!-- Icon padding, tight gaps -->
+    <dimen name="circle_space_sm">8dp</dimen>    <!-- List item padding, small gaps -->
+    <dimen name="circle_space_md">16dp</dimen>   <!-- Card padding, section gaps -->
+    <dimen name="circle_space_lg">24dp</dimen>   <!-- Screen padding, large gaps -->
+    <dimen name="circle_space_xl">32dp</dimen>   <!-- Section separators -->
+    <dimen name="circle_space_xxl">48dp</dimen>  <!-- Major section breaks -->
+
+    <!-- ── Layout Grid ───────────────────────────────────────────────────── -->
+    <dimen name="circle_grid_margin_phone">16dp</dimen>
+    <dimen name="circle_grid_margin_phone_landscape">24dp</dimen>
+    <dimen name="circle_grid_margin_tablet">24dp</dimen>
+    <dimen name="circle_grid_margin_tablet_landscape">32dp</dimen>
+    <dimen name="circle_grid_gutter">16dp</dimen>
+    <dimen name="circle_grid_gutter_tablet">24dp</dimen>
+
+    <!-- ── Touch Targets ─────────────────────────────────────────────────── -->
+    <dimen name="circle_touch_target">48dp</dimen>
+    <dimen name="circle_touch_target_elder">56dp</dimen><!-- Elder Mode -->
+
+    <!-- ── Icon Sizes ────────────────────────────────────────────────────── -->
+    <dimen name="circle_icon_xs">16dp</dimen>    <!-- Inline icons, badges -->
+    <dimen name="circle_icon_sm">20dp</dimen>    <!-- List item icons -->
+    <dimen name="circle_icon_md">24dp</dimen>    <!-- Navigation, action bars -->
+    <dimen name="circle_icon_lg">32dp</dimen>    <!-- Empty states, feature icons -->
+    <dimen name="circle_icon_xl">48dp</dimen>    <!-- Onboarding, hero icons -->
+    <dimen name="circle_icon_elder">32dp</dimen> <!-- Elder Mode icon size -->
+
+    <!-- ── Corner Radii ───────────────────────────────────────────────────── -->
+    <dimen name="circle_radius_icon">2dp</dimen>       <!-- Icon corner radius -->
+    <dimen name="circle_radius_card">12dp</dimen>      <!-- Cards -->
+    <dimen name="circle_radius_qs_tile">16dp</dimen>   <!-- Quick Settings tiles -->
+    <dimen name="circle_radius_notif_card">16dp</dimen><!-- Notification cards -->
+    <dimen name="circle_radius_button">8dp</dimen>     <!-- Buttons -->
+
+    <!-- ── Card & Surface ─────────────────────────────────────────────────── -->
+    <dimen name="circle_card_padding">16dp</dimen>
+    <dimen name="circle_card_elevation_light">2dp</dimen>
+    <dimen name="circle_card_elevation_dark">0dp</dimen>
+
+    <!-- ── Quick Settings Tile ────────────────────────────────────────────── -->
+    <dimen name="circle_qs_tile_size">64dp</dimen>
+
+    <!-- ── Buttons ───────────────────────────────────────────────────────── -->
+    <dimen name="circle_button_height">48dp</dimen>
+    <dimen name="circle_button_height_elder">56dp</dimen>
+    <dimen name="circle_button_horizontal_padding">24dp</dimen>
+
+    <!-- ── Focus Indicator ───────────────────────────────────────────────── -->
+    <dimen name="circle_focus_stroke">2dp</dimen>
+
+    <!-- ── Mode Indicator (status bar) ───────────────────────────────────── -->
+    <dimen name="circle_mode_indicator_icon">20dp</dimen>
+    <dimen name="circle_mode_badge_dot">8dp</dimen><!-- Notification mode badge -->
+
+    <!-- ── Elevation (light mode shadows) ────────────────────────────────── -->
+    <dimen name="circle_elevation_0">0dp</dimen>
+    <dimen name="circle_elevation_1">1dp</dimen>
+    <dimen name="circle_elevation_2">2dp</dimen>
+    <dimen name="circle_elevation_3">4dp</dimen>
+    <dimen name="circle_elevation_4">8dp</dimen>
+    <dimen name="circle_elevation_5">16dp</dimen>
+
+    <!-- ── Icon Stroke ────────────────────────────────────────────────────── -->
+    <dimen name="circle_icon_stroke">2dp</dimen>
+
+</resources>

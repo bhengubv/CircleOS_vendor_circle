@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Circle OS Design System — Motion Duration Scale & Easing
+  Purposeful · Quick · Subtle · Optional (heavy animations opt-in)
+-->
+<resources>
+
+    <!-- ── Duration Scale (ms) ───────────────────────────────────────────── -->
+    <integer name="circle_motion_instant">0</integer>    <!-- State changes (no animation) -->
+    <integer name="circle_motion_quick">100</integer>    <!-- Micro-interactions, feedback -->
+    <integer name="circle_motion_standard">200</integer> <!-- Most transitions -->
+    <integer name="circle_motion_moderate">300</integer> <!-- Complex transitions, mode switch -->
+    <integer name="circle_motion_slow">400</integer>     <!-- Onboarding, emphasis -->
+
+    <!-- ── Mode Transition Phases (ms) ──────────────────────────────────── -->
+    <integer name="circle_mode_transition_fade_out_duration">150</integer>
+    <integer name="circle_mode_transition_fade_in_offset">150</integer>
+    <integer name="circle_mode_transition_total">300</integer>
+
+    <!-- ── Reduced Motion ────────────────────────────────────────────────── -->
+    <!-- When android.provider.Settings.Global.TRANSITION_ANIMATION_SCALE == 0,
+         all durations collapse to 0ms (instant switch).
+         CircleModeManager checks this before calling overridePendingTransition(). -->
+
+    <!-- ── Easing reference (use @android:interpolator/) ────────────────── -->
+    <!--
+        Standard   → @android:interpolator/fast_out_slow_in  (ease-in-out)
+        Decelerate → @android:interpolator/decelerate_quad   (ease-out, entering)
+        Accelerate → @android:interpolator/accelerate_quad   (ease-in, exiting)
+    -->
+
+</resources>

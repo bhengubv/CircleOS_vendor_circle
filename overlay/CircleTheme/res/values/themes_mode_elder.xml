@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Circle OS Design System — Elder Mode Theme Overrides
+  Larger text, bigger targets, enhanced contrast, extra spacing
+-->
+<resources>
+
+    <style name="Theme.Circle.Mode.Elder" parent="Theme.Circle">
+        <!-- Font scale applied via Configuration — 1.3x minimum (see PersonalityManagerService) -->
+
+        <!-- Enhanced contrast — use pure white/black text -->
+        <item name="android:textColorPrimary">#FFFFFF</item>
+        <item name="android:textColorSecondary">#CCCCCC</item>
+
+        <!-- Accent unchanged (Daily blue) — high contrast on dark bg -->
+        <item name="android:colorAccent">@color/circle_accent</item>
+    </style>
+
+    <!-- Elder Mode button — larger height -->
+    <style name="Widget.Circle.Button.Primary.Elder" parent="Widget.Circle.Button.Primary">
+        <item name="android:minHeight">@dimen/circle_button_height_elder</item>
+        <item name="android:textSize">@dimen/circle_type_label_large_size</item>
+    </style>
+
+    <style name="Widget.Circle.Button.Secondary.Elder" parent="Widget.Circle.Button.Secondary">
+        <item name="android:minHeight">@dimen/circle_button_height_elder</item>
+        <item name="android:textSize">@dimen/circle_type_label_large_size</item>
+    </style>
+
+    <!-- Elder Mode dimens (override in code via Configuration) -->
+    <!-- Font scale: 1.3x — set via ActivityManager.getService().updateConfiguration() -->
+    <!-- Touch targets: use circle_touch_target_elder (56dp) throughout -->
+    <!-- Icons: use circle_icon_elder (32dp) -->
+    <!-- Spacing multiplier: 1.25x — applied programmatically by Circle layout helper -->
+
+</resources>

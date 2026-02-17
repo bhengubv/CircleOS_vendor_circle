@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Circle OS Design System — Night Mode Theme Overrides
+  Warm brown accent · Maximum blue light filter · Dim overlay · Reduced contrast
+-->
+<resources>
+
+    <style name="Theme.Circle.Mode.Night" parent="Theme.Circle">
+        <!-- Warm brown accent — replaces Accent Blue -->
+        <item name="android:colorAccent">@color/circle_accent</item><!-- overridden by colors_mode_night.xml: #5D4037 -->
+
+        <!-- Reduced contrast — softer white for comfortable night reading -->
+        <item name="android:textColorPrimary">#E0D5CC</item>
+        <item name="android:textColorSecondary">#A08070</item>
+
+        <!-- Warmer background surface — slight warm tint on elevation -->
+        <item name="android:colorBackground">@color/circle_background_dark</item>
+        <item name="android:colorSurface">@color/circle_surface_elev_1</item>
+
+        <!-- Dim overlay applied at window level by CircleModeManager
+             color: circle_night_dim_overlay (#80000000 — 50% black)
+             Brightness: reduced to minimum + dim overlay via
+             WindowManager.LayoutParams.screenBrightness -->
+    </style>
+
+    <!-- Night mode notification card — extra dim -->
+    <style name="Widget.Circle.NotificationCard.Night" parent="Widget.Circle.NotificationCard">
+        <item name="android:background">@drawable/bg_notification_card</item>
+        <item name="android:alpha">0.85</item>
+    </style>
+
+</resources>

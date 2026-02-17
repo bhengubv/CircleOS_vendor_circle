@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Eighth note: vertical stem -->
+    <path
+        android:strokeColor="@color/circle_accent"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M9,18 L9,6" />
+    <!-- Flag / beam at top -->
+    <path
+        android:strokeColor="@color/circle_accent"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M9,6 Q16,7 15,13" />
+    <!-- Note head (filled ellipse approximated as small circle outline) -->
+    <path
+        android:strokeColor="@color/circle_accent"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@color/circle_accent"
+        android:pathData="M7,18 A2.5,1.8 -30 1,0 11,18 A2.5,1.8 -30 1,0 7,18 Z" />
+</vector>

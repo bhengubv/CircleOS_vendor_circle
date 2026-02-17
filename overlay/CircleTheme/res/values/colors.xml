@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Circle OS Design System — Core Colour Palette
+  Design System v1.0  |  The Geek (Pty) Ltd
+-->
+<resources>
+
+    <!-- ── Core Palette ──────────────────────────────────────────────────── -->
+    <color name="circle_primary_black">#0A0A0A</color>
+    <color name="circle_primary_white">#FFFFFF</color>
+    <color name="circle_accent">#2196F3</color><!-- Accent Blue — overridden per mode -->
+
+    <!-- ── Semantic Colours ───────────────────────────────────────────────── -->
+    <color name="circle_success">#4CAF50</color>
+    <color name="circle_warning">#FF9800</color>
+    <color name="circle_error">#F44336</color>
+    <color name="circle_info">#2196F3</color>
+
+    <!-- ── Neutral Greys ──────────────────────────────────────────────────── -->
+    <color name="circle_grey_100">#F5F5F5</color><!-- Backgrounds (light) -->
+    <color name="circle_grey_200">#EEEEEE</color><!-- Dividers (light) -->
+    <color name="circle_grey_300">#E0E0E0</color><!-- Borders (light) -->
+    <color name="circle_grey_700">#616161</color><!-- Secondary text -->
+    <color name="circle_grey_800">#424242</color><!-- Backgrounds (dark) -->
+    <color name="circle_grey_900">#212121</color><!-- Cards (dark) -->
+
+    <!-- ── Dark Mode Surface Elevation ────────────────────────────────────── -->
+    <!-- Elevation indicated by surface lightening, not shadows -->
+    <color name="circle_surface_elev_0">#0A0A0A</color>
+    <color name="circle_surface_elev_1">#1E1E1E</color>
+    <color name="circle_surface_elev_2">#232323</color>
+    <color name="circle_surface_elev_3">#282828</color>
+    <color name="circle_surface_elev_4">#2D2D2D</color>
+    <color name="circle_surface_elev_5">#323232</color>
+
+    <!-- ── Light Mode Semantic Surfaces ──────────────────────────────────── -->
+    <color name="circle_background_light">#FFFFFF</color>
+    <color name="circle_surface_light">#F5F5F5</color>
+    <color name="circle_card_light">#FFFFFF</color>
+    <color name="circle_text_primary_light">#0A0A0A</color>
+    <color name="circle_text_secondary_light">#616161</color>
+    <color name="circle_divider_light">#E0E0E0</color>
+
+    <!-- ── Dark Mode Semantic Surfaces ────────────────────────────────────── -->
+    <!-- Dark mode is the default for Circle OS -->
+    <color name="circle_background_dark">#0A0A0A</color>
+    <color name="circle_surface_dark">#212121</color>
+    <color name="circle_card_dark">#424242</color>
+    <color name="circle_text_primary_dark">#FFFFFF</color>
+    <color name="circle_text_secondary_dark">#9E9E9E</color>
+    <color name="circle_divider_dark">#424242</color>
+
+    <!-- ── Pressed / Disabled States ─────────────────────────────────────── -->
+    <color name="circle_accent_pressed">#CC2196F3</color><!-- 80% opacity -->
+    <color name="circle_accent_ripple">#1A2196F3</color><!-- 10% opacity -->
+    <color name="circle_disabled_bg">#E0E0E0</color>
+    <color name="circle_disabled_text">#616161</color>
+
+    <!-- ── Focus / Accessibility ──────────────────────────────────────────── -->
+    <color name="circle_focus_outline">@color/circle_accent</color>
+
+</resources>

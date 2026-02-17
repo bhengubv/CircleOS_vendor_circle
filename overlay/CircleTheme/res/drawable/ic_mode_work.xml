@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Briefcase body: rounded rectangle -->
+    <path
+        android:strokeColor="@color/circle_accent"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M3,9 L3,19 Q3,21 5,21 L19,21 Q21,21 21,19 L21,9 Q21,7 19,7 L5,7 Q3,7 3,9 Z" />
+    <!-- Handle arch on top -->
+    <path
+        android:strokeColor="@color/circle_accent"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M9,7 L9,5 Q9,3 12,3 Q15,3 15,5 L15,7" />
+    <!-- Center dividing line -->
+    <path
+        android:strokeColor="@color/circle_accent"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M3,13 L21,13" />
+</vector>

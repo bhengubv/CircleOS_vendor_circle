@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Circle OS Design System — Party Mode accent override -->
+<resources>
+    <color name="circle_accent">#E91E63</color>
+    <color name="circle_accent_pressed">#CCE91E63</color>
+    <color name="circle_accent_ripple">#1AE91E63</color>
+    <color name="circle_focus_outline">#E91E63</color>
+</resources>

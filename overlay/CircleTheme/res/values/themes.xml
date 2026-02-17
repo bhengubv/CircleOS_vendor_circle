@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Circle OS Design System — Theme Definitions
+  Dark mode is the default (OLED optimised, BRICS market).
+-->
+<resources>
+
+    <!-- ── Base Theme (Dark — Default) ───────────────────────────────────── -->
+    <style name="Theme.Circle" parent="@android:style/Theme.DeviceDefault">
+        <!-- Accent / brand colour (overridden per mode) -->
+        <item name="android:colorAccent">@color/circle_accent</item>
+
+        <!-- Backgrounds -->
+        <item name="android:windowBackground">@color/circle_background_dark</item>
+        <item name="android:colorBackground">@color/circle_background_dark</item>
+
+        <!-- Text -->
+        <item name="android:textColorPrimary">@color/circle_text_primary_dark</item>
+        <item name="android:textColorSecondary">@color/circle_text_secondary_dark</item>
+
+        <!-- Status bar / nav bar -->
+        <item name="android:statusBarColor">@color/circle_background_dark</item>
+        <item name="android:navigationBarColor">@color/circle_background_dark</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+
+        <!-- Surfaces -->
+        <item name="android:colorSurface">@color/circle_surface_dark</item>
+
+        <!-- Dividers -->
+        <item name="android:listDivider">@color/circle_divider_dark</item>
+
+        <!-- Ripple -->
+        <item name="android:colorControlHighlight">@color/circle_accent_ripple</item>
+
+        <!-- Corner radius -->
+        <item name="android:dialogCornerRadius">@dimen/circle_radius_card</item>
+    </style>
+
+    <!-- ── Base Theme (Light — Explicit) ─────────────────────────────────── -->
+    <style name="Theme.Circle.Light" parent="@android:style/Theme.DeviceDefault.Light">
+        <item name="android:colorAccent">@color/circle_accent</item>
+        <item name="android:windowBackground">@color/circle_background_light</item>
+        <item name="android:colorBackground">@color/circle_background_light</item>
+        <item name="android:textColorPrimary">@color/circle_text_primary_light</item>
+        <item name="android:textColorSecondary">@color/circle_text_secondary_light</item>
+        <item name="android:statusBarColor">@color/circle_background_light</item>
+        <item name="android:navigationBarColor">@color/circle_background_light</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:colorSurface">@color/circle_surface_light</item>
+        <item name="android:listDivider">@color/circle_divider_light</item>
+        <item name="android:colorControlHighlight">@color/circle_accent_ripple</item>
+        <item name="android:dialogCornerRadius">@dimen/circle_radius_card</item>
+    </style>
+
+    <!-- ── App Bar ────────────────────────────────────────────────────────── -->
+    <style name="Theme.Circle.AppBar" parent="Theme.Circle">
+        <item name="android:elevation">@dimen/circle_elevation_2</item>
+        <item name="android:background">@color/circle_surface_elev_2</item>
+    </style>
+
+    <!-- ── No Action Bar (full-screen apps) ──────────────────────────────── -->
+    <style name="Theme.Circle.NoActionBar" parent="Theme.Circle">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <!-- ── Dialog ─────────────────────────────────────────────────────────── -->
+    <style name="Theme.Circle.Dialog" parent="@android:style/Theme.DeviceDefault.Dialog">
+        <item name="android:colorAccent">@color/circle_accent</item>
+        <item name="android:colorBackground">@color/circle_surface_elev_3</item>
+        <item name="android:textColorPrimary">@color/circle_text_primary_dark</item>
+        <item name="android:textColorSecondary">@color/circle_text_secondary_dark</item>
+        <item name="android:dialogCornerRadius">@dimen/circle_radius_card</item>
+    </style>
+
+    <!-- ── Bottom Sheet ───────────────────────────────────────────────────── -->
+    <style name="Theme.Circle.BottomSheet" parent="Theme.Circle">
+        <item name="android:background">@color/circle_surface_elev_1</item>
+        <item name="android:elevation">@dimen/circle_elevation_5</item>
+    </style>
+
+    <!-- ── Mode-specific themes (accent override only — see colors_mode_*.xml) -->
+    <style name="Theme.Circle.Mode.Daily"     parent="Theme.Circle" />
+    <style name="Theme.Circle.Mode.Work"      parent="Theme.Circle" />
+    <style name="Theme.Circle.Mode.Secure"    parent="Theme.Circle" />
+    <style name="Theme.Circle.Mode.Sport"     parent="Theme.Circle" />
+    <style name="Theme.Circle.Mode.Party"     parent="Theme.Circle" />
+    <style name="Theme.Circle.Mode.Night"     parent="Theme.Circle" />
+    <style name="Theme.Circle.Mode.Student"   parent="Theme.Circle" />
+    <style name="Theme.Circle.Mode.Creator"   parent="Theme.Circle" />
+    <style name="Theme.Circle.Mode.Elder"     parent="Theme.Circle" />
+    <style name="Theme.Circle.Mode.Minimal"   parent="Theme.Circle" />
+    <style name="Theme.Circle.Mode.Offline"   parent="Theme.Circle" />
+    <style name="Theme.Circle.Mode.Driver"    parent="Theme.Circle" />
+    <style name="Theme.Circle.Mode.Parent"    parent="Theme.Circle" />
+    <style name="Theme.Circle.Mode.Gaming"    parent="Theme.Circle" />
+    <style name="Theme.Circle.Mode.Developer" parent="Theme.Circle" />
+    <style name="Theme.Circle.Mode.Trader"    parent="Theme.Circle" />
+    <style name="Theme.Circle.Mode.Fitness"   parent="Theme.Circle" />
+
+</resources>

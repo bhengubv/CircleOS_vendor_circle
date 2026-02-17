@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Circle OS Design System — Creator Mode accent override -->
+<resources>
+    <color name="circle_accent">#9C27B0</color>
+    <color name="circle_accent_pressed">#CC9C27B0</color>
+    <color name="circle_accent_ripple">#1A9C27B0</color>
+    <color name="circle_focus_outline">#9C27B0</color>
+</resources>

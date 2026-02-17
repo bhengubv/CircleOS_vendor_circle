@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Circle OS Design System — Mode Transition: fade in new mode
+  Phase 2 of 3: 150ms → 300ms  (new mode elements settle in)
+  Duration scale: Moderate (300ms total)
+-->
+<alpha xmlns:android="http://schemas.android.com/apk/res/android"
+    android:interpolator="@android:interpolator/decelerate_quad"
+    android:fromAlpha="0.0"
+    android:toAlpha="1.0"
+    android:startOffset="150"
+    android:duration="150"
+    android:fillAfter="true" />

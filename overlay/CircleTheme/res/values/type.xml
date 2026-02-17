@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Circle OS Design System — Typography Scale
+  Headlines: Comfortaa  |  Body: Arial / Roboto  |  Mono: Roboto Mono
+-->
+<resources>
+
+    <!-- ── Font Families ─────────────────────────────────────────────────── -->
+    <string name="circle_font_headline" translatable="false">comfortaa</string>
+    <string name="circle_font_body"     translatable="false">arial</string>
+    <string name="circle_font_mono"     translatable="false">monospace</string>
+
+    <!-- ── Type Scale — sizes (sp) ───────────────────────────────────────── -->
+
+    <!-- Display -->
+    <dimen name="circle_type_display_large_size">57sp</dimen>
+    <dimen name="circle_type_display_large_line">64sp</dimen>
+
+    <dimen name="circle_type_display_medium_size">45sp</dimen>
+    <dimen name="circle_type_display_medium_line">52sp</dimen>
+
+    <dimen name="circle_type_display_small_size">36sp</dimen>
+    <dimen name="circle_type_display_small_line">44sp</dimen>
+
+    <!-- Headline -->
+    <dimen name="circle_type_headline_large_size">32sp</dimen>
+    <dimen name="circle_type_headline_large_line">40sp</dimen>
+
+    <dimen name="circle_type_headline_medium_size">28sp</dimen>
+    <dimen name="circle_type_headline_medium_line">36sp</dimen>
+
+    <dimen name="circle_type_headline_small_size">24sp</dimen>
+    <dimen name="circle_type_headline_small_line">32sp</dimen>
+
+    <!-- Title -->
+    <dimen name="circle_type_title_large_size">22sp</dimen>
+    <dimen name="circle_type_title_large_line">28sp</dimen>
+
+    <dimen name="circle_type_title_medium_size">16sp</dimen>
+    <dimen name="circle_type_title_medium_line">24sp</dimen>
+
+    <dimen name="circle_type_title_small_size">14sp</dimen>
+    <dimen name="circle_type_title_small_line">20sp</dimen>
+
+    <!-- Body -->
+    <dimen name="circle_type_body_large_size">16sp</dimen>
+    <dimen name="circle_type_body_large_line">24sp</dimen>
+
+    <dimen name="circle_type_body_medium_size">14sp</dimen>
+    <dimen name="circle_type_body_medium_line">20sp</dimen>
+
+    <dimen name="circle_type_body_small_size">12sp</dimen>
+    <dimen name="circle_type_body_small_line">16sp</dimen>
+
+    <!-- Label -->
+    <dimen name="circle_type_label_large_size">14sp</dimen>
+    <dimen name="circle_type_label_large_line">20sp</dimen>
+
+    <dimen name="circle_type_label_medium_size">12sp</dimen>
+    <dimen name="circle_type_label_medium_line">16sp</dimen>
+
+    <dimen name="circle_type_label_small_size">11sp</dimen>
+    <dimen name="circle_type_label_small_line">16sp</dimen>
+
+    <!-- ── Font Scale Multipliers ─────────────────────────────────────────── -->
+    <!-- Applied programmatically via Configuration.fontScale -->
+    <!-- Small: 0.85x  |  Default: 1.0x  |  Large: 1.15x  |  XL: 1.30x -->
+    <integer name="circle_font_scale_small">85</integer>
+    <integer name="circle_font_scale_default">100</integer>
+    <integer name="circle_font_scale_large">115</integer>
+    <integer name="circle_font_scale_xlarge">130</integer>
+
+    <!-- ── Text Styles ────────────────────────────────────────────────────── -->
+
+    <style name="CircleTextAppearance.Display.Large">
+        <item name="android:textSize">@dimen/circle_type_display_large_size</item>
+        <item name="android:lineHeight">@dimen/circle_type_display_large_line</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:fontFamily">@string/circle_font_headline</item>
+    </style>
+
+    <style name="CircleTextAppearance.Display.Medium">
+        <item name="android:textSize">@dimen/circle_type_display_medium_size</item>
+        <item name="android:lineHeight">@dimen/circle_type_display_medium_line</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:fontFamily">@string/circle_font_headline</item>
+    </style>
+
+    <style name="CircleTextAppearance.Display.Small">
+        <item name="android:textSize">@dimen/circle_type_display_small_size</item>
+        <item name="android:lineHeight">@dimen/circle_type_display_small_line</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:fontFamily">@string/circle_font_headline</item>
+    </style>
+
+    <style name="CircleTextAppearance.Headline.Large">
+        <item name="android:textSize">@dimen/circle_type_headline_large_size</item>
+        <item name="android:lineHeight">@dimen/circle_type_headline_large_line</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:fontFamily">@string/circle_font_headline</item>
+    </style>
+
+    <style name="CircleTextAppearance.Headline.Medium">
+        <item name="android:textSize">@dimen/circle_type_headline_medium_size</item>
+        <item name="android:lineHeight">@dimen/circle_type_headline_medium_line</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:fontFamily">@string/circle_font_headline</item>
+    </style>
+
+    <style name="CircleTextAppearance.Headline.Small">
+        <item name="android:textSize">@dimen/circle_type_headline_small_size</item>
+        <item name="android:lineHeight">@dimen/circle_type_headline_small_line</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:fontFamily">@string/circle_font_headline</item>
+    </style>
+
+    <style name="CircleTextAppearance.Title.Large">
+        <item name="android:textSize">@dimen/circle_type_title_large_size</item>
+        <item name="android:lineHeight">@dimen/circle_type_title_large_line</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:fontFamily">@string/circle_font_body</item>
+    </style>
+
+    <style name="CircleTextAppearance.Title.Medium">
+        <item name="android:textSize">@dimen/circle_type_title_medium_size</item>
+        <item name="android:lineHeight">@dimen/circle_type_title_medium_line</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:fontFamily">@string/circle_font_body</item>
+    </style>
+
+    <style name="CircleTextAppearance.Title.Small">
+        <item name="android:textSize">@dimen/circle_type_title_small_size</item>
+        <item name="android:lineHeight">@dimen/circle_type_title_small_line</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:fontFamily">@string/circle_font_body</item>
+    </style>
+
+    <style name="CircleTextAppearance.Body.Large">
+        <item name="android:textSize">@dimen/circle_type_body_large_size</item>
+        <item name="android:lineHeight">@dimen/circle_type_body_large_line</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:fontFamily">@string/circle_font_body</item>
+    </style>
+
+    <style name="CircleTextAppearance.Body.Medium">
+        <item name="android:textSize">@dimen/circle_type_body_medium_size</item>
+        <item name="android:lineHeight">@dimen/circle_type_body_medium_line</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:fontFamily">@string/circle_font_body</item>
+    </style>
+
+    <style name="CircleTextAppearance.Body.Small">
+        <item name="android:textSize">@dimen/circle_type_body_small_size</item>
+        <item name="android:lineHeight">@dimen/circle_type_body_small_line</item>
+        <item name="android:textFontWeight">400</item>
+        <item name="android:fontFamily">@string/circle_font_body</item>
+    </style>
+
+    <style name="CircleTextAppearance.Label.Large">
+        <item name="android:textSize">@dimen/circle_type_label_large_size</item>
+        <item name="android:lineHeight">@dimen/circle_type_label_large_line</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:fontFamily">@string/circle_font_body</item>
+    </style>
+
+    <style name="CircleTextAppearance.Label.Medium">
+        <item name="android:textSize">@dimen/circle_type_label_medium_size</item>
+        <item name="android:lineHeight">@dimen/circle_type_label_medium_line</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:fontFamily">@string/circle_font_body</item>
+    </style>
+
+    <style name="CircleTextAppearance.Label.Small">
+        <item name="android:textSize">@dimen/circle_type_label_small_size</item>
+        <item name="android:lineHeight">@dimen/circle_type_label_small_line</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:fontFamily">@string/circle_font_body</item>
+    </style>
+
+</resources>

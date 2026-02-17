@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Circle OS Design System — Mode Transition: full crossfade set
+  Total duration: 300ms (Moderate scale)
+
+  Usage in Activity:
+    overridePendingTransition(R.anim.mode_transition, R.anim.mode_transition_fade_out);
+
+  Respects system reduced-motion: caller must check
+    Settings.Global.TRANSITION_ANIMATION_SCALE == 0
+  and skip animation entirely if reduced motion is active.
+-->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shareInterpolator="false">
+
+    <!-- Phase 1 — current mode fades (0→150ms) -->
+    <alpha
+        android:interpolator="@android:interpolator/accelerate_quad"
+        android:fromAlpha="1.0"
+        android:toAlpha="0.0"
+        android:duration="150"
+        android:fillAfter="false" />
+
+    <!-- Phase 2 — new mode theme crossfades in (150→300ms) -->
+    <alpha
+        android:interpolator="@android:interpolator/decelerate_quad"
+        android:fromAlpha="0.0"
+        android:toAlpha="1.0"
+        android:startOffset="150"
+        android:duration="150"
+        android:fillAfter="true" />
+
+    <!-- Subtle upward settle on new content -->
+    <translate
+        android:interpolator="@android:interpolator/decelerate_quint"
+        android:fromYDelta="8dp"
+        android:toYDelta="0"
+        android:startOffset="150"
+        android:duration="150"
+        android:fillAfter="true" />
+
+</set>

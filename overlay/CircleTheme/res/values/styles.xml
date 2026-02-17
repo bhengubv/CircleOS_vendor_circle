@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Circle OS Design System — Component Styles
+  Buttons, Cards, Quick Settings Tiles, Notification Cards
+-->
+<resources>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         BUTTONS
+         Accent colour is inherited from the active mode overlay.
+    ══════════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Primary Button — filled accent background -->
+    <style name="Widget.Circle.Button.Primary" parent="@android:style/Widget.Material.Button">
+        <item name="android:background">@drawable/bg_btn_primary</item>
+        <item name="android:textAppearance">@style/CircleTextAppearance.Label.Large</item>
+        <item name="android:textColor">@color/circle_primary_white</item>
+        <item name="android:minHeight">@dimen/circle_button_height</item>
+        <item name="android:paddingStart">@dimen/circle_button_horizontal_padding</item>
+        <item name="android:paddingEnd">@dimen/circle_button_horizontal_padding</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <!-- Secondary Button — transparent with accent border -->
+    <style name="Widget.Circle.Button.Secondary" parent="@android:style/Widget.Material.Button.Borderless">
+        <item name="android:background">@drawable/bg_btn_secondary</item>
+        <item name="android:textAppearance">@style/CircleTextAppearance.Label.Large</item>
+        <item name="android:textColor">@color/circle_accent</item>
+        <item name="android:minHeight">@dimen/circle_button_height</item>
+        <item name="android:paddingStart">@dimen/circle_button_horizontal_padding</item>
+        <item name="android:paddingEnd">@dimen/circle_button_horizontal_padding</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <!-- Text Button — transparent, accent text -->
+    <style name="Widget.Circle.Button.Text" parent="@android:style/Widget.Material.Button.Borderless">
+        <item name="android:background">@drawable/bg_btn_text</item>
+        <item name="android:textAppearance">@style/CircleTextAppearance.Label.Large</item>
+        <item name="android:textColor">@color/circle_accent</item>
+        <item name="android:minHeight">@dimen/circle_button_height</item>
+        <item name="android:paddingStart">@dimen/circle_space_md</item>
+        <item name="android:paddingEnd">@dimen/circle_space_md</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <!-- Elder Mode button variants — larger height -->
+    <style name="Widget.Circle.Button.Primary.Elder" parent="Widget.Circle.Button.Primary">
+        <item name="android:minHeight">@dimen/circle_button_height_elder</item>
+    </style>
+    <style name="Widget.Circle.Button.Secondary.Elder" parent="Widget.Circle.Button.Secondary">
+        <item name="android:minHeight">@dimen/circle_button_height_elder</item>
+    </style>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         CARDS
+    ══════════════════════════════════════════════════════════════════════════ -->
+
+    <style name="Widget.Circle.Card" parent="@android:style/Widget.Material.CardView">
+        <item name="android:background">@drawable/bg_card</item>
+        <item name="android:padding">@dimen/circle_card_padding</item>
+        <item name="android:elevation">@dimen/circle_card_elevation_dark</item><!-- 0dp dark -->
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <!-- Raised card — for light mode use -->
+    <style name="Widget.Circle.Card.Raised" parent="Widget.Circle.Card">
+        <item name="android:elevation">@dimen/circle_card_elevation_light</item>
+    </style>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         QUICK SETTINGS TILES
+    ══════════════════════════════════════════════════════════════════════════ -->
+
+    <style name="Widget.Circle.QSTile" parent="@android:style/Widget.Material">
+        <item name="android:background">@drawable/bg_qs_tile_inactive</item>
+        <item name="android:minWidth">@dimen/circle_qs_tile_size</item>
+        <item name="android:minHeight">@dimen/circle_qs_tile_size</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">@dimen/circle_space_md</item>
+    </style>
+
+    <style name="Widget.Circle.QSTile.Active" parent="Widget.Circle.QSTile">
+        <item name="android:background">@drawable/bg_qs_tile_active</item>
+    </style>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         NOTIFICATION CARDS
+    ══════════════════════════════════════════════════════════════════════════ -->
+
+    <style name="Widget.Circle.NotificationCard" parent="Widget.Circle.Card">
+        <item name="android:background">@drawable/bg_notification_card</item>
+    </style>
+
+    <!-- Mode badge dot on notification — 8dp circle in mode accent colour -->
+    <style name="Widget.Circle.NotificationCard.ModeBadge">
+        <item name="android:background">@drawable/bg_mode_badge</item>
+        <item name="android:minWidth">@dimen/circle_mode_badge_dot</item>
+        <item name="android:minHeight">@dimen/circle_mode_badge_dot</item>
+    </style>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         MODE INDICATOR (status bar / persistent top bar)
+    ══════════════════════════════════════════════════════════════════════════ -->
+
+    <style name="Widget.Circle.ModeIndicator">
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">@dimen/circle_space_xs</item>
+        <item name="android:paddingEnd">@dimen/circle_space_xs</item>
+    </style>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         ACCESSIBILITY — Focus indicator
+    ══════════════════════════════════════════════════════════════════════════ -->
+
+    <style name="Widget.Circle.FocusIndicator">
+        <item name="android:background">@drawable/bg_focus_indicator</item>
+    </style>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         DIVIDER
+    ══════════════════════════════════════════════════════════════════════════ -->
+
+    <style name="Widget.Circle.Divider">
+        <item name="android:background">@color/circle_divider_dark</item>
+        <item name="android:minHeight">1dp</item>
+    </style>
+
+</resources>

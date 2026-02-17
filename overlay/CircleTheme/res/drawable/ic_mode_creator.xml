@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Paintbrush diagonal handle -->
+    <path
+        android:strokeColor="@color/circle_accent"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M4,20 L16,8" />
+    <!-- Brush ferrule (band where bristles meet handle) -->
+    <path
+        android:strokeColor="@color/circle_accent"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M14,6 L18,10" />
+    <!-- Brush tip / angled bristle head -->
+    <path
+        android:strokeColor="@color/circle_accent"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M18,10 L20,8 L22,6 L20,4 L18,6 L16,8 Z" />
+    <!-- Handle end with rounded cap (small dot at base) -->
+    <path
+        android:strokeColor="@color/circle_accent"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M4,20 Q3,21 4,22 Q5,23 6,22 L6,21" />
+</vector>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Circle OS Design System — Secure Mode notification card background
+  Adds a 1dp dark-red accent border to signal secured content
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/circle_surface_elev_1" />
+    <stroke
+        android:width="1dp"
+        android:color="@color/circle_accent" /><!-- #B71C1C in Secure Mode -->
+    <corners android:radius="@dimen/circle_radius_notif_card" />
+</shape>

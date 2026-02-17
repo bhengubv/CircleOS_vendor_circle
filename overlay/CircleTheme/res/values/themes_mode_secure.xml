@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Circle OS Design System — Secure Mode Theme Overrides
+  Dark red accent · Security indicator · Hidden notification content
+-->
+<resources>
+
+    <style name="Theme.Circle.Mode.Secure" parent="Theme.Circle">
+        <!-- Dark red accent — overridden by colors_mode_secure.xml: #B71C1C -->
+        <item name="android:colorAccent">@color/circle_accent</item>
+
+        <!-- Status bar shows security indicator (enforced by CircleModeManager) -->
+        <item name="android:statusBarColor">@color/circle_background_dark</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- All text colours unchanged — only accent shifts to red -->
+        <item name="android:textColorPrimary">@color/circle_text_primary_dark</item>
+        <item name="android:textColorSecondary">@color/circle_text_secondary_dark</color>
+    </style>
+
+    <!-- Notification card in Secure Mode — hides body text, shows only app name -->
+    <style name="Widget.Circle.NotificationCard.Secure" parent="Widget.Circle.NotificationCard">
+        <!-- Content masking is enforced by CircleNotificationPrivacyService;
+             the visual style uses the accent colour border to signal secure state -->
+        <item name="android:background">@drawable/bg_notification_card_secure</item>
+    </style>
+
+    <!-- Lock icon overlay — visible throughout Secure Mode UI -->
+    <!-- Drawn by CircleSecureOverlayService as a WindowManager overlay layer -->
+
+</resources>
