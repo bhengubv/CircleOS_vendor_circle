@@ -1,0 +1,27 @@
+# SELinux policy for Circle OS binder services
+#
+# Both CirclePrivacyManagerService and CirclePermissionService run inside
+# system_server. This file declares their service types and grants the
+# minimum permissions needed for binder IPC and data access.
+
+# Service type declarations
+type circle_privacy_service,    service_manager_type;
+type circle_permission_service, service_manager_type;
+
+# System property type
+type circle_prop, property_type;
+
+# Allow system_server to register Circle services with servicemanager
+allow system_server circle_privacy_service:service_manager    { add find };
+allow system_server circle_permission_service:service_manager { add find };
+
+# Allow platform apps (CircleSettings) to find and call Circle services
+allow platform_app circle_privacy_service:service_manager    find;
+allow platform_app circle_permission_service:service_manager find;
+
+# Allow system_server to set ro.circle.* properties
+allow system_server circle_prop:property_service set;
+
+# neverallow: only system_server may register Circle services
+neverallow { domain -system_server } circle_privacy_service:service_manager add;
+neverallow { domain -system_server } circle_permission_service:service_manager add;

@@ -1,0 +1,5 @@
+# Circle OS service contexts
+# Maps binder service names to SELinux labels.
+
+circle.privacy    u:object_r:circle_privacy_service:s0
+circle.permission u:object_r:circle_permission_service:s0
