@@ -11,4 +11,10 @@
     <string name="bundle_download_btn">Download</string>
     <string name="bundle_downloading_title">Downloading…</string>
     <string name="bundle_download_failed">Download failed. Please try again.</string>
+
+    <!-- Phase 5: Managed mode PIN unlock -->
+    <string name="pin_required_title">PIN Required</string>
+    <string name="pin_required_message">The current mode is PIN-locked. Enter the PIN to switch away.</string>
+    <string name="pin_hint">PIN</string>
+    <string name="pin_confirm_btn">Unlock &amp; Switch</string>
 </resources>

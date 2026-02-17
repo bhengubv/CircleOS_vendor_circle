@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -100,17 +101,53 @@ public class ModeChooserActivity extends Activity {
     private void activateMode(String modeId) {
         if (mService == null) return;
         try {
-            SwitchResult result = mService.activateMode(modeId);
-            if (result.requiresBundle) {
-                showBundleDownloadDialog(modeId, result.pendingBundleId);
+            // Phase 5: if the current mode is PIN-locked, collect PIN before switching
+            if (mService.isManagedModeActive()) {
+                showPinEntryDialog(modeId);
                 return;
             }
-            if (!result.success) {
-                Toast.makeText(this, getString(R.string.switch_failed),
-                        Toast.LENGTH_SHORT).show();
-            }
+            SwitchResult result = mService.activateMode(modeId);
+            handleSwitchResult(modeId, result);
         } catch (RemoteException e) {
             Log.e(TAG, "activateMode failed", e);
+            finish();
+        }
+    }
+
+    /** Phase 5: show numeric-password dialog to unlock a PIN-locked mode. */
+    private void showPinEntryDialog(String modeId) {
+        EditText et = new EditText(this);
+        et.setInputType(android.text.InputType.TYPE_CLASS_NUMBER
+                | android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        et.setHint(getString(R.string.pin_hint));
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.pin_required_title)
+                .setMessage(R.string.pin_required_message)
+                .setView(et)
+                .setPositiveButton(R.string.pin_confirm_btn, (d, w) -> {
+                    String pin = et.getText().toString();
+                    try {
+                        SwitchResult result = mService.activateManagedMode(modeId, pin);
+                        handleSwitchResult(modeId, result);
+                    } catch (RemoteException e) {
+                        Log.e(TAG, "activateManagedMode failed", e);
+                        finish();
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, (d, w) -> finish())
+                .show();
+    }
+
+    private void handleSwitchResult(String modeId, SwitchResult result) {
+        if (result.requiresBundle) {
+            showBundleDownloadDialog(modeId, result.pendingBundleId);
+            return;
+        }
+        if (!result.success) {
+            Toast.makeText(this, result.errorMessage != null
+                    ? result.errorMessage : getString(R.string.switch_failed),
+                    Toast.LENGTH_SHORT).show();
         }
         finish();
     }
