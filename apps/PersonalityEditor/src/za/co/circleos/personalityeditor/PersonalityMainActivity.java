@@ -7,6 +7,7 @@ package za.co.circleos.personalityeditor;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
@@ -25,7 +26,9 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import za.co.circleos.personality.IBundleCallback;
 import za.co.circleos.personality.ICirclePersonalityManager;
+import za.co.circleos.personality.ModeBundle;
 import za.co.circleos.personality.PersonalityMode;
 import za.co.circleos.personality.SwitchResult;
 
@@ -90,7 +93,12 @@ public class PersonalityMainActivity extends Activity {
                 mModes.addAll(all);
                 for (PersonalityMode m : mModes) {
                     String label = m.name;
-                    if (m.id.equals(activeId)) label += " ✓";
+                    if (m.id.equals(activeId)) {
+                        label += " ✓";
+                    } else if ((m.tier == 2 || m.tier == 3)
+                            && !mService.isBundleDownloaded(m.id)) {
+                        label += " ↓";
+                    }
                     if (!m.isCustom) label += " [built-in]";
                     mAdapter.add(label);
                 }
@@ -101,10 +109,14 @@ public class PersonalityMainActivity extends Activity {
     }
 
     private void showModeMenu(PersonalityMode mode) {
+        boolean needsBundle = (mode.tier == 2 || mode.tier == 3)
+                && !isBundleDownloaded(mode.id);
+
         List<String> options = new ArrayList<>();
-        options.add("Activate");
+        options.add(getString(R.string.action_activate));
+        if (needsBundle) options.add(getString(R.string.action_download_bundle));
         options.add(getString(R.string.action_clone));
-        options.add(getString(R.string.action_manage_pin));  // Phase 5
+        options.add(getString(R.string.action_manage_pin));
         if (mode.isCustom) {
             options.add(getString(R.string.action_edit));
             options.add(getString(R.string.action_delete));
@@ -114,13 +126,22 @@ public class PersonalityMainActivity extends Activity {
                 .setTitle(mode.name)
                 .setItems(options.toArray(new String[0]), (dialog, which) -> {
                     String opt = options.get(which);
-                    if (opt.equals("Activate")) activate(mode);
-                    else if (opt.equals(getString(R.string.action_clone))) openEditor(mode.id, true);
+                    if (opt.equals(getString(R.string.action_activate)))        activate(mode);
+                    else if (opt.equals(getString(R.string.action_download_bundle))) showBundleDownloadDialog(mode.id);
+                    else if (opt.equals(getString(R.string.action_clone)))      openEditor(mode.id, true);
                     else if (opt.equals(getString(R.string.action_manage_pin))) openManagedMode(mode);
-                    else if (opt.equals(getString(R.string.action_edit)))  openEditor(mode.id, false);
-                    else if (opt.equals(getString(R.string.action_delete))) confirmDelete(mode);
+                    else if (opt.equals(getString(R.string.action_edit)))       openEditor(mode.id, false);
+                    else if (opt.equals(getString(R.string.action_delete)))     confirmDelete(mode);
                 })
                 .show();
+    }
+
+    private boolean isBundleDownloaded(String modeId) {
+        try {
+            return mService != null && mService.isBundleDownloaded(modeId);
+        } catch (RemoteException e) {
+            return false;
+        }
     }
 
     private void openManagedMode(PersonalityMode mode) {
@@ -134,11 +155,91 @@ public class PersonalityMainActivity extends Activity {
         if (mService == null) return;
         try {
             SwitchResult r = mService.activateMode(mode.id);
-            Toast.makeText(this, r.success ? "Activated: " + mode.name : r.errorMessage,
+            if (r.requiresBundle) {
+                showBundleDownloadDialog(mode.id);
+                return;
+            }
+            Toast.makeText(this, r.success
+                    ? getString(R.string.activated, mode.name) : r.errorMessage,
                     Toast.LENGTH_SHORT).show();
             loadModes();
         } catch (RemoteException e) {
             Log.e(TAG, "activate failed", e);
+        }
+    }
+
+    private void showBundleDownloadDialog(String modeId) {
+        ModeBundle bundle = null;
+        try {
+            if (mService != null) bundle = mService.getBundleInfo(modeId);
+        } catch (RemoteException e) {
+            Log.w(TAG, "getBundleInfo failed", e);
+        }
+
+        String name     = bundle != null ? bundle.displayName : modeId;
+        long   sizeMb   = bundle != null ? bundle.sizeBytes / (1024 * 1024) : 0;
+        String sizeText = sizeMb > 0 ? " (" + sizeMb + " MB)" : "";
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.bundle_download_title)
+                .setMessage(getString(R.string.bundle_download_message, name, sizeText))
+                .setPositiveButton(R.string.bundle_download_btn, (d, w) ->
+                        startBundleDownload(modeId))
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void startBundleDownload(String modeId) {
+        ProgressDialog progress = new ProgressDialog(this);
+        progress.setTitle(R.string.bundle_downloading_title);
+        progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progress.setMax(100);
+        progress.setCancelable(true);
+        progress.setButton(ProgressDialog.BUTTON_NEGATIVE,
+                getString(android.R.string.cancel), (d, w) -> {
+                    try {
+                        if (mService != null) mService.cancelBundleDownload(modeId);
+                    } catch (RemoteException e) {
+                        Log.w(TAG, "cancelBundleDownload failed", e);
+                    }
+                });
+        progress.setOnCancelListener(d -> {
+            try {
+                if (mService != null) mService.cancelBundleDownload(modeId);
+            } catch (RemoteException e) {
+                Log.w(TAG, "cancelBundleDownload failed", e);
+            }
+        });
+        progress.show();
+
+        IBundleCallback callback = new IBundleCallback.Stub() {
+            @Override
+            public void onProgress(String id, int pct) {
+                runOnUiThread(() -> progress.setProgress(pct));
+            }
+
+            @Override
+            public void onComplete(String id, boolean success, String errorMessage) {
+                runOnUiThread(() -> {
+                    progress.dismiss();
+                    if (success) {
+                        Toast.makeText(PersonalityMainActivity.this,
+                                R.string.bundle_downloaded, Toast.LENGTH_SHORT).show();
+                        loadModes();
+                    } else {
+                        Toast.makeText(PersonalityMainActivity.this,
+                                R.string.bundle_download_failed, Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        };
+
+        try {
+            if (mService != null) mService.downloadBundle(modeId, callback);
+        } catch (RemoteException e) {
+            Log.e(TAG, "downloadBundle failed", e);
+            progress.dismiss();
+            Toast.makeText(this, R.string.bundle_download_failed, Toast.LENGTH_SHORT).show();
         }
     }
 

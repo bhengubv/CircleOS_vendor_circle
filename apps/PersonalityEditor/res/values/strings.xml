@@ -24,9 +24,20 @@
     <string name="menu_import">Import modes</string>
     <string name="menu_export">Export modes</string>
     <string name="action_new_mode">New mode</string>
+    <string name="action_activate">Activate</string>
     <string name="action_edit">Edit</string>
     <string name="action_clone">Clone</string>
     <string name="action_delete">Delete</string>
+    <string name="action_download_bundle">Download Bundle…</string>
+    <string name="activated">Activated: %1$s</string>
+
+    <!-- Bundle download (Tier-2 / Tier-3 modes) -->
+    <string name="bundle_download_title">Download Required</string>
+    <string name="bundle_download_message">%1$s%2$s needs to be downloaded to activate this mode.</string>
+    <string name="bundle_download_btn">Download</string>
+    <string name="bundle_downloading_title">Downloading…</string>
+    <string name="bundle_downloaded">Bundle downloaded — you can now activate the mode.</string>
+    <string name="bundle_download_failed">Download failed. Please try again.</string>
 
     <string name="tier1_badge">Built-in</string>
     <string name="custom_badge">Custom</string>
