@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Traffic Lobby</string>
+    <string name="notif_channel_name">Traffic Lobby</string>
+    <string name="notif_channel_desc">Monitors network connections for threats</string>
+    <string name="notif_title">Traffic Lobby Active</string>
+    <string name="notif_text">Monitoring network connections</string>
+    <string name="alert_spyware_title">Spyware Behavior Detected</string>
+    <string name="alert_spyware_kill">Kill &amp; Quarantine</string>
+    <string name="alert_spyware_details">View Details</string>
+    <string name="mode_paranoid">Paranoid</string>
+    <string name="mode_balanced">Balanced</string>
+    <string name="mode_relaxed">Relaxed</string>
+</resources>
