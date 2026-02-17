@@ -6,6 +6,8 @@
 package za.co.circleos.personalitytile;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -20,7 +22,9 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import za.co.circleos.personality.IBundleCallback;
 import za.co.circleos.personality.ICirclePersonalityManager;
+import za.co.circleos.personality.ModeBundle;
 import za.co.circleos.personality.PersonalityMode;
 import za.co.circleos.personality.SwitchResult;
 
@@ -94,6 +98,10 @@ public class ModeChooserActivity extends Activity {
         if (mService == null) return;
         try {
             SwitchResult result = mService.activateMode(modeId);
+            if (result.requiresBundle) {
+                showBundleDownloadDialog(modeId, result.pendingBundleId);
+                return;
+            }
             if (!result.success) {
                 Toast.makeText(this, getString(R.string.switch_failed),
                         Toast.LENGTH_SHORT).show();
@@ -102,5 +110,69 @@ public class ModeChooserActivity extends Activity {
             Log.e(TAG, "activateMode failed", e);
         }
         finish();
+    }
+
+    private void showBundleDownloadDialog(String modeId, String bundleId) {
+        ModeBundle bundle = null;
+        try {
+            if (mService != null) bundle = mService.getBundleInfo(modeId);
+        } catch (RemoteException e) {
+            Log.w(TAG, "getBundleInfo failed", e);
+        }
+
+        String name     = bundle != null ? bundle.displayName : modeId;
+        long   sizeMb   = bundle != null ? bundle.sizeBytes / (1024 * 1024) : 0;
+        String sizeText = sizeMb > 0 ? " (" + sizeMb + " MB)" : "";
+
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.bundle_download_title))
+                .setMessage(getString(R.string.bundle_download_message, name, sizeText))
+                .setPositiveButton(getString(R.string.bundle_download_btn), (d, w) ->
+                        startBundleDownload(modeId))
+                .setNegativeButton(android.R.string.cancel, (d, w) -> finish())
+                .setCancelable(false)
+                .show();
+    }
+
+    private void startBundleDownload(String modeId) {
+        ProgressDialog progress = new ProgressDialog(this);
+        progress.setTitle(getString(R.string.bundle_downloading_title));
+        progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progress.setMax(100);
+        progress.setCancelable(false);
+        progress.show();
+
+        IBundleCallback callback = new IBundleCallback.Stub() {
+            @Override
+            public void onProgress(String id, int pct) {
+                runOnUiThread(() -> progress.setProgress(pct));
+            }
+
+            @Override
+            public void onComplete(String id, boolean success, String errorMessage) {
+                runOnUiThread(() -> {
+                    progress.dismiss();
+                    if (success) {
+                        // Bundle ready — activate the mode now
+                        activateMode(modeId);
+                    } else {
+                        Toast.makeText(ModeChooserActivity.this,
+                                getString(R.string.bundle_download_failed),
+                                Toast.LENGTH_LONG).show();
+                        finish();
+                    }
+                });
+            }
+        };
+
+        try {
+            if (mService != null) mService.downloadBundle(modeId, callback);
+        } catch (RemoteException e) {
+            Log.e(TAG, "downloadBundle failed", e);
+            progress.dismiss();
+            Toast.makeText(this, getString(R.string.bundle_download_failed),
+                    Toast.LENGTH_SHORT).show();
+            finish();
+        }
     }
 }

@@ -5,4 +5,9 @@
     <string name="chooser_title">Choose Mode</string>
     <string name="mode_active_suffix"> (active)</string>
     <string name="switch_failed">Failed to switch mode</string>
+    <string name="bundle_download_title">Download Required</string>
+    <string name="bundle_download_message">%1$s%2$s needs to be downloaded to activate this mode.</string>
+    <string name="bundle_download_btn">Download</string>
+    <string name="bundle_downloading_title">Downloading…</string>
+    <string name="bundle_download_failed">Download failed. Please try again.</string>
 </resources>
