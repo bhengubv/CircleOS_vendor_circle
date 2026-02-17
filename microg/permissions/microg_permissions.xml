@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    CircleOS microG Permissions
+    Grants microG the system permissions it needs to replace Google Play Services.
+    Only the listed packages receive these grants.
+-->
+<permissions>
+    <!-- GmsCore: core microG service replacing com.google.android.gms -->
+    <privapp-permissions package="com.google.android.gms">
+        <permission name="android.permission.INTERACT_ACROSS_USERS" />
+        <permission name="android.permission.MANAGE_USERS" />
+        <permission name="android.permission.INSTALL_PACKAGES" />
+        <permission name="android.permission.CHANGE_NETWORK_STATE" />
+        <permission name="android.permission.ACCESS_NETWORK_STATE" />
+        <permission name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    </privapp-permissions>
+
+    <!-- FakeStore: satisfies app dependency checks expecting the Play Store -->
+    <privapp-permissions package="com.android.vending">
+        <permission name="android.permission.INSTALL_PACKAGES" />
+        <permission name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    </privapp-permissions>
+</permissions>
