@@ -164,6 +164,84 @@ No additional setup is needed — connect and generate.
 
 ---
 
+## Personality Mode–Aware Inference
+
+CircleOS Personality modes give users context-based device profiles (Daily, Work, Trader,
+Developer, Secure, etc.).  Adapting your inference system prompts to the active mode
+produces significantly more relevant responses.
+
+### Reading the active mode
+
+```java
+import android.os.IBinder;
+import android.os.ServiceManager;
+import za.co.circleos.personality.ICirclePersonalityManager;
+import za.co.circleos.personality.PersonalityMode;
+
+IBinder binder = ServiceManager.getService("circle.personality");
+ICirclePersonalityManager pm = ICirclePersonalityManager.Stub.asInterface(binder);
+
+String modeId = pm.getActiveModeId();          // e.g. "work", "trader", "daily"
+PersonalityMode mode = pm.getActiveMode();     // full object with name, description, tier
+```
+
+### Adapting system prompts per mode
+
+```java
+private static String systemPromptForMode(String modeId) {
+    switch (modeId) {
+        case "work":      return "You are a professional work assistant. Be concise and factual.";
+        case "trader":    return "You are a South African financial and trading assistant. Prioritise accuracy.";
+        case "developer": return "You are a senior software developer assistant. Prefer code examples.";
+        case "secure":    return "You are a privacy-focused assistant. Never suggest cloud services.";
+        default:          return "You are a helpful assistant.";
+    }
+}
+
+// Usage
+String modeId = pm.getActiveModeId();
+InferenceRequest req = new InferenceRequest();
+req.prompt       = userInput;
+req.systemPrompt = systemPromptForMode(modeId);
+req.maxTokens    = 512;
+InferenceResponse resp = service.generate(req);
+```
+
+### Reacting to mode changes
+
+Register a callback to update your system prompt whenever the user switches mode:
+
+```java
+pm.registerCallback(new IPersonalityCallback.Stub() {
+    @Override
+    public void onModeChanged(String fromModeId, String toModeId,
+                              PersonalityMode toMode) {
+        // Update your cached system prompt
+        mCurrentSystemPrompt = systemPromptForMode(toModeId);
+    }
+    // other callback methods ...
+});
+```
+
+Remember to call `pm.unregisterCallback(callback)` in `onDestroy()`.
+
+### Mode IDs reference
+
+| ID          | Name      | Suggested inference persona                              |
+|-------------|-----------|----------------------------------------------------------|
+| `daily`     | Daily     | Friendly general-purpose assistant                       |
+| `work`      | Work      | Professional, concise, task-focused                      |
+| `trader`    | Trader    | Financial analysis, JSE/SARS aware, precise              |
+| `developer` | Developer | Code-first, technical depth, prefers code blocks         |
+| `secure`    | Secure    | Privacy-first, no cloud suggestions, minimal data output |
+| `family`    | Family    | Safe, inclusive, simple language                         |
+| `fitness`   | Fitness   | Health, exercise, nutrition focused                      |
+
+Custom user-created modes (`mode.isCustom == true`) should fall back to the `daily` persona
+unless you inspect `mode.name` or `mode.description` for hints.
+
+---
+
 ## Model Store
 
 Users can download larger models via CircleSettings → AI → Model Store.

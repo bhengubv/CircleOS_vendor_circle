@@ -11,6 +11,8 @@ import org.json.JSONObject;
 
 import za.co.circleos.inference.DeviceCapabilities;
 import za.co.circleos.inference.ICircleInference;
+import za.co.circleos.personality.ICirclePersonalityManager;
+import za.co.circleos.personality.PersonalityMode;
 import za.co.circleos.inference.IInferenceCallback;
 import za.co.circleos.inference.InferenceError;
 import za.co.circleos.inference.InferenceRequest;
@@ -18,6 +20,9 @@ import za.co.circleos.inference.InferenceResponse;
 import za.co.circleos.inference.ModelInfo;
 import za.co.circleos.inference.ResourceMetrics;
 import za.co.circleos.inference.Token;
+
+import android.os.IBinder;
+import android.os.ServiceManager;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -160,11 +165,12 @@ public class InferenceHttpServer {
     private void route(String method, String path, JSONObject body,
                        OutputStream out, Socket socket) throws Exception {
         switch (method + " " + path) {
-            case "GET /api/status":        handleStatus(out);            break;
-            case "GET /api/tags":          handleTags(out);              break;
-            case "GET /api/capabilities":  handleCapabilities(out);      break;
-            case "POST /api/generate":     handleGenerate(body, out, socket); break;
-            case "POST /api/chat":         handleChat(body, out, socket);     break;
+            case "GET /api/status":           handleStatus(out);                  break;
+            case "GET /api/tags":             handleTags(out);                    break;
+            case "GET /api/capabilities":     handleCapabilities(out);            break;
+            case "GET /api/personality/mode": handlePersonalityMode(out);         break;
+            case "POST /api/generate":        handleGenerate(body, out, socket);  break;
+            case "POST /api/chat":            handleChat(body, out, socket);      break;
             default:
                 writeJson(out, 404, "{\"error\":\"Not found: " + path + "\"}");
         }
@@ -230,6 +236,35 @@ public class InferenceHttpServer {
             JSONArray backends = new JSONArray();
             if (caps.availableBackends != null) for (String b : caps.availableBackends) backends.put(b);
             j.put("availableBackends", backends);
+            writeJson(out, 200, j.toString());
+        } catch (Exception e) {
+            writeJson(out, 500, "{\"error\":\"" + escape(e.getMessage()) + "\"}");
+        }
+    }
+
+    private void handlePersonalityMode(OutputStream out) throws Exception {
+        try {
+            IBinder binder = ServiceManager.getService("circle.personality");
+            if (binder == null) {
+                writeJson(out, 503, "{\"error\":\"circle.personality not available\"}");
+                return;
+            }
+            ICirclePersonalityManager pm = ICirclePersonalityManager.Stub.asInterface(binder);
+            PersonalityMode mode = pm.getActiveMode();
+            JSONObject j = new JSONObject();
+            if (mode != null) {
+                j.put("id",          mode.id);
+                j.put("name",        mode.name);
+                j.put("description", mode.description != null ? mode.description : "");
+                j.put("tier",        mode.tier);
+                j.put("isCustom",    mode.isCustom);
+            } else {
+                j.put("id",          "daily");
+                j.put("name",        "Daily");
+                j.put("description", "");
+                j.put("tier",        1);
+                j.put("isCustom",    false);
+            }
             writeJson(out, 200, j.toString());
         } catch (Exception e) {
             writeJson(out, 500, "{\"error\":\"" + escape(e.getMessage()) + "\"}");
