@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Personality Tile</string>
+    <string name="tile_label">Mode</string>
+    <string name="chooser_title">Choose Mode</string>
+    <string name="mode_active_suffix"> (active)</string>
+    <string name="switch_failed">Failed to switch mode</string>
+</resources>

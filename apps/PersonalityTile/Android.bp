@@ -1,0 +1,13 @@
+android_app {
+    name: "PersonalityTile",
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest.xml",
+    platform_apis: true,
+    certificate: "platform",
+    privileged: true,
+    required: ["libcircle_inference"],
+    optimize: {
+        enabled: false,
+    },
+}
