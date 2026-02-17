@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Shongololo Wallet main screen.
+  Copyright (C) 2024 CircleOS
+  SPDX-License-Identifier: Apache-2.0
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="#FF121212">
+
+    <!-- Balance card -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:background="#FF1E1E1E"
+        android:layout_marginBottom="8dp">
+
+        <TextView
+            android:id="@+id/tv_balance_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/wallet_balance_label"
+            android:textColor="#FFB0B0B0"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tv_balance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="₷0.00"
+            android:textColor="#FFFFFFFF"
+            android:textSize="42sp"
+            android:fontFamily="sans-serif-light"
+            android:layout_marginTop="4dp" />
+
+        <TextView
+            android:id="@+id/tv_daily_remaining"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFB0B0B0"
+            android:textSize="12sp"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:id="@+id/tv_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FF606060"
+            android:textSize="11sp"
+            android:fontFamily="monospace"
+            android:layout_marginTop="6dp" />
+
+    </LinearLayout>
+
+    <!-- Status / NFC message -->
+    <TextView
+        android:id="@+id/tv_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#FF80CFFF"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:padding="8dp"
+        android:visibility="gone" />
+
+    <!-- Action buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp">
+
+        <Button
+            android:id="@+id/btn_pay"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="@string/wallet_tap_to_pay"
+            android:textColor="#FF121212"
+            android:backgroundTint="#FF4FC3F7"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/btn_request"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="@string/wallet_request"
+            android:textColor="#FF4FC3F7"
+            android:backgroundTint="#FF1E1E1E" />
+
+    </LinearLayout>
+
+    <!-- Transaction history -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/wallet_history_title"
+        android:textColor="#FFB0B0B0"
+        android:textSize="13sp"
+        android:layout_marginBottom="8dp" />
+
+    <android.widget.ListView
+        android:id="@+id/lv_transactions"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="#FF2A2A2A"
+        android:dividerHeight="1dp" />
+
+</LinearLayout>

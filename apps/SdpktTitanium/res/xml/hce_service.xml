@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SDPKT Titanium HCE AID filter.
+  AID: F0 43 49 52 43 4C 45 53 44 50  ("CIRCLESDP" with F0 proprietary prefix)
+  Copyright (C) 2024 CircleOS
+  SPDX-License-Identifier: Apache-2.0
+-->
+<host-apdu-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/hce_description"
+    android:requireDeviceUnlock="false">
+
+    <aid-group android:description="@string/hce_aid_description"
+               android:category="other">
+        <aid-filter android:name="F043495243 4C455344 50" />
+    </aid-group>
+
+</host-apdu-service>

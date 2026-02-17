@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2024 CircleOS
+  SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">Shongololo Wallet</string>
+    <string name="hce_description">SDPKT Titanium digital cash NFC service</string>
+    <string name="hce_aid_description">Shongololo peer-to-peer payment</string>
+
+    <!-- Wallet activity -->
+    <string name="wallet_balance_label">Available Balance</string>
+    <string name="wallet_daily_label">Daily remaining</string>
+    <string name="wallet_tap_to_pay">TAP TO PAY</string>
+    <string name="wallet_request">REQUEST</string>
+    <string name="wallet_history_title">Recent Transactions</string>
+    <string name="wallet_no_history">No transactions yet</string>
+    <string name="wallet_initializing">Initializing wallet\u2026</string>
+    <string name="wallet_no_wallet">No wallet found. Tap to initialize.</string>
+
+    <!-- Transfer dialog -->
+    <string name="transfer_amount_hint">Amount (₷)</string>
+    <string name="transfer_memo_hint">Memo (optional)</string>
+    <string name="transfer_send">Send</string>
+    <string name="transfer_cancel">Cancel</string>
+
+    <!-- NFC states -->
+    <string name="nfc_searching">Hold phones together\u2026</string>
+    <string name="nfc_peer_found">Peer found — sending</string>
+    <string name="nfc_confirmed">Transfer confirmed!</string>
+    <string name="nfc_declined">Transfer declined</string>
+    <string name="nfc_failed">Transfer failed</string>
+    <string name="nfc_receiving">Incoming transfer\u2026</string>
+    <string name="nfc_incoming_prompt">Accept ₷%s from %s?</string>
+    <string name="nfc_accept">Accept</string>
+    <string name="nfc_decline">Decline</string>
+    <string name="nfc_not_available">NFC not available on this device</string>
+    <string name="nfc_disabled">NFC is disabled. Enable it in Settings.</string>
+
+    <!-- Transaction types -->
+    <string name="tx_sent">Sent</string>
+    <string name="tx_received">Received</string>
+    <string name="tx_pending">Pending</string>
+    <string name="tx_settled">Settled</string>
+    <string name="tx_reversed">Reversed</string>
+</resources>

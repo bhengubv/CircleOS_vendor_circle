@@ -7,7 +7,13 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Circle OS applications
 PRODUCT_PACKAGES += \
-    CircleSettings
+    CircleSettings \
+    TrafficLobby \
+    Butler \
+    InferenceBridge \
+    PersonalityEditor \
+    PersonalityTile \
+    SdpktTitanium
 
 # SELinux policy extensions
 BOARD_SEPOLICY_DIRS += vendor/circle/sepolicy

@@ -1,0 +1,19 @@
+// Copyright (C) 2024 CircleOS
+// SPDX-License-Identifier: Apache-2.0
+
+android_app {
+    name: "SdpktTitanium",
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest.xml",
+    platform_apis: true,
+    certificate: "platform",
+    privileged: true,
+    optimize: { enabled: false },
+    libs: [
+        "framework",
+    ],
+    static_libs: [
+        "circleos-sdpkt-aidl",
+    ],
+}
