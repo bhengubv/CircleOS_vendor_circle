@@ -4,6 +4,7 @@
 
     <uses-permission android:name="com.circleos.permission.ACCESS_PERSONALITY" />
     <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:label="@string/app_name"
@@ -28,6 +29,21 @@
         <activity
             android:name=".AppVisibilityActivity"
             android:label="@string/app_visibility_title"
+            android:exported="false" />
+
+        <activity
+            android:name=".ManagedModeActivity"
+            android:label="@string/managed_title"
+            android:exported="false" />
+
+        <activity
+            android:name=".LearningSuggestionsActivity"
+            android:label="@string/learning_title"
+            android:exported="false" />
+
+        <activity
+            android:name=".CommunityActivity"
+            android:label="@string/community_title"
             android:exported="false" />
 
     </application>

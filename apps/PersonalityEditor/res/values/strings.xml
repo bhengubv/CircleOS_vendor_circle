@@ -58,4 +58,47 @@
         <item>Enhanced</item>
         <item>Maximum</item>
     </string-array>
+
+    <!-- Phase 5: Managed Mode (PIN Lock) -->
+    <string name="managed_title">PIN Lock — %1$s</string>
+    <string name="managed_status_locked">Status: LOCKED%1$s</string>
+    <string name="managed_status_unlocked">Status: Unlocked — no PIN set</string>
+    <string name="managed_pin_label">Set new PIN</string>
+    <string name="managed_pin_hint">PIN (4–8 digits)</string>
+    <string name="managed_pin_confirm_hint">Confirm PIN</string>
+    <string name="managed_btn_set">Set PIN Lock</string>
+    <string name="managed_btn_clear">Clear PIN Lock</string>
+    <string name="managed_pin_too_short">PIN must be at least 4 digits</string>
+    <string name="managed_pin_mismatch">PINs do not match</string>
+    <string name="managed_pin_set">PIN lock set</string>
+    <string name="managed_pin_cleared">PIN lock cleared</string>
+    <string name="action_manage_pin">PIN Lock…</string>
+
+    <!-- Phase 5: Learning Suggestions -->
+    <string name="learning_title">Smart Suggestions</string>
+    <string name="learning_subtitle">Tap a suggestion to accept or dismiss it.</string>
+    <string name="learning_no_suggestions">No suggestions yet — keep using the OS and patterns will be detected.</string>
+    <string name="learning_menu_title">Suggestion</string>
+    <string name="learning_accept">Add as Trigger</string>
+    <string name="learning_dismiss">Dismiss</string>
+    <string name="learning_accepted">Trigger rule added</string>
+
+    <!-- Phase 5: Community Sharing -->
+    <string name="community_title">Community Modes</string>
+    <string name="community_btn_share">Share Mode</string>
+    <string name="community_btn_import">Import URL</string>
+    <string name="community_btn_browse">Browse Store</string>
+    <string name="community_store_label">Community Modes</string>
+    <string name="community_pick_mode">Select mode to share</string>
+    <string name="community_share_title">Share URL (copied to clipboard)</string>
+    <string name="community_copied">Close</string>
+    <string name="community_share_failed">Failed to generate share URL</string>
+    <string name="community_import_title">Import Mode from URL</string>
+    <string name="community_url_hint">Paste URL here</string>
+    <string name="community_import_btn">Import</string>
+    <string name="community_importing">Importing…</string>
+    <string name="community_imported">Imported: %1$s</string>
+    <string name="community_loading">Loading store…</string>
+    <string name="community_no_modes">No community modes available</string>
+    <string name="community_import_mode_title">Import \'%1$s\'?</string>
 </resources>

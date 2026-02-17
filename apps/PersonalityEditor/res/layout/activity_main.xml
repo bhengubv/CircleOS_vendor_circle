@@ -12,11 +12,12 @@
         android:divider="@android:color/transparent"
         android:dividerHeight="1dp" />
 
+    <!-- Row 1: existing controls -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp"
+        android:padding="8dp"
         android:gravity="end">
 
         <Button
@@ -38,6 +39,30 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/action_new_mode" />
+
+    </LinearLayout>
+
+    <!-- Row 2: Phase 5 controls -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="8dp"
+        android:paddingBottom="8dp"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/btn_suggestions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@string/learning_title" />
+
+        <Button
+            android:id="@+id/btn_community"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/community_title" />
 
     </LinearLayout>
 

@@ -62,6 +62,11 @@ public class PersonalityMainActivity extends Activity {
         findViewById(R.id.btn_new_mode).setOnClickListener(v -> openEditor(null, false));
         findViewById(R.id.btn_export).setOnClickListener(v -> exportModes());
         findViewById(R.id.btn_import).setOnClickListener(v -> importModes());
+        // Phase 5
+        findViewById(R.id.btn_suggestions).setOnClickListener(v ->
+                startActivity(new Intent(this, LearningSuggestionsActivity.class)));
+        findViewById(R.id.btn_community).setOnClickListener(v ->
+                startActivity(new Intent(this, CommunityActivity.class)));
     }
 
     @Override
@@ -99,6 +104,7 @@ public class PersonalityMainActivity extends Activity {
         List<String> options = new ArrayList<>();
         options.add("Activate");
         options.add(getString(R.string.action_clone));
+        options.add(getString(R.string.action_manage_pin));  // Phase 5
         if (mode.isCustom) {
             options.add(getString(R.string.action_edit));
             options.add(getString(R.string.action_delete));
@@ -110,10 +116,18 @@ public class PersonalityMainActivity extends Activity {
                     String opt = options.get(which);
                     if (opt.equals("Activate")) activate(mode);
                     else if (opt.equals(getString(R.string.action_clone))) openEditor(mode.id, true);
+                    else if (opt.equals(getString(R.string.action_manage_pin))) openManagedMode(mode);
                     else if (opt.equals(getString(R.string.action_edit)))  openEditor(mode.id, false);
                     else if (opt.equals(getString(R.string.action_delete))) confirmDelete(mode);
                 })
                 .show();
+    }
+
+    private void openManagedMode(PersonalityMode mode) {
+        Intent intent = new Intent(this, ManagedModeActivity.class);
+        intent.putExtra(ManagedModeActivity.EXTRA_MODE_ID,   mode.id);
+        intent.putExtra(ManagedModeActivity.EXTRA_MODE_NAME, mode.name);
+        startActivity(intent);
     }
 
     private void activate(PersonalityMode mode) {
