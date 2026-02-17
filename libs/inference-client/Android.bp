@@ -1,0 +1,12 @@
+// Copyright (C) 2024 CircleOS
+// SPDX-License-Identifier: Apache-2.0
+// Helper library for apps using the CircleOS Inference Service.
+
+java_library {
+    name: "circle_inference_client",
+    srcs: ["src/**/*.java"],
+    sdk_version: "current",
+    min_sdk_version: "33",
+    platform_apis: true,
+    visibility: ["//visibility:public"],
+}

@@ -1,0 +1,17 @@
+// Copyright (C) 2024 CircleOS
+// SPDX-License-Identifier: Apache-2.0
+
+android_app {
+    name: "Butler",
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest.xml",
+    sdk_version: "current",
+    min_sdk_version: "33",
+    certificate: "platform",
+    privileged: true,
+    platform_apis: true,
+    optimize: {
+        enabled: false,
+    },
+}

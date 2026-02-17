@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Butler</string>
+    <string name="start_chatting">Start chatting</string>
+    <string name="hint_message">Ask me anything…</string>
+    <string name="send">Send</string>
+    <string name="loading_model">Loading AI model…</string>
+    <string name="model_ready">Ready</string>
+    <string name="error_no_model">No model available. Check storage.</string>
+    <string name="error_service_unavailable">Inference service unavailable.</string>
+    <string name="you">You</string>
+    <string name="butler">Butler</string>
+    <string name="thinking">Thinking…</string>
+    <string name="clear_chat">Clear chat</string>
+    <string name="settings">Settings</string>
+</resources>
