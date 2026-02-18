@@ -2,3 +2,4 @@
 # Maps system property namespaces to SELinux labels.
 
 ro.circle.         u:object_r:circle_prop:s0
+ro.circleos.       u:object_r:circle_prop:s0

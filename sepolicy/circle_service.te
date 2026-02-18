@@ -7,6 +7,8 @@
 # Service type declarations
 type circle_privacy_service,    service_manager_type;
 type circle_permission_service, service_manager_type;
+type circle_mesh_service,       service_manager_type;
+type circle_update_service,     service_manager_type;
 
 # System property type
 type circle_prop, property_type;
@@ -14,14 +16,17 @@ type circle_prop, property_type;
 # Allow system_server to register Circle services with servicemanager
 allow system_server circle_privacy_service:service_manager    { add find };
 allow system_server circle_permission_service:service_manager { add find };
+allow system_server circle_update_service:service_manager     { add find };
 
 # Allow platform apps (CircleSettings) to find and call Circle services
 allow platform_app circle_privacy_service:service_manager    find;
 allow platform_app circle_permission_service:service_manager find;
+allow platform_app circle_update_service:service_manager     find;
 
-# Allow system_server to set ro.circle.* properties
+# Allow system_server to set ro.circle.* and ro.circleos.* properties
 allow system_server circle_prop:property_service set;
 
 # neverallow: only system_server may register Circle services
 neverallow { domain -system_server } circle_privacy_service:service_manager add;
 neverallow { domain -system_server } circle_permission_service:service_manager add;
+neverallow { domain -system_server } circle_update_service:service_manager add;

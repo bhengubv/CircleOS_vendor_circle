@@ -1,0 +1,79 @@
+# SELinux policy for CircleMeshService
+#
+# CircleMeshService runs inside system_server. This file covers:
+#   - /data/system/circleos_mesh/  — SQLite store-and-forward DB + chunk files
+#   - TCP server sockets on ports 9847 (WiFi Direct) and 8723 (mDNS)
+#   - Android Keystore usage (EC identity key: circle_mesh_identity)
+#   - WiFi P2P, NSD, and Bluetooth LE system service calls
+#   - Binder service registration (circle.mesh)
+
+# ── File type declaration ─────────────────────────────────────────────────────
+
+# Type for all CircleMesh runtime data (SQLite DB, chunk files, prefs)
+type circle_mesh_data_file, file_type, data_file_type;
+
+# ── Data directory ────────────────────────────────────────────────────────────
+
+# Allow system_server to create and manage /data/system/circleos_mesh/
+allow system_server circle_mesh_data_file:dir  {
+    create search add_name remove_name rw_dir_perms
+};
+allow system_server circle_mesh_data_file:file {
+    create read write append getattr setattr unlink rw_file_perms
+};
+
+# SQLite WAL files (.db-wal, .db-shm) and temporary files
+allow system_server circle_mesh_data_file:file { lock };
+
+# ── TCP networking ────────────────────────────────────────────────────────────
+
+# Allow system_server to create and bind TCP server sockets (ports 9847, 8723)
+# system_server already has net_domain() in the base policy; the following
+# ensures explicit access to server-side socket operations used by the transports.
+allow system_server system_server:tcp_socket {
+    create bind listen accept read write getattr setattr shutdown
+};
+
+# Allow outbound TCP connections to discovered peers (client side)
+allow system_server system_server:tcp_socket connect;
+
+# Allow node binding for TCP server sockets on any local address
+allow system_server node:tcp_socket node_bind;
+
+# ── Keystore ──────────────────────────────────────────────────────────────────
+
+# Allow system_server to use the Keystore binder service for EC key generation
+# (Android Keystore Provider, alias: circle_mesh_identity)
+# keystore_service is already reachable by system_server in the base policy;
+# this is documented here for clarity.
+# allow system_server keystore_service:service_manager find;  # already in base
+
+# ── WiFi P2P ──────────────────────────────────────────────────────────────────
+
+# WifiP2pManager and DNS-SD service discovery use the wifi system service;
+# system_server already has access in the base policy.
+
+# ── Bluetooth LE ──────────────────────────────────────────────────────────────
+
+# BluetoothLeAdvertiser/Scanner are mediated through the Bluetooth binder service;
+# system_server already has access in the base policy.
+
+# ── NSD (mDNS) ───────────────────────────────────────────────────────────────
+
+# NsdManager is a binder service; system_server already has access.
+# The transport opens a UDP multicast socket for mDNS; this is covered by
+# the net_domain() grants in the base system_server policy.
+
+# ── Binder service ────────────────────────────────────────────────────────────
+
+# Allow system_server to add the "circle.mesh" binder service
+allow system_server circle_mesh_service:service_manager { add find };
+
+# Allow platform apps (CircleSettings, Butler) to find the mesh service
+allow platform_app circle_mesh_service:service_manager find;
+
+# Allow priv-apps (system-signed apps) to find the mesh service
+allow priv_app circle_mesh_service:service_manager find;
+
+# neverallow: only system_server may register the mesh service
+neverallow { domain -system_server } circle_mesh_service:service_manager add;
