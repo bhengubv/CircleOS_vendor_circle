@@ -1,78 +1,279 @@
+/*
+ * Copyright (C) 2024 CircleOS
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package za.co.circleos.settings;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Looper;
+import android.os.RemoteException;
+import android.os.ServiceManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+
+import za.co.circleos.update.ICircleUpdateService;
 
 /**
- * Main settings activity for CircleOS privacy controls.
+ * CircleOS main settings screen.
  *
- * Shows the current status of the auto-revoke job scheduler and lets
- * administrators trigger an immediate run for testing.
+ * Sections:
+ *  1. OTA update status — current state, available version, check/install actions.
+ *  2. Release channel — stable / beta / nightly selector.
+ *  3. Privacy summary — permission denials, faked identifiers, network grants.
+ *  4. Auto-revoke — job scheduler status and manual trigger.
  */
 public class CircleSettingsActivity extends Activity {
 
-    private TextView mStatusText;
-    private Button mRunNowButton;
+    private static final String TAG = "CircleSettings";
+
+    private static final int POLL_INTERVAL_MS = 3_000;
+
+    // ── Views ──────────────────────────────────────────────────────────────────
+    private TextView    mTvUpdateState;
+    private TextView    mTvUpdateVersion;
+    private Button      mBtnCheckNow;
+    private Button      mBtnApplyUpdate;
+    private RadioGroup  mRgChannel;
+    private TextView    mTvPrivacyDenied;
+    private TextView    mTvPrivacyFaked;
+    private TextView    mTvPrivacyNetwork;
+    private TextView    mTvStatus;
+    private Button      mBtnRunNow;
+
+    // ── Services ───────────────────────────────────────────────────────────────
+    private ICircleUpdateService mUpdateService;
+
+    // ── Polling ────────────────────────────────────────────────────────────────
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private final Runnable mPollRunnable = this::pollUpdateState;
+    private boolean mIgnoreChannelChange = false;
+
+    // ── Lifecycle ──────────────────────────────────────────────────────────────
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mStatusText  = findViewById(R.id.tv_status);
-        mRunNowButton = findViewById(R.id.btn_run_now);
+        mTvUpdateState    = findViewById(R.id.tv_update_state);
+        mTvUpdateVersion  = findViewById(R.id.tv_update_version);
+        mBtnCheckNow      = findViewById(R.id.btn_check_now);
+        mBtnApplyUpdate   = findViewById(R.id.btn_apply_update);
+        mRgChannel        = findViewById(R.id.rg_channel);
+        mTvPrivacyDenied  = findViewById(R.id.tv_privacy_denied);
+        mTvPrivacyFaked   = findViewById(R.id.tv_privacy_faked);
+        mTvPrivacyNetwork = findViewById(R.id.tv_privacy_network);
+        mTvStatus         = findViewById(R.id.tv_status);
+        mBtnRunNow        = findViewById(R.id.btn_run_now);
 
-        mRunNowButton.setOnClickListener(v -> onRunNowClicked());
+        mBtnCheckNow.setOnClickListener(v -> onCheckNow());
+        mBtnApplyUpdate.setOnClickListener(v -> onApplyUpdate());
+        mBtnRunNow.setOnClickListener(v -> onRunAutoRevoke());
+
+        mRgChannel.setOnCheckedChangeListener((group, checkedId) -> {
+            if (!mIgnoreChannelChange) onChannelSelected(checkedId);
+        });
+
+        bindUpdateService();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        refreshStatus();
+        refreshAutoRevokeStatus();
+        refreshPrivacySummary();
+        mHandler.post(mPollRunnable);
     }
 
-    // ── UI ─────────────────────────────────────────────────────────────────────
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mHandler.removeCallbacks(mPollRunnable);
+    }
 
-    private void refreshStatus() {
-        JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
-        if (scheduler == null) {
-            mStatusText.setText(R.string.status_unavailable);
+    // ── Update service ─────────────────────────────────────────────────────────
+
+    private void bindUpdateService() {
+        new Thread(() -> {
+            IBinder b = ServiceManager.getService("circle.update");
+            if (b != null) {
+                mUpdateService = ICircleUpdateService.Stub.asInterface(b);
+                mHandler.post(this::pollUpdateState);
+            } else {
+                mHandler.post(() -> {
+                    mTvUpdateState.setText(R.string.update_state_unknown);
+                    mTvUpdateVersion.setText("");
+                });
+            }
+        }).start();
+    }
+
+    private void pollUpdateState() {
+        if (mUpdateService == null) {
+            mHandler.postDelayed(mPollRunnable, POLL_INTERVAL_MS);
             return;
         }
+        new Thread(() -> {
+            try {
+                int    state   = mUpdateService.getState();
+                String version = mUpdateService.getAvailableVersion();
+                String channel = mUpdateService.getChannel();
+                long   lastCheck = mUpdateService.getLastCheckTime();
+                int    progress  = mUpdateService.getDownloadProgress();
+                mHandler.post(() -> updateUi(state, version, channel, lastCheck, progress));
+            } catch (RemoteException e) {
+                Log.w(TAG, "pollUpdateState error: " + e.getMessage());
+            }
+            mHandler.postDelayed(mPollRunnable, POLL_INTERVAL_MS);
+        }).start();
+    }
 
+    private void updateUi(int state, String version, String channel,
+                          long lastCheckMs, int progress) {
+        // State label
+        int stateRes;
+        switch (state) {
+            case 1:  stateRes = R.string.update_state_checking;    break;
+            case 2:  stateRes = R.string.update_state_downloading; break;
+            case 3:  stateRes = R.string.update_state_ready;       break;
+            case 4:  stateRes = R.string.update_state_installing;  break;
+            case 5:  stateRes = R.string.update_state_failed;      break;
+            default: stateRes = R.string.update_state_idle;        break;
+        }
+        String stateStr = getString(stateRes);
+        if (state == 2 && progress >= 0) stateStr += " (" + progress + "%)";
+        mTvUpdateState.setText(stateStr);
+
+        // Version / channel / last-check line
+        if (version != null && !version.isEmpty() && state >= 3) {
+            mTvUpdateVersion.setText(getString(R.string.update_version_available, version));
+        } else {
+            String timeStr = lastCheckMs > 0
+                    ? new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date(lastCheckMs))
+                    : "never";
+            mTvUpdateVersion.setText(getString(R.string.update_channel_label,
+                    channel != null ? channel : "stable", timeStr));
+        }
+
+        // Apply button visibility
+        mBtnApplyUpdate.setVisibility(state == 3 ? View.VISIBLE : View.GONE);
+
+        // Channel radio — don't trigger the listener
+        mIgnoreChannelChange = true;
+        if ("nightly".equals(channel)) mRgChannel.check(R.id.rb_nightly);
+        else if ("beta".equals(channel)) mRgChannel.check(R.id.rb_beta);
+        else mRgChannel.check(R.id.rb_stable);
+        mIgnoreChannelChange = false;
+    }
+
+    private void onCheckNow() {
+        if (mUpdateService == null) return;
+        new Thread(() -> {
+            try { mUpdateService.checkNow(); } catch (RemoteException e) {
+                Log.w(TAG, "checkNow error", e);
+            }
+        }).start();
+    }
+
+    private void onApplyUpdate() {
+        new AlertDialog.Builder(this)
+            .setTitle("Install Update")
+            .setMessage("The device will reboot to apply the update. Continue?")
+            .setPositiveButton("Install", (d, w) -> {
+                if (mUpdateService == null) return;
+                new Thread(() -> {
+                    try { mUpdateService.applyUpdate(); } catch (RemoteException e) {
+                        Log.w(TAG, "applyUpdate error", e);
+                    }
+                }).start();
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
+    }
+
+    private void onChannelSelected(int checkedId) {
+        if (mUpdateService == null) return;
+        String channel;
+        if (checkedId == R.id.rb_nightly)   channel = "nightly";
+        else if (checkedId == R.id.rb_beta) channel = "beta";
+        else                                channel = "stable";
+        final String selected = channel;
+        new Thread(() -> {
+            try { mUpdateService.setChannel(selected); } catch (RemoteException e) {
+                Log.w(TAG, "setChannel error", e);
+            }
+        }).start();
+    }
+
+    // ── Privacy summary ────────────────────────────────────────────────────────
+
+    private void refreshPrivacySummary() {
+        new Thread(() -> {
+            try {
+                IBinder b = ServiceManager.getService("circle.privacy");
+                if (b == null) {
+                    mHandler.post(() -> {
+                        mTvPrivacyDenied.setText(R.string.privacy_unavailable);
+                        mTvPrivacyFaked.setText("");
+                        mTvPrivacyNetwork.setText("");
+                    });
+                    return;
+                }
+                android.circleos.privacy.ICirclePrivacyManagerService svc =
+                        android.circleos.privacy.ICirclePrivacyManagerService.Stub.asInterface(b);
+                int denied   = svc.getDeniedPermissionCount();
+                int faked    = svc.getFakedIdentifierCount();
+                int network  = svc.getNetworkGrantCount();
+                mHandler.post(() -> {
+                    mTvPrivacyDenied.setText(getString(R.string.privacy_denied,   denied));
+                    mTvPrivacyFaked.setText(getString(R.string.privacy_faked,    faked));
+                    mTvPrivacyNetwork.setText(getString(R.string.privacy_network, network));
+                });
+            } catch (Exception e) {
+                Log.d(TAG, "Privacy summary: " + e.getMessage());
+                mHandler.post(() -> mTvPrivacyDenied.setText(R.string.privacy_unavailable));
+            }
+        }).start();
+    }
+
+    // ── Auto-revoke ────────────────────────────────────────────────────────────
+
+    private void refreshAutoRevokeStatus() {
+        JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+        if (scheduler == null) { mTvStatus.setText(R.string.status_unavailable); return; }
         List<JobInfo> jobs = scheduler.getAllPendingJobs();
         boolean scheduled = false;
         for (JobInfo job : jobs) {
-            if (job.getId() == BootReceiver.JOB_ID) {
-                scheduled = true;
-                break;
-            }
+            if (job.getId() == BootReceiver.JOB_ID) { scheduled = true; break; }
         }
-
-        mStatusText.setText(scheduled ? R.string.status_scheduled : R.string.status_not_scheduled);
+        mTvStatus.setText(scheduled ? R.string.status_scheduled : R.string.status_not_scheduled);
     }
 
-    private void onRunNowClicked() {
-        // Schedule immediately (no constraints) for a one-off run
+    private void onRunAutoRevoke() {
         JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
         if (scheduler == null) return;
-
-        android.app.job.JobInfo immediate = new android.app.job.JobInfo.Builder(
+        JobInfo immediate = new JobInfo.Builder(
                 BootReceiver.JOB_ID + 1,
-                new android.content.ComponentName(this, AutoRevokeJobService.class))
-                .setOverrideDeadline(0) // run immediately
+                new ComponentName(this, AutoRevokeJobService.class))
+                .setOverrideDeadline(0)
                 .build();
-
         int result = scheduler.schedule(immediate);
-        mStatusText.setText(result == JobScheduler.RESULT_SUCCESS
-                ? R.string.status_triggered
-                : R.string.status_trigger_failed);
+        mTvStatus.setText(result == JobScheduler.RESULT_SUCCESS
+                ? R.string.status_triggered : R.string.status_trigger_failed);
     }
 }

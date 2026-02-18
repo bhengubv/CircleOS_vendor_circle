@@ -1,9 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Circle Settings</string>
+
+    <!-- Section headers -->
+    <string name="section_updates">System Updates</string>
+    <string name="section_channel">Release Channel</string>
+    <string name="section_privacy">Privacy</string>
+    <string name="section_autorevoke">Auto-Revoke Permissions</string>
+
+    <!-- OTA update states -->
+    <string name="update_state_idle">Up to date</string>
+    <string name="update_state_checking">Checking for updates…</string>
+    <string name="update_state_downloading">Downloading update…</string>
+    <string name="update_state_ready">Update ready to install</string>
+    <string name="update_state_installing">Installing…</string>
+    <string name="update_state_failed">Update failed</string>
+    <string name="update_state_unknown">Update service unavailable</string>
+    <string name="update_version_available">Available: v%s</string>
+    <string name="update_channel_label">Channel: %s · Last checked: %s</string>
+    <string name="btn_check_updates">Check Now</string>
+    <string name="btn_apply_update">Install Update</string>
+
+    <!-- Channels -->
+    <string name="channel_stable">Stable — recommended for all users</string>
+    <string name="channel_beta">Beta — early access, may have issues</string>
+    <string name="channel_nightly">Nightly — developers only, daily builds</string>
+    <string name="channel_changed">Switched to %s channel</string>
+
+    <!-- Privacy summary -->
+    <string name="privacy_denied">%d permissions denied (protected)</string>
+    <string name="privacy_faked">%d identifiers faked (tracking blocked)</string>
+    <string name="privacy_network">%d apps with network access granted</string>
+    <string name="privacy_unavailable">Privacy service unavailable</string>
+
+    <!-- Auto-revoke -->
     <string name="label_auto_revoke">Auto-Revoke Permissions</string>
-    <string name="status_scheduled">Auto-revoke job is scheduled (daily, idle + battery-not-low)</string>
-    <string name="status_not_scheduled">Auto-revoke job is NOT scheduled. Reboot to reschedule.</string>
+    <string name="status_scheduled">Job scheduled — runs every 7 days at idle</string>
+    <string name="status_not_scheduled">Job not scheduled. Reboot to reschedule.</string>
     <string name="status_unavailable">JobScheduler unavailable</string>
     <string name="status_triggered">Immediate run triggered</string>
     <string name="status_trigger_failed">Failed to trigger immediate run</string>
