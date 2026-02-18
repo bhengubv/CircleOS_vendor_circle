@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.widget.Button;
 import android.os.Looper;
 import android.util.Log;
 import android.widget.Button;
@@ -37,6 +38,13 @@ public class MainActivity extends Activity {
         mBtnStart.setOnClickListener(v -> {
             startActivity(new Intent(this, ChatActivity.class));
         });
+
+        // Mesh button — opens P2P mesh chat (view id may be absent in older layouts)
+        Button btnMesh = findViewById(R.id.btn_mesh);
+        if (btnMesh != null) {
+            btnMesh.setOnClickListener(v ->
+                    startActivity(new Intent(this, MeshActivity.class)));
+        }
 
         connectAndLoad();
     }
