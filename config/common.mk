@@ -3,7 +3,9 @@
 
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.circle.version=0.1.0-alpha \
-    ro.circle.build.type=userdebug
+    ro.circle.build.type=userdebug \
+    ro.circleos.update.url=https://sleptonapi.thegeeknetwork.co.za \
+    ro.circleos.channel=stable
 
 # Circle OS applications
 PRODUCT_PACKAGES += \
