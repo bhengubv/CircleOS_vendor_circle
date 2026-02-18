@@ -56,6 +56,30 @@
     <string name="sync_pending">%d pending</string>
     <string name="sync_triggered">Sync triggered</string>
 
+    <!-- Phase 5: Calibration -->\
+    <string name="calibration_learning">Learning… %d days remaining</string>
+    <string name="calibration_false_positive_reported">False positive reported — sensitivity adjusted</string>
+
+    <!-- Phase 5: Protection log -->
+    <string name="protection_log_title">Protection Events</string>
+    <string name="protection_log_empty">No protection events recorded yet.</string>
+
+    <!-- Phase 5: Analytics -->
+    <string name="analytics_title">Wallet Analytics</string>
+    <string name="analytics_sent">Total sent</string>
+    <string name="analytics_received">Total received</string>
+    <string name="analytics_tx_count">Transactions</string>
+    <string name="analytics_avg_sent">Avg sent</string>
+    <string name="analytics_peak_day">Peak day spend</string>
+    <string name="analytics_top_peer">Top peer</string>
+    <string name="analytics_blocked">Blocked attempts</string>
+
+    <!-- Phase 5: Export -->
+    <string name="export_csv">Export CSV</string>
+    <string name="export_json">Export JSON</string>
+    <string name="export_saved">Saved: %s</string>
+    <string name="export_failed">Export failed</string>
+
     <!-- Transaction types -->
     <string name="tx_sent">Sent</string>
     <string name="tx_received">Received</string>

@@ -9,6 +9,8 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.util.Log;
 
+import za.co.circleos.sdpkt.AnalyticsSummary;
+import za.co.circleos.sdpkt.CalibrationState;
 import za.co.circleos.sdpkt.IShongololoWallet;
 import za.co.circleos.sdpkt.LocationContext;
 import za.co.circleos.sdpkt.ShongololoTransaction;
@@ -34,6 +36,8 @@ import java.util.Locale;
  *   "send" / "pay" / "transfer"          → instructions to use the Wallet app
  *   "limit" / "per tap" / "daily"        → effective per-tap and daily limits
  *   "location context" / "where am i"   → current location context + limits
+ *   "analytics" / "stats" / "spending"  → spending analytics summary (Phase 5)
+ *   "calibrat" / "learning"             → calibration state (Phase 5)
  *
  * Returns null if the query is not wallet-related (falls through to LLM).
  */
@@ -60,7 +64,9 @@ public final class WalletSkill {
                          "transaction", "history", "paid", "received", "sent",
                          "address", "send", "pay", "transfer", "limit",
                          "per tap", "daily", "location", "where am i",
-                         "how much", "what do i have")) {
+                         "how much", "what do i have",
+                         "analytics", "stats", "spending", "spent",
+                         "calibrat", "learning", "protection", "blocked")) {
             return null;
         }
 
@@ -98,6 +104,17 @@ public final class WalletSkill {
             // ── Location context ───────────────────────────────────
             if (containsAny(lower, "location context", "where am i", "location limit")) {
                 return handleLocation(wallet);
+            }
+
+            // ── Analytics ──────────────────────────────────────────
+            if (containsAny(lower, "analytics", "stats", "spending", "spent")) {
+                return handleAnalytics(wallet);
+            }
+
+            // ── Calibration state ──────────────────────────────────
+            if (containsAny(lower, "calibrat", "learning", "protection block",
+                            "protection log", "blocked")) {
+                return handleCalibration(wallet);
             }
 
             // Generic wallet info
@@ -195,6 +212,45 @@ public final class WalletSkill {
              + (loc.speedMs > 1f
                 ? "\nSpeed: " + String.format(Locale.US, "%.0f km/h", loc.speedMs * 3.6f)
                 : "");
+    }
+
+    private static String handleAnalytics(IShongololoWallet w) throws RemoteException {
+        AnalyticsSummary s = w.getAnalyticsSummary();
+        if (s == null) return "Analytics not available.";
+        StringBuilder sb = new StringBuilder("**Spending Analytics**\n");
+        sb.append("Total sent: ").append(fmt(s.totalSentCents)).append("\n");
+        sb.append("Total received: ").append(fmt(s.totalReceivedCents)).append("\n");
+        sb.append("Transactions: ").append(s.txCount)
+          .append(" (").append(s.txSentCount).append(" out, ")
+          .append(s.txReceivedCount).append(" in)\n");
+        if (s.txSentCount > 0)
+            sb.append("Avg sent: ").append(fmt(s.avgSentCents)).append("\n");
+        if (s.peakDaySpentCents > 0)
+            sb.append("Peak day: ").append(fmt(s.peakDaySpentCents)).append("\n");
+        if (s.topPeerShort != null)
+            sb.append("Top peer: ").append(s.topPeerShort).append("\n");
+        if (s.blockedTxCount > 0)
+            sb.append("⚠ Blocked attempts: ").append(s.blockedTxCount);
+        return sb.toString().trim();
+    }
+
+    private static String handleCalibration(IShongololoWallet w) throws RemoteException {
+        CalibrationState c = w.getCalibrationState();
+        if (c == null) return "Calibration state unavailable.";
+        StringBuilder sb = new StringBuilder("**Protection Calibration**\n");
+        sb.append("Status: ").append(c.stateName()).append("\n");
+        if (c.isLearning()) {
+            sb.append("Learning for ").append(c.daysRemaining).append(" more day(s).\n");
+            sb.append("During this period, payment protection learns your normal stress\n");
+            sb.append("signals before enforcing any limits.\n");
+        } else {
+            sb.append("Calibrated — protection is fully active.\n");
+            sb.append("Accel threshold: ").append(c.accelThresholdCenti / 100.0f).append(" m/s²\n");
+            sb.append("Resting HR: ").append(c.restingHeartRateBpm).append(" BPM\n");
+            if (c.falsePositiveCount > 0)
+                sb.append("False positives reported: ").append(c.falsePositiveCount);
+        }
+        return sb.toString().trim();
     }
 
     /* ── Helpers ───────────────────────────────────────────── */

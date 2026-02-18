@@ -26,9 +26,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import za.co.circleos.sdpkt.AnalyticsSummary;
+import za.co.circleos.sdpkt.CalibrationState;
 import za.co.circleos.sdpkt.IShongololoWallet;
 import za.co.circleos.sdpkt.LocationContext;
 import za.co.circleos.sdpkt.NfcTransferRequest;
+import za.co.circleos.sdpkt.ProtectionEvent;
 import za.co.circleos.sdpkt.ShongololoTransaction;
 import za.co.circleos.sdpkt.SyncStatus;
 import za.co.circleos.sdpkt.TransactionResult;
@@ -116,14 +119,31 @@ public class WalletActivity extends Activity {
         }
 
         mBtnPay.setOnClickListener(v -> showPayDialog());
+        // Long-press PAY → protection log
+        mBtnPay.setOnLongClickListener(v -> { showProtectionLogDialog(); return true; });
+
         mBtnRequest.setOnClickListener(v -> showRequestInfo());
+        // Long-press REQUEST → analytics + export options
+        mBtnRequest.setOnLongClickListener(v -> { showAnalyticsDialog(); return true; });
+
         // Long-press sync indicator to force sync
         if (mTvSync != null) {
             mTvSync.setOnLongClickListener(v -> {
                 new Thread(() -> {
                     try { if (mWallet != null) mWallet.forceSyncNow(); } catch (RemoteException e) { Log.e(TAG, "forceSyncNow", e); }
                 }).start();
-                Toast.makeText(this, "Sync triggered", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.sync_triggered), Toast.LENGTH_SHORT).show();
+                return true;
+            });
+        }
+
+        // Long-press protection/status banner → report false positive (if stress block)
+        if (mTvStatus != null) {
+            mTvStatus.setOnLongClickListener(v -> {
+                new Thread(() -> {
+                    try { if (mWallet != null) mWallet.reportFalsePositive(); } catch (RemoteException e) { Log.e(TAG, "falsePositive", e); }
+                }).start();
+                Toast.makeText(this, getString(R.string.calibration_false_positive_reported), Toast.LENGTH_SHORT).show();
                 return true;
             });
         }
@@ -215,6 +235,7 @@ public class WalletActivity extends Activity {
                 int pendingCount = mWallet.getPendingCount();
                 LocationContext loc = mWallet.getLocationContext();
                 boolean protectionActive = mWallet.isProtectionActive();
+                CalibrationState cal = mWallet.getCalibrationState();
 
                 mUiHandler.post(() -> {
                     mTvBalance.setText(formatCents(b.availableCents));
@@ -224,15 +245,23 @@ public class WalletActivity extends Activity {
                     if (key != null) {
                         mTvAddress.setText(key.shortAddress());
                     }
-                    // Sync indicator
+                    // Sync / calibration indicator
                     if (mTvSync != null) {
                         if (pendingCount > 0) {
                             String syncLabel = sync.state == SyncStatus.STATE_SYNCING
-                                    ? "Syncing…"
+                                    ? getString(R.string.sync_syncing)
                                     : sync.state == SyncStatus.STATE_OFFLINE
-                                    ? "Offline — " + pendingCount + " pending"
-                                    : pendingCount + " pending";
+                                    ? String.format(getString(R.string.sync_offline_pending), pendingCount)
+                                    : String.format(getString(R.string.sync_pending), pendingCount);
                             mTvSync.setText(syncLabel);
+                            mTvSync.setTextColor(0xFFFFAA00);
+                            mTvSync.setVisibility(View.VISIBLE);
+                        } else if (cal != null && cal.isLearning()) {
+                            // Show calibration learning progress instead of sync
+                            String calLabel = String.format(
+                                    getString(R.string.calibration_learning), cal.daysRemaining);
+                            mTvSync.setText(calLabel);
+                            mTvSync.setTextColor(0xFF80CFFF);
                             mTvSync.setVisibility(View.VISIBLE);
                         } else {
                             mTvSync.setVisibility(View.GONE);
@@ -580,6 +609,107 @@ public class WalletActivity extends Activity {
             if (data[off + i] != suffix[i]) return false;
         }
         return true;
+    }
+
+    /* ── Phase 5: Protection log dialog ───────────────── */
+
+    private void showProtectionLogDialog() {
+        if (mWallet == null) return;
+        new Thread(() -> {
+            try {
+                List<ProtectionEvent> events = mWallet.getProtectionEvents(20);
+                mUiHandler.post(() -> {
+                    if (events == null || events.isEmpty()) {
+                        new AlertDialog.Builder(this)
+                            .setTitle(getString(R.string.protection_log_title))
+                            .setMessage(getString(R.string.protection_log_empty))
+                            .setPositiveButton("OK", null)
+                            .show();
+                        return;
+                    }
+                    StringBuilder sb = new StringBuilder();
+                    SimpleDateFormat sdf = new SimpleDateFormat("MMM d HH:mm", Locale.getDefault());
+                    for (ProtectionEvent ev : events) {
+                        sb.append(sdf.format(new Date(ev.timestampMs)))
+                          .append("  ").append(ev.typeName());
+                        if (ev.amountCents > 0)
+                            sb.append("  ").append(formatCents(ev.amountCents));
+                        if (ev.reason != null && !ev.reason.isEmpty())
+                            sb.append("\n  ").append(ev.reason);
+                        sb.append("\n\n");
+                    }
+                    new AlertDialog.Builder(this)
+                        .setTitle(getString(R.string.protection_log_title))
+                        .setMessage(sb.toString().trim())
+                        .setPositiveButton("OK", null)
+                        .show();
+                });
+            } catch (RemoteException e) {
+                Log.e(TAG, "getProtectionEvents error", e);
+            }
+        }).start();
+    }
+
+    /* ── Phase 5: Analytics + export dialog ────────────── */
+
+    private void showAnalyticsDialog() {
+        if (mWallet == null) return;
+        new Thread(() -> {
+            try {
+                AnalyticsSummary s = mWallet.getAnalyticsSummary();
+                mUiHandler.post(() -> {
+                    String nl = "\n";
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(getString(R.string.analytics_sent))
+                      .append(": ").append(formatCents(s.totalSentCents)).append(nl);
+                    sb.append(getString(R.string.analytics_received))
+                      .append(": ").append(formatCents(s.totalReceivedCents)).append(nl);
+                    sb.append(getString(R.string.analytics_tx_count))
+                      .append(": ").append(s.txCount).append(nl);
+                    sb.append(getString(R.string.analytics_avg_sent))
+                      .append(": ").append(s.txSentCount > 0 ? formatCents(s.avgSentCents) : "—").append(nl);
+                    sb.append(getString(R.string.analytics_peak_day))
+                      .append(": ").append(formatCents(s.peakDaySpentCents)).append(nl);
+                    if (s.topPeerShort != null)
+                        sb.append(getString(R.string.analytics_top_peer))
+                          .append(": ").append(s.topPeerShort).append(nl);
+                    if (s.blockedTxCount > 0)
+                        sb.append(getString(R.string.analytics_blocked))
+                          .append(": ").append(s.blockedTxCount).append(nl);
+
+                    new AlertDialog.Builder(this)
+                        .setTitle(getString(R.string.analytics_title))
+                        .setMessage(sb.toString().trim())
+                        .setPositiveButton(getString(R.string.export_csv), (d, w) -> doExport("csv"))
+                        .setNeutralButton(getString(R.string.export_json), (d, w) -> doExport("json"))
+                        .setNegativeButton(getString(R.string.transfer_cancel), null)
+                        .show();
+                });
+            } catch (RemoteException e) {
+                Log.e(TAG, "getAnalyticsSummary error", e);
+            }
+        }).start();
+    }
+
+    private void doExport(String format) {
+        new Thread(() -> {
+            try {
+                if (mWallet == null) return;
+                String path = mWallet.exportTransactions(format);
+                mUiHandler.post(() -> {
+                    if (path != null) {
+                        Toast.makeText(this,
+                            String.format(getString(R.string.export_saved), path),
+                            Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(this,
+                            getString(R.string.export_failed), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } catch (RemoteException e) {
+                Log.e(TAG, "exportTransactions error", e);
+            }
+        }).start();
     }
 
     /* ── Transaction list adapter ─────────────────────── */
