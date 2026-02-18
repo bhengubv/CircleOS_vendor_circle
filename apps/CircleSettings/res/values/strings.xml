@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Circle Settings</string>
+    <string name="label_auto_revoke">Auto-Revoke Permissions</string>
+    <string name="status_scheduled">Auto-revoke job is scheduled (daily, idle + battery-not-low)</string>
+    <string name="status_not_scheduled">Auto-revoke job is NOT scheduled. Reboot to reschedule.</string>
+    <string name="status_unavailable">JobScheduler unavailable</string>
+    <string name="status_triggered">Immediate run triggered</string>
+    <string name="status_trigger_failed">Failed to trigger immediate run</string>
+    <string name="btn_run_now">Run Now (Test)</string>
+</resources>
