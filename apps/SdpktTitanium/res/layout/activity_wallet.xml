@@ -55,6 +55,20 @@
             android:fontFamily="monospace"
             android:layout_marginTop="6dp" />
 
+        <!-- Location context chip (Phase 3) -->
+        <TextView
+            android:id="@+id/tv_location_context"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="11sp"
+            android:layout_marginTop="6dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:background="#FF2A2A2A"
+            android:visibility="gone" />
+
     </LinearLayout>
 
     <!-- Sync / pending indicator (Phase 2) -->

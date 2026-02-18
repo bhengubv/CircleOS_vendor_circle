@@ -27,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import za.co.circleos.sdpkt.IShongololoWallet;
+import za.co.circleos.sdpkt.LocationContext;
 import za.co.circleos.sdpkt.NfcTransferRequest;
 import za.co.circleos.sdpkt.ShongololoTransaction;
 import za.co.circleos.sdpkt.SyncStatus;
@@ -79,6 +80,7 @@ public class WalletActivity extends Activity {
     private TextView  mTvAddress;
     private TextView  mTvSync;
     private TextView  mTvStatus;
+    private TextView  mTvLocationContext;
     private Button    mBtnPay;
     private Button    mBtnRequest;
     private ListView  mLvTransactions;
@@ -98,8 +100,9 @@ public class WalletActivity extends Activity {
         mTvBalance       = findViewById(R.id.tv_balance);
         mTvDailyRemaining= findViewById(R.id.tv_daily_remaining);
         mTvAddress       = findViewById(R.id.tv_address);
-        mTvSync          = findViewById(R.id.tv_sync);
-        mTvStatus        = findViewById(R.id.tv_status);
+        mTvSync            = findViewById(R.id.tv_sync);
+        mTvStatus          = findViewById(R.id.tv_status);
+        mTvLocationContext = findViewById(R.id.tv_location_context);
         mBtnPay          = findViewById(R.id.btn_pay);
         mBtnRequest      = findViewById(R.id.btn_request);
         mLvTransactions  = findViewById(R.id.lv_transactions);
@@ -177,6 +180,8 @@ public class WalletActivity extends Activity {
                 List<ShongololoTransaction> txs = mWallet.getTransactions(50, 0);
                 SyncStatus sync = mWallet.getSyncStatus();
                 int pendingCount = mWallet.getPendingCount();
+                LocationContext loc = mWallet.getLocationContext();
+                boolean protectionActive = mWallet.isProtectionActive();
 
                 mUiHandler.post(() -> {
                     mTvBalance.setText(formatCents(b.availableCents));
@@ -200,6 +205,33 @@ public class WalletActivity extends Activity {
                             mTvSync.setVisibility(View.GONE);
                         }
                     }
+                    // Location context chip (Phase 3)
+                    if (mTvLocationContext != null && loc != null) {
+                        String locLabel = loc.locationLabel != null && !loc.locationLabel.isEmpty()
+                                ? loc.locationLabel : loc.typeName();
+                        String limitStr = formatCents(loc.perTapLimitCents) + "/tap";
+                        mTvLocationContext.setText(locLabel + " · " + limitStr);
+                        int chipColor;
+                        switch (loc.type) {
+                            case LocationContext.TYPE_HOME:   chipColor = 0xFF69F0AE; break;
+                            case LocationContext.TYPE_KNOWN:  chipColor = 0xFF80CFFF; break;
+                            case LocationContext.TYPE_RISKY:  chipColor = 0xFFFF5252; break;
+                            case LocationContext.TYPE_MOVING: chipColor = 0xFFFFD740; break;
+                            default:                          chipColor = 0xFFB0B0B0; break;
+                        }
+                        mTvLocationContext.setTextColor(chipColor);
+                        mTvLocationContext.setVisibility(View.VISIBLE);
+                    }
+
+                    // Protection active banner
+                    if (protectionActive) {
+                        showStatus(getString(R.string.protection_active));
+                    } else if (mTvStatus.getVisibility() == View.VISIBLE
+                            && getString(R.string.protection_active)
+                               .equals(mTvStatus.getText().toString())) {
+                        hideStatus();
+                    }
+
                     mAdapter.clear();
                     mAdapter.addAll(txs);
                     mAdapter.notifyDataSetChanged();

@@ -37,6 +37,16 @@
     <string name="nfc_not_available">NFC not available on this device</string>
     <string name="nfc_disabled">NFC is disabled. Enable it in Settings.</string>
 
+    <!-- Protection Engine (Phase 3) -->
+    <string name="protection_active">Payment protection active</string>
+    <string name="location_home">Home</string>
+    <string name="location_known">Known location</string>
+    <string name="location_unknown">Unknown location</string>
+    <string name="location_risky">Risky area</string>
+    <string name="location_moving">Moving</string>
+    <string name="transfer_blocked_location">Transfer blocked: %s limit in this area</string>
+    <string name="transfer_blocked_stress">Transfer could not be completed</string>
+
     <!-- Sync status (Phase 2) -->
     <string name="sync_offline_pending">Offline — %d pending</string>
     <string name="sync_syncing">Syncing\u2026</string>
