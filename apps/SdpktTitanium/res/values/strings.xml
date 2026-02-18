@@ -37,6 +37,12 @@
     <string name="nfc_not_available">NFC not available on this device</string>
     <string name="nfc_disabled">NFC is disabled. Enable it in Settings.</string>
 
+    <!-- Sync status (Phase 2) -->
+    <string name="sync_offline_pending">Offline — %d pending</string>
+    <string name="sync_syncing">Syncing\u2026</string>
+    <string name="sync_pending">%d pending</string>
+    <string name="sync_triggered">Sync triggered</string>
+
     <!-- Transaction types -->
     <string name="tx_sent">Sent</string>
     <string name="tx_received">Received</string>

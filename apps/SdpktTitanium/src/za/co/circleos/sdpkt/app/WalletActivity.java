@@ -29,6 +29,7 @@ import android.widget.Toast;
 import za.co.circleos.sdpkt.IShongololoWallet;
 import za.co.circleos.sdpkt.NfcTransferRequest;
 import za.co.circleos.sdpkt.ShongololoTransaction;
+import za.co.circleos.sdpkt.SyncStatus;
 import za.co.circleos.sdpkt.TransactionResult;
 import za.co.circleos.sdpkt.WalletBalance;
 import za.co.circleos.sdpkt.WalletKey;
@@ -76,6 +77,7 @@ public class WalletActivity extends Activity {
     private TextView  mTvBalance;
     private TextView  mTvDailyRemaining;
     private TextView  mTvAddress;
+    private TextView  mTvSync;
     private TextView  mTvStatus;
     private Button    mBtnPay;
     private Button    mBtnRequest;
@@ -96,6 +98,7 @@ public class WalletActivity extends Activity {
         mTvBalance       = findViewById(R.id.tv_balance);
         mTvDailyRemaining= findViewById(R.id.tv_daily_remaining);
         mTvAddress       = findViewById(R.id.tv_address);
+        mTvSync          = findViewById(R.id.tv_sync);
         mTvStatus        = findViewById(R.id.tv_status);
         mBtnPay          = findViewById(R.id.btn_pay);
         mBtnRequest      = findViewById(R.id.btn_request);
@@ -111,6 +114,16 @@ public class WalletActivity extends Activity {
 
         mBtnPay.setOnClickListener(v -> showPayDialog());
         mBtnRequest.setOnClickListener(v -> showRequestInfo());
+        // Long-press sync indicator to force sync
+        if (mTvSync != null) {
+            mTvSync.setOnLongClickListener(v -> {
+                new Thread(() -> {
+                    try { if (mWallet != null) mWallet.forceSyncNow(); } catch (RemoteException e) { Log.e(TAG, "forceSyncNow", e); }
+                }).start();
+                Toast.makeText(this, "Sync triggered", Toast.LENGTH_SHORT).show();
+                return true;
+            });
+        }
 
         bindWallet();
     }
@@ -162,6 +175,8 @@ public class WalletActivity extends Activity {
                 WalletKey key  = mWallet.getWalletKey();
                 WalletBalance b = mWallet.getBalance();
                 List<ShongololoTransaction> txs = mWallet.getTransactions(50, 0);
+                SyncStatus sync = mWallet.getSyncStatus();
+                int pendingCount = mWallet.getPendingCount();
 
                 mUiHandler.post(() -> {
                     mTvBalance.setText(formatCents(b.availableCents));
@@ -170,6 +185,20 @@ public class WalletActivity extends Activity {
                         + formatCents(b.dailyRemainingCents()));
                     if (key != null) {
                         mTvAddress.setText(key.shortAddress());
+                    }
+                    // Sync indicator
+                    if (mTvSync != null) {
+                        if (pendingCount > 0) {
+                            String syncLabel = sync.state == SyncStatus.STATE_SYNCING
+                                    ? "Syncing…"
+                                    : sync.state == SyncStatus.STATE_OFFLINE
+                                    ? "Offline — " + pendingCount + " pending"
+                                    : pendingCount + " pending";
+                            mTvSync.setText(syncLabel);
+                            mTvSync.setVisibility(View.VISIBLE);
+                        } else {
+                            mTvSync.setVisibility(View.GONE);
+                        }
                     }
                     mAdapter.clear();
                     mAdapter.addAll(txs);

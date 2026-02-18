@@ -57,6 +57,17 @@
 
     </LinearLayout>
 
+    <!-- Sync / pending indicator (Phase 2) -->
+    <TextView
+        android:id="@+id/tv_sync"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFF8A65"
+        android:textSize="12sp"
+        android:gravity="end"
+        android:paddingTop="4dp"
+        android:visibility="gone" />
+
     <!-- Status / NFC message -->
     <TextView
         android:id="@+id/tv_status"
