@@ -92,6 +92,23 @@ public class ChatActivity extends Activity {
         mPendingIndex = mMessages.size();
         addMessage(thinking);
 
+        // Phase 4: intercept wallet queries before hitting the LLM
+        String walletAnswer = WalletSkill.tryHandle(text);
+        if (walletAnswer != null) {
+            final String answer = walletAnswer;
+            mUiHandler.post(() -> {
+                if (mPendingIndex >= 0 && mPendingIndex < mMessages.size()) {
+                    mMessages.get(mPendingIndex).text = answer;
+                    mMessages.get(mPendingIndex).isThinking = false;
+                    mAdapter.notifyDataSetChanged();
+                }
+                mPendingIndex = -1;
+                mGenerating = false;
+                mBtnSend.setEnabled(true);
+            });
+            return;
+        }
+
         mInference.generate(text, SYSTEM_PROMPT, new InferenceServiceConnection.GenerateCallback() {
             private final StringBuilder mBuffer = new StringBuilder();
 

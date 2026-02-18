@@ -138,6 +138,39 @@ public class WalletActivity extends Activity {
             showStatus(getString(R.string.nfc_disabled));
         }
         refreshWallet();
+        // Phase 4: Quick Pay tile launched us — start NFC reader immediately
+        handleQuickPayIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(android.content.Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleQuickPayIntent(intent);
+    }
+
+    private void handleQuickPayIntent(android.content.Intent intent) {
+        if (intent == null) return;
+        if (intent.getBooleanExtra(QuickPayTileService.EXTRA_QUICK_PAY, false)) {
+            // Clear the flag so re-resume doesn't re-trigger
+            intent.removeExtra(QuickPayTileService.EXTRA_QUICK_PAY);
+            // Use lock-screen limit for quick pay from tile
+            new Thread(() -> {
+                try {
+                    if (mWallet == null) { bindWallet(); }
+                    if (mWallet == null || !mWallet.hasWallet()) return;
+                    za.co.circleos.sdpkt.NfcTransferRequest req =
+                            new za.co.circleos.sdpkt.NfcTransferRequest();
+                    // Quick pay: use the lock-screen per-tap limit as amount ceiling
+                    long limit = mWallet.getEffectivePerTapLimitCents(true);
+                    req.amountCents   = 0; // 0 = ask user; amount dialog shown below
+                    req.lockScreenMode = true;
+                    mUiHandler.post(() -> showPayDialog(/*lockScreen=*/true));
+                } catch (Exception e) {
+                    Log.e(TAG, "Quick pay intent error", e);
+                }
+            }).start();
+        }
     }
 
     @Override
@@ -257,7 +290,9 @@ public class WalletActivity extends Activity {
 
     /* ── PAY dialog ────────────────────────────────────── */
 
-    private void showPayDialog() {
+    private void showPayDialog() { showPayDialog(false); }
+
+    private void showPayDialog(boolean lockScreen) {
         if (mWallet == null) { bindWallet(); return; }
 
         View dialogView = getLayoutInflater().inflate(android.R.layout.simple_list_item_2, null);
@@ -286,7 +321,7 @@ public class WalletActivity extends Activity {
                     long amtCents = Math.round(amtDouble * 100);
                     mSendAmountCents = amtCents;
                     String memo = etMemo.getText().toString().trim();
-                    startSendSession(amtCents, memo);
+                    startSendSession(amtCents, memo, lockScreen);
                 } catch (NumberFormatException ignored) {
                     Toast.makeText(this, "Invalid amount", Toast.LENGTH_SHORT).show();
                 }
@@ -296,13 +331,17 @@ public class WalletActivity extends Activity {
     }
 
     private void startSendSession(long amountCents, String memo) {
+        startSendSession(amountCents, memo, false);
+    }
+
+    private void startSendSession(long amountCents, String memo, boolean lockScreen) {
         if (mWallet == null) return;
         new Thread(() -> {
             try {
                 NfcTransferRequest req = new NfcTransferRequest();
                 req.amountCents = amountCents;
                 req.memo        = memo;
-                req.lockScreenMode = false;
+                req.lockScreenMode = lockScreen;
 
                 String sessionId = mWallet.beginNfcSession(req);
                 if (sessionId == null) {

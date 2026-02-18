@@ -37,6 +37,9 @@
     <string name="nfc_not_available">NFC not available on this device</string>
     <string name="nfc_disabled">NFC is disabled. Enable it in Settings.</string>
 
+    <!-- Quick Pay tile (Phase 4) -->
+    <string name="tile_quick_pay">Quick Pay</string>
+
     <!-- Protection Engine (Phase 3) -->
     <string name="protection_active">Payment protection active</string>
     <string name="location_home">Home</string>

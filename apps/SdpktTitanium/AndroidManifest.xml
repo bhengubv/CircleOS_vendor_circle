@@ -52,5 +52,17 @@
                 android:resource="@xml/hce_service" />
         </service>
 
+        <!-- Quick Pay QS tile (Phase 4) -->
+        <service
+            android:name=".app.QuickPayTileService"
+            android:exported="true"
+            android:label="@string/tile_quick_pay"
+            android:icon="@android:drawable/ic_lock_lock"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
     </application>
 </manifest>
