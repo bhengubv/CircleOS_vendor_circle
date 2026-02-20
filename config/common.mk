@@ -9,9 +9,10 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Circle OS applications
 PRODUCT_PACKAGES += \
-    CircleSettings \
+    CircleOsSettings \
     TrafficLobby \
     Butler \
+    CircleMessages \
     InferenceBridge \
     PersonalityEditor \
     PersonalityTile \

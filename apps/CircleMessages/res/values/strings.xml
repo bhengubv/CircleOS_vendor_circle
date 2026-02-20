@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2024 CircleOS
+  SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">Circle Messages</string>
+    <string name="conversation_title">Conversation</string>
+    <string name="empty_conversations">No messages yet.\nYou\'ll see conversations here when mesh peers send you messages.</string>
+    <string name="input_hint">Message…</string>
+    <string name="send_button_desc">Send</string>
+</resources>

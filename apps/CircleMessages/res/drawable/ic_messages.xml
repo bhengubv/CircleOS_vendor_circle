@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CircleMessages launcher icon — simple speech bubble -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:fillColor="#FF1A1F36"
+        android:pathData="M8,4 C5.8,4 4,5.8 4,8 L4,32 C4,34.2 5.8,36 8,36 L16,36 L16,44 L24,36 L40,36 C42.2,36 44,34.2 44,32 L44,8 C44,5.8 42.2,4 40,4 Z" />
+    <path
+        android:fillColor="#FFD4A574"
+        android:pathData="M12,16 L36,16 M12,24 L28,24" />
+</vector>

@@ -1,0 +1,15 @@
+// Copyright (C) 2024 CircleOS
+// SPDX-License-Identifier: Apache-2.0
+
+android_app {
+    name: "CircleMessages",
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest.xml",
+    certificate: "platform",
+    privileged: true,
+    platform_apis: true,
+    optimize: {
+        enabled: false,
+    },
+}

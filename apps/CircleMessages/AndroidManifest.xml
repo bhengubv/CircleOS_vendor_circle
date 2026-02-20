@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2024 CircleOS
+  SPDX-License-Identifier: Apache-2.0
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="za.co.circleos.messages">
+
+    <!-- Mesh service access (platform permission) -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <application
+        android:label="@string/app_name"
+        android:icon="@drawable/ic_messages"
+        android:theme="@android:style/Theme.Material.Light.NoActionBar"
+        android:allowBackup="false"
+        android:supportsRtl="true">
+
+        <!-- Conversation list -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Single conversation thread -->
+        <activity
+            android:name=".ConversationActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"
+            android:label="@string/conversation_title" />
+
+        <!-- Receives incoming mesh MSG_TEXT frames broadcast by CircleMeshService -->
+        <receiver
+            android:name=".MeshMessageReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="za.co.circleos.mesh.action.MESSAGE_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+</manifest>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2024 CircleOS — CircleMessages colour palette
+  Aligned with the Circle OS Design System (brand_design_system.md)
+-->
+<resources>
+    <!-- Backgrounds -->
+    <color name="background">#FFF5F0EB</color>        <!-- Circle Warm -->
+    <color name="toolbar_bg">#FF1A1F36</color>         <!-- Circle Deep -->
+    <color name="input_bar_bg">#FFFFFFFF</color>
+
+    <!-- Text -->
+    <color name="toolbar_fg">#FFFFFFFF</color>
+    <color name="toolbar_fg_secondary">#CCFFFFFF</color>
+    <color name="text_primary">#FF212121</color>
+    <color name="text_secondary">#FF757575</color>
+    <color name="hint_text">#FFB0B0B0</color>
+
+    <!-- Accents -->
+    <color name="accent">#FFD4A574</color>             <!-- Circle Gold -->
+    <color name="divider">#FFE0E0E0</color>
+</resources>
