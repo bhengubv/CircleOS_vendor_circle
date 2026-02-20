@@ -41,4 +41,11 @@
     <string name="status_triggered">Immediate run triggered</string>
     <string name="status_trigger_failed">Failed to trigger immediate run</string>
     <string name="btn_run_now">Run Now (Test)</string>
+
+    <!-- Rollback — revert to slot A (stock OS) -->
+    <string name="section_rollback">Previous OS</string>
+    <string name="rollback_title">Revert to previous OS?</string>
+    <string name="rollback_message">This will restart your device and return to your previous operating system. Your stock OS and data on slot A are untouched.</string>
+    <string name="rollback_confirm">Revert</string>
+    <string name="btn_revert_os">Revert to Previous OS</string>
 </resources>
