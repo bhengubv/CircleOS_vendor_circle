@@ -38,34 +38,52 @@ fi
 source build/envsetup.sh
 lunch "circle_${DEVICE}-${VARIANT}"
 
-# Build
+# Build — otapackage produces the A/B payload
 echo "Building with $(nproc) cores (log: ${LOG_FILE})..."
-make -j$(nproc) 2>&1 | tee "${LOG_FILE}"
+make -j$(nproc) otapackage 2>&1 | tee "${LOG_FILE}"
 
-# Package
+# Package — A/B OTA format: payload.bin + payload_properties.txt
 mkdir -p "${RELEASE_DIR}"
-RELEASE_ZIP="${RELEASE_DIR}/circle-${VERSION}-${DEVICE}-${BUILD_DATE}.zip"
+RELEASE_DIR_DEVICE="${RELEASE_DIR}/${DEVICE}-${BUILD_DATE}"
+mkdir -p "${RELEASE_DIR_DEVICE}"
 
-echo "Packaging..."
-if [ -f "${OUT_DIR}/ota_update_package.zip" ]; then
-    cp "${OUT_DIR}/ota_update_package.zip" "${RELEASE_ZIP}"
+echo "Packaging A/B OTA..."
+if [ -f "${OUT_DIR}/payload.bin" ]; then
+    cp "${OUT_DIR}/payload.bin"            "${RELEASE_DIR_DEVICE}/payload.bin"
+    cp "${OUT_DIR}/payload_properties.txt" "${RELEASE_DIR_DEVICE}/payload_properties.txt"
+elif [ -f "${OUT_DIR}/ota_update_package.zip" ]; then
+    # Extract A/B artifacts from the OTA zip
+    unzip -o "${OUT_DIR}/ota_update_package.zip" \
+        payload.bin payload_properties.txt \
+        -d "${RELEASE_DIR_DEVICE}"
 else
-    # Fallback: manual zip for sideload
-    zip -j "${RELEASE_ZIP}" \
-        "${OUT_DIR}/system.img" \
-        "${OUT_DIR}/vendor.img" \
-        "${OUT_DIR}/boot.img" \
-        "${OUT_DIR}/recovery.img" 2>/dev/null || true
+    echo "ERROR: No OTA package found in ${OUT_DIR}. Did 'make otapackage' succeed?"
+    exit 1
 fi
 
-# Checksum
-sha256sum "${RELEASE_ZIP}" > "${RELEASE_ZIP}.sha256"
+# Manifest JSON consumed by ota.circleos.co.za and SystemUpdateService
+cat > "${RELEASE_DIR_DEVICE}/manifest.json" <<MANIFEST
+{
+  "version": "${VERSION}",
+  "buildDate": "${BUILD_DATE}",
+  "device": "${DEVICE}",
+  "channel": "${VARIANT}",
+  "payloadUrl": "https://cdn.thegeek.co.za/circleos/${VERSION}/${DEVICE}-${BUILD_DATE}/payload.bin",
+  "payloadSize": $(wc -c < "${RELEASE_DIR_DEVICE}/payload.bin"),
+  "payloadHash": "$(sha256sum "${RELEASE_DIR_DEVICE}/payload.bin" | awk '{print $1}')"
+}
+MANIFEST
+
+# Checksums
+sha256sum "${RELEASE_DIR_DEVICE}/payload.bin" > "${RELEASE_DIR_DEVICE}/payload.bin.sha256"
+
 echo ""
 echo "Build complete:"
-echo "  Image   : ${RELEASE_ZIP}"
-echo "  SHA-256 : ${RELEASE_ZIP}.sha256"
+echo "  Directory  : ${RELEASE_DIR_DEVICE}/"
+echo "  payload.bin: $(du -sh "${RELEASE_DIR_DEVICE}/payload.bin" | cut -f1)"
+echo "  manifest   : ${RELEASE_DIR_DEVICE}/manifest.json"
 echo ""
 echo "Next steps:"
-echo "  1. Flash on device and run verify_build.sh"
-echo "  2. Check all items in alpha_checklist.md"
-echo "  3. Upload to GitHub Releases"
+echo "  1. Upload ${RELEASE_DIR_DEVICE}/ to cdn.thegeek.co.za/circleos/${VERSION}/${DEVICE}-${BUILD_DATE}/"
+echo "  2. Register release via: POST sleptonapi.thegeeknetwork.co.za/api/os/releases"
+echo "  3. Check all items in alpha_checklist.md"
