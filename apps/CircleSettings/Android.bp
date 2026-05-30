@@ -1,5 +1,16 @@
+// CircleOsSettings — the vendor-side companion Settings shell.
+//
+// Distinct from the upstream-namespaced packages/apps/CircleSettings
+// (com.circleos.settings) which ships as module name "CircleSettings"
+// and is the full Privacy Dashboard + MeshSettings + UpdateSettings UI.
+//
+// This vendor build (za.co.circleos.settings) is a narrower companion
+// panel and must therefore use a distinct Soong module name to avoid
+// the "module already defined" collision Soong raises when two
+// Android.bp files declare the same name. The Os infix matches the
+// reference in vendor/circle/config/common.mk's PRODUCT_PACKAGES.
 android_app {
-    name: "CircleSettings",
+    name: "CircleOsSettings",
     srcs: ["src/**/*.java"],
     resource_dirs: ["res"],
     platform_apis: true,
