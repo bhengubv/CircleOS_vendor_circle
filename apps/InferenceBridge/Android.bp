@@ -9,7 +9,11 @@ android_app {
     srcs: ["src/**/*.java"],
     resource_dirs: ["res"],
     manifest: "AndroidManifest.xml",
-    sdk_version: "current",
+    // platform_apis is exclusive with sdk_version (AOSP 15 enforces it).
+    // InferenceBridge is a platform-signed privileged system app that
+    // binds CircleInferenceService over an internal binder, so it must
+    // build against the full platform APIs — drop sdk_version, keep
+    // platform_apis + min_sdk_version.
     min_sdk_version: "33",
     certificate: "platform",
     privileged: true,
