@@ -1,0 +1,67 @@
+// CircleOS AIDL surface libraries.
+//
+// Two java_libraries live here:
+//
+//   1. android.circleos-java  — the public AIDL umbrella for CircleOS
+//      framework services. Linked against by every system app that
+//      talks to a Circle service via binder, including:
+//        - packages/apps/CircleSettings (Privacy Dashboard, Mesh,
+//          Update settings panes)
+//      Covers interfaces in three Java packages:
+//          android.circleos.*       (privacy framework)
+//          za.co.circleos.mesh      (mesh service binder)
+//          za.co.circleos.update    (OTA service binder)
+//
+//   2. circleos-sdpkt-aidl    — the SDPKT Titanium wallet's binder
+//      surface. Linked against by:
+//        - vendor/circle/apps/SdpktTitanium  (WalletActivity, NFC HCE,
+//          QuickPay tile)
+//      All entries are in za.co.circleos.sdpkt.*.
+//
+// Why two libraries instead of one? android.circleos-java is the
+// general system-services contract; circleos-sdpkt-aidl is the wallet-
+// specific contract scoped to apps that hold CIRCLE_WALLET_* perms.
+// Splitting them keeps the SDPKT surface optional — apps that don't
+// touch the wallet don't pick up its Parcelables.
+//
+// AIDL interfaces are declared once and the Stub side gets code-gen'd
+// by Soong. Parcelables get a one-line .aidl marshalling stub plus a
+// hand-written .java with the actual fields the callers access.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library {
+    name: "android.circleos-java",
+    srcs: [
+        "android/circleos/*.aidl",
+        "android/circleos/*.java",
+        "za/co/circleos/mesh/*.aidl",
+        "za/co/circleos/update/*.aidl",
+    ],
+    aidl: {
+        local_include_dirs: ["."],
+    },
+    libs: [
+        "framework",
+    ],
+    sdk_version: "core_platform",
+    installable: true,
+}
+
+java_library {
+    name: "circleos-sdpkt-aidl",
+    srcs: [
+        "za/co/circleos/sdpkt/*.aidl",
+        "za/co/circleos/sdpkt/*.java",
+    ],
+    aidl: {
+        local_include_dirs: ["."],
+    },
+    libs: [
+        "framework",
+    ],
+    sdk_version: "core_platform",
+    installable: true,
+}
