@@ -1,3 +1,22 @@
+// PersonalityTile — Quick Settings tile + ModeChooser activity for the
+// Personality Engine. Pure UI surface: just two Java files
+// (PersonalityTileService + ModeChooserActivity), no JNI, no inference
+// calls. The previous `required: ["libcircle_inference"]` was a
+// copy-paste leftover referencing a JNI library that has never existed
+// in the tree — confirmed by `grep -r CircleInference src/` returning
+// empty. Removing it unblocks the Kati phase of `m nothing` which
+// otherwise hard-fails at 96% with:
+//
+//   build/make/core/main.mk:524: warning: Missing required dependencies:
+//   TARGET module PersonalityTile requires non-existent TARGET module:
+//   libcircle_inference
+//   build/make/core/main.mk:533: error: Build failed.
+//
+// If a future change wires PersonalityTile up to the Inference Service
+// directly (rather than via the InferenceBridge HTTP shim), add
+// circle_inference_client to static_libs — same as InferenceBridge
+// already does — rather than reintroducing a required: dependency on
+// a nonexistent libcircle_inference module.
 android_app {
     name: "PersonalityTile",
     srcs: ["src/**/*.java"],
@@ -6,7 +25,6 @@ android_app {
     platform_apis: true,
     certificate: "platform",
     privileged: true,
-    required: ["libcircle_inference"],
     optimize: {
         enabled: false,
     },
