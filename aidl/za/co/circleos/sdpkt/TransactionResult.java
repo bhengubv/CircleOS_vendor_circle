@@ -1,7 +1,9 @@
 /*
- * Returned by acceptIncomingTransfer. The simple shape — outcome enum
- * + resulting tx id + balance after — is enough for the WalletActivity
- * accept handler to update the UI in one Toast + one balance refresh.
+ * Returned by acceptIncomingTransfer.
+ *
+ * Consumer (WalletActivity) reads res.success + res.errorMessage to
+ * branch on outcome. The outcome int + txId + newBalanceCents stay
+ * for richer downstream UI / analytics.
  */
 
 package za.co.circleos.sdpkt;
@@ -11,42 +13,48 @@ import android.os.Parcelable;
 
 public final class TransactionResult implements Parcelable {
 
-    public static final int OUTCOME_OK         = 0;
-    public static final int OUTCOME_REJECTED   = 1;
-    public static final int OUTCOME_INSUFFICIENT = 2;
+    public static final int OUTCOME_OK            = 0;
+    public static final int OUTCOME_REJECTED      = 1;
+    public static final int OUTCOME_INSUFFICIENT  = 2;
     public static final int OUTCOME_NETWORK_ERROR = 3;
+
+    /** True iff outcome == OUTCOME_OK. Read directly by WalletActivity. */
+    public boolean success;
 
     /** One of OUTCOME_*. */
     public int outcome;
 
-    /** New tx id if outcome == OUTCOME_OK, else empty. */
+    /** New tx id when success == true, else empty. */
     public String txId;
 
-    /** Balance after the operation, even when outcome != OUTCOME_OK. */
+    /** Balance after the operation, even when success == false. */
     public long newBalanceCents;
 
-    /** Human-readable explanation if outcome != OUTCOME_OK. */
-    public String message;
+    /** Human-readable failure reason when success == false. */
+    public String errorMessage;
 
     public TransactionResult() {
+        this.success         = false;
         this.outcome         = OUTCOME_OK;
         this.txId            = "";
         this.newBalanceCents = 0;
-        this.message         = "";
+        this.errorMessage    = "";
     }
 
     private TransactionResult(Parcel in) {
+        this.success         = in.readInt() != 0;
         this.outcome         = in.readInt();
         this.txId            = in.readString();
         this.newBalanceCents = in.readLong();
-        this.message         = in.readString();
+        this.errorMessage    = in.readString();
     }
 
     @Override public void writeToParcel(Parcel out, int flags) {
+        out.writeInt(success ? 1 : 0);
         out.writeInt(outcome);
         out.writeString(txId);
         out.writeLong(newBalanceCents);
-        out.writeString(message);
+        out.writeString(errorMessage);
     }
 
     @Override public int describeContents() { return 0; }

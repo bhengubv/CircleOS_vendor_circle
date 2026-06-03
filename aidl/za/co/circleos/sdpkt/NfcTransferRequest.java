@@ -21,10 +21,12 @@ public final class NfcTransferRequest implements Parcelable {
     public boolean lockScreenMode;
 
     /**
-     * Optional explicit amount in cents to lock the session to. Zero
-     * means "let the counterparty propose".
+     * Explicit amount in cents the wallet is asked to send. Zero means
+     * "let the user enter the amount in the dialog". Consumers
+     * (WalletActivity, QuickPayTileService) read req.amountCents and
+     * the wallet service applies the per-tap cap on top.
      */
-    public long requestedAmountCents;
+    public long amountCents;
 
     /**
      * Optional memo to attach to the resulting transaction. Empty
@@ -33,20 +35,20 @@ public final class NfcTransferRequest implements Parcelable {
     public String memo;
 
     public NfcTransferRequest() {
-        this.lockScreenMode       = false;
-        this.requestedAmountCents = 0;
-        this.memo                 = "";
+        this.lockScreenMode = false;
+        this.amountCents    = 0;
+        this.memo           = "";
     }
 
     private NfcTransferRequest(Parcel in) {
-        this.lockScreenMode       = in.readInt() != 0;
-        this.requestedAmountCents = in.readLong();
-        this.memo                 = in.readString();
+        this.lockScreenMode = in.readInt() != 0;
+        this.amountCents    = in.readLong();
+        this.memo           = in.readString();
     }
 
     @Override public void writeToParcel(Parcel out, int flags) {
         out.writeInt(lockScreenMode ? 1 : 0);
-        out.writeLong(requestedAmountCents);
+        out.writeLong(amountCents);
         out.writeString(memo);
     }
 

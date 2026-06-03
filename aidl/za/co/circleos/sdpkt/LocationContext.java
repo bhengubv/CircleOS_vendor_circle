@@ -24,6 +24,13 @@ public final class LocationContext implements Parcelable {
     public static final int TYPE_TRANSIT = 3;
     public static final int TYPE_PUBLIC  = 4;
     public static final int TYPE_TRAVEL  = 5;
+    // Posture-based labels used by the SdpktTitanium WalletActivity chip:
+    // "known good" location (home + work + frequent venues collapse to
+    // TYPE_KNOWN at the UI level), risky-area flag, and the in-motion
+    // marker that disables high-trust limits while moving.
+    public static final int TYPE_KNOWN   = 6;
+    public static final int TYPE_RISKY   = 7;
+    public static final int TYPE_MOVING  = 8;
 
     public int    type;
     public long   perTapLimitCents;
