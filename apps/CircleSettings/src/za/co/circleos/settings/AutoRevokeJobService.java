@@ -58,7 +58,13 @@ public class AutoRevokeJobService extends JobService {
         @Override
         protected Boolean doInBackground(JobParameters... params) {
             try {
-                runAutoRevoke();
+                // Pass self so runAutoRevoke can poll AsyncTask.isCancelled()
+                // for cooperative cancellation. The outer class also defines a
+                // STATIC isCancelled(Context) overload — calling unqualified
+                // isCancelled() from inside the loop in runAutoRevoke resolves
+                // to that static overload (wrong shape, won't compile and
+                // wouldn't respond to job-cancel anyway).
+                runAutoRevoke(this);
                 return true;
             } catch (Exception e) {
                 Log.e(TAG, "Auto-revoke failed", e);
@@ -74,7 +80,7 @@ public class AutoRevokeJobService extends JobService {
 
     // ── Core logic ─────────────────────────────────────────────────────────────
 
-    private void runAutoRevoke() {
+    private void runAutoRevoke(RevokeTask task) {
         UsageStatsManager usm = (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);
         PackageManager pm = getPackageManager();
 
@@ -86,7 +92,7 @@ public class AutoRevokeJobService extends JobService {
         int revokeCount = 0;
 
         for (PackageInfo pi : packages) {
-            if (isCancelled()) break;
+            if (task.isCancelled()) break;
             if (pi.requestedPermissions == null) continue;
             if (isSystemPackage(pm, pi)) continue;
 

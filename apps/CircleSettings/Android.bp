@@ -22,6 +22,12 @@ android_app {
         // CircleSettings (the full shell). One umbrella library.
         "android.circleos-java",
     ],
+    libs: [
+        // CircleSettingsActivity uses IBootControl HAL to detect the
+        // active A/B slot and trigger CircleOS->stock rollback.
+        // android.hardware.boot version 1 is the current frozen AIDL.
+        "android.hardware.boot-V1-java",
+    ],
     optimize: {
         enabled: false,
     },

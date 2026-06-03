@@ -42,4 +42,11 @@ interface ICirclePrivacyManager {
      * unix-millis timestamp. Returned in reverse-chronological order.
      */
     List<PermissionUsageRecord> getUsageLog(in String packageName, long since);
+
+    /**
+     * Triggered by AutoRevokeJobService — sweeps every installed
+     * package and revokes runtime permissions for those that haven't
+     * been used in 90 days. Returns the number of permissions revoked.
+     */
+    int revokeUnusedPermissions();
 }

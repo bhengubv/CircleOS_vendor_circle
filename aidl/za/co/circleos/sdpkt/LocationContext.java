@@ -1,12 +1,16 @@
 /*
- * The Location Context drives the per-tap limit and trust posture.
+ * Location Context drives the per-tap limit and trust posture.
  *
- * The wallet recognises a handful of canonical location types (home,
- * work, transit, etc.) and tunes its risk appetite accordingly:
- * higher limit at home, lower in transit. TYPE_UNKNOWN is the
- * default before the wallet learns a location.
+ * Field surface read by Butler.WalletSkill (handleLocation) +
+ * SdpktTitanium.WalletActivity:
+ *   loc.type              — TYPE_*
+ *   loc.locationLabel     — human-readable label, may be empty
+ *   loc.typeName()        — fallback display name
+ *   loc.perTapLimitCents
+ *   loc.dailyLimitCents
+ *   loc.confidencePercent — 0..100, model confidence in the labelling
+ *   loc.speedMs           — float, instantaneous speed in m/s
  */
-
 package za.co.circleos.sdpkt;
 
 import android.os.Parcel;
@@ -21,26 +25,22 @@ public final class LocationContext implements Parcelable {
     public static final int TYPE_PUBLIC  = 4;
     public static final int TYPE_TRAVEL  = 5;
 
-    /** One of TYPE_*. */
-    public int type;
-
-    /** Per-tap limit at this location in cents. */
-    public long perTapLimitCents;
-
-    /**
-     * Human-readable label the user has assigned, e.g. "Home", "Office
-     * Sandton". Empty until the user names the location; UI then falls
-     * back to typeName().
-     */
+    public int    type;
+    public long   perTapLimitCents;
+    public long   dailyLimitCents;
     public String locationLabel;
+    public float  confidencePercent;
+    public float  speedMs;
 
     public LocationContext() {
-        this.type             = TYPE_UNKNOWN;
-        this.perTapLimitCents = 0;
-        this.locationLabel    = "";
+        this.type              = TYPE_UNKNOWN;
+        this.perTapLimitCents  = 0;
+        this.dailyLimitCents   = 0;
+        this.locationLabel     = "";
+        this.confidencePercent = 0f;
+        this.speedMs           = 0f;
     }
 
-    /** Localisable canonical name for type — "Home", "Work", … */
     public String typeName() {
         switch (type) {
             case TYPE_HOME:    return "Home";
@@ -53,15 +53,21 @@ public final class LocationContext implements Parcelable {
     }
 
     private LocationContext(Parcel in) {
-        this.type             = in.readInt();
-        this.perTapLimitCents = in.readLong();
-        this.locationLabel    = in.readString();
+        this.type              = in.readInt();
+        this.perTapLimitCents  = in.readLong();
+        this.dailyLimitCents   = in.readLong();
+        this.locationLabel     = in.readString();
+        this.confidencePercent = in.readFloat();
+        this.speedMs           = in.readFloat();
     }
 
     @Override public void writeToParcel(Parcel out, int flags) {
         out.writeInt(type);
         out.writeLong(perTapLimitCents);
+        out.writeLong(dailyLimitCents);
         out.writeString(locationLabel);
+        out.writeFloat(confidencePercent);
+        out.writeFloat(speedMs);
     }
 
     @Override public int describeContents() { return 0; }

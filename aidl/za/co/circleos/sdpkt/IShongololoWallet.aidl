@@ -34,111 +34,48 @@ interface IShongololoWallet {
 
     // ----- initialisation ------------------------------------------------
 
-    /** True if a wallet has been initialised on this device. */
     boolean hasWallet();
-
-    /**
-     * Generate a new wallet key inside the TEE, persist its public part,
-     * register with the central ledger, and become hasWallet()=true.
-     */
     void initializeWallet();
-
-    /** The local wallet's public key + display address. */
     WalletKey getWalletKey();
 
     // ----- balance + history --------------------------------------------
 
-    /** Confirmed + pending + total cents. */
     WalletBalance getBalance();
-
-    /**
-     * Last {@code limit} transactions starting at {@code offset} (zero
-     * is the most recent). Reverse-chronological.
-     */
     List<ShongololoTransaction> getTransactions(int limit, int offset);
-
-    /** Current settlement-queue status (online/syncing/offline + counts). */
     SyncStatus getSyncStatus();
-
-    /** Number of transactions still pending settlement. */
     int getPendingCount();
 
-    /**
-     * The current Location Context — used to pick the per-tap spending
-     * cap (e.g. higher at home, lower in transit).
-     */
+    // ----- limits + location context ------------------------------------
+
     LocationContext getLocationContext();
-
-    /** True if the device-protection layer is currently engaged. */
     boolean isProtectionActive();
-
-    /** Per-tap-limit calibration state — learning / settled / overridden. */
     CalibrationState getCalibrationState();
 
-    /**
-     * Effective per-tap limit in cents, honoring lock-screen mode if
-     * the caller is a tile / lock-screen surface.
-     */
+    /** Effective per-tap cap (location-tuned). */
     long getEffectivePerTapLimitCents(boolean lockScreen);
+    /** Effective per-day cap (location-tuned). */
+    long getEffectiveDailyLimitCents();
+    /** Headroom against today's cap. */
+    long getDailyRemainingCents();
+    /** Total of pending-offline transactions awaiting settlement. */
+    long getOfflineAccumulationCents();
 
     // ----- maintenance --------------------------------------------------
 
-    /**
-     * Force an immediate settlement attempt against the central ledger.
-     * Useful after the user reconnects to the internet and wants the
-     * pending queue cleared without waiting for the next scheduled
-     * sync.
-     */
     void forceSyncNow();
-
-    /**
-     * The user just told us "that transaction was actually mine" after
-     * we'd flagged it for review. Removes the most recent flag and
-     * lowers the suspicion score for the related counterparty.
-     */
     void reportFalsePositive();
 
     // ----- NFC peer-to-peer ---------------------------------------------
 
-    /**
-     * Open an NFC P2P transfer session. Returns an opaque session id
-     * the caller passes to subsequent processNfcMessage / cancel /
-     * accept calls.
-     */
     String beginNfcSession(in NfcTransferRequest req);
-
-    /**
-     * Pass an incoming NFC APDU (base64) through the wallet and get the
-     * next outgoing APDU (base64) back. Empty string means the session
-     * is complete on our side and the next ISO-DEP exchange should
-     * terminate.
-     */
     String processNfcMessage(in String sessionId, in String incomingB64);
-
-    /** Tear down an NFC session without committing anything. */
     void cancelNfcSession(in String sessionId);
-
-    /**
-     * Accept an incoming peer-to-peer transfer the user has just
-     * approved on screen. Returns the on-wallet TransactionResult.
-     */
     TransactionResult acceptIncomingTransfer(in String sessionId);
-
-    /** The user said no — refund the sender and close out the session. */
     void declineIncomingTransfer(in String sessionId);
 
     // ----- introspection ------------------------------------------------
 
-    /** Recent device-protection events, most recent first. */
     List<ProtectionEvent> getProtectionEvents(int limit);
-
-    /** Daily / weekly / monthly spend rollup for the Insights tab. */
     AnalyticsSummary getAnalyticsSummary();
-
-    /**
-     * Export the entire local transaction history to a file on the
-     * sandboxed export dir. Returns the absolute path.
-     * @param format  "csv" | "json"
-     */
     String exportTransactions(in String format);
 }

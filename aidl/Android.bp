@@ -35,6 +35,7 @@ java_library {
     srcs: [
         "android/circleos/*.aidl",
         "android/circleos/*.java",
+        "android/circleos/privacy/*.aidl",
         "za/co/circleos/mesh/*.aidl",
         "za/co/circleos/update/*.aidl",
         "za/co/circleos/inference/*.aidl",
