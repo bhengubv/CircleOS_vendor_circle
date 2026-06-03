@@ -32,6 +32,7 @@ import za.co.circleos.sdpkt.IShongololoWallet;
 import za.co.circleos.sdpkt.LocationContext;
 import za.co.circleos.sdpkt.NfcTransferRequest;
 import za.co.circleos.sdpkt.ProtectionEvent;
+import za.co.circleos.sdpkt.R;
 import za.co.circleos.sdpkt.ShongololoTransaction;
 import za.co.circleos.sdpkt.SyncStatus;
 import za.co.circleos.sdpkt.TransactionResult;
