@@ -12,7 +12,7 @@
     android:paddingEnd="16dp"
     android:paddingTop="12dp"
     android:paddingBottom="12dp"
-    android:background="?attr/selectableItemBackground">
+    android:background="?android:attr/selectableItemBackground">
 
     <!-- Peer avatar placeholder -->
     <TextView
