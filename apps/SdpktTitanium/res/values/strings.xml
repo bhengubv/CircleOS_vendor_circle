@@ -56,7 +56,7 @@
     <string name="sync_pending">%d pending</string>
     <string name="sync_triggered">Sync triggered</string>
 
-    <!-- Phase 5: Calibration -->\
+    <!-- Phase 5: Calibration -->
     <string name="calibration_learning">Learning… %d days remaining</string>
     <string name="calibration_false_positive_reported">False positive reported — sensitivity adjusted</string>
 
