@@ -18,29 +18,34 @@ public final class PersonalityMode implements Parcelable {
 
     public String     id;
     public String     name;
+    /** Short blurb shown in the InferenceBridge /api/personality JSON. */
+    public String     description;
     public int        tier;
     public boolean    isCustom;
     public ModeConfig config;
 
     public PersonalityMode() {
-        this.id       = "";
-        this.name     = "";
-        this.tier     = 1;
-        this.isCustom = false;
-        this.config   = null;
+        this.id          = "";
+        this.name        = "";
+        this.description = "";
+        this.tier        = 1;
+        this.isCustom    = false;
+        this.config      = null;
     }
 
     private PersonalityMode(Parcel in) {
-        this.id       = in.readString();
-        this.name     = in.readString();
-        this.tier     = in.readInt();
-        this.isCustom = in.readInt() != 0;
-        this.config   = in.readParcelable(ModeConfig.class.getClassLoader());
+        this.id          = in.readString();
+        this.name        = in.readString();
+        this.description = in.readString();
+        this.tier        = in.readInt();
+        this.isCustom    = in.readInt() != 0;
+        this.config      = in.readParcelable(ModeConfig.class.getClassLoader());
     }
 
     @Override public void writeToParcel(Parcel out, int flags) {
         out.writeString(id);
         out.writeString(name);
+        out.writeString(description);
         out.writeInt(tier);
         out.writeInt(isCustom ? 1 : 0);
         out.writeParcelable(config, flags);

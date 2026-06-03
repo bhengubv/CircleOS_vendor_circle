@@ -20,22 +20,32 @@ public final class Token implements Parcelable {
     /** Log-probability of this token, or Float.NaN if not available. */
     public float logProb;
 
+    /**
+     * True iff this is the final token of the stream. InferenceHttpServer
+     * propagates it as the Ollama-compat {@code done} field on each
+     * streamed chunk.
+     */
+    public boolean isFinal;
+
     public Token() {
         this.text     = "";
         this.position = 0;
         this.logProb  = Float.NaN;
+        this.isFinal  = false;
     }
 
     private Token(Parcel in) {
         this.text     = in.readString();
         this.position = in.readInt();
         this.logProb  = in.readFloat();
+        this.isFinal  = in.readInt() != 0;
     }
 
     @Override public void writeToParcel(Parcel out, int flags) {
         out.writeString(text);
         out.writeInt(position);
         out.writeFloat(logProb);
+        out.writeInt(isFinal ? 1 : 0);
     }
 
     @Override public int describeContents() { return 0; }

@@ -20,12 +20,19 @@ public final class InferenceResponse implements Parcelable {
     public long   latencyMs;
     public int    promptTokens;
     public int    completionTokens;
+    /**
+     * True if generation stopped because maxTokens was reached rather
+     * than the model emitting an end-of-sequence token. Surfaced by
+     * the Ollama-compat HTTP shim as finish_reason="length" vs "stop".
+     */
+    public boolean truncated;
 
     public InferenceResponse() {
         this.text             = "";
         this.latencyMs        = 0;
         this.promptTokens     = 0;
         this.completionTokens = 0;
+        this.truncated        = false;
     }
 
     private InferenceResponse(Parcel in) {
@@ -33,6 +40,7 @@ public final class InferenceResponse implements Parcelable {
         this.latencyMs        = in.readLong();
         this.promptTokens     = in.readInt();
         this.completionTokens = in.readInt();
+        this.truncated        = in.readInt() != 0;
     }
 
     @Override public void writeToParcel(Parcel out, int flags) {
@@ -40,6 +48,7 @@ public final class InferenceResponse implements Parcelable {
         out.writeLong(latencyMs);
         out.writeInt(promptTokens);
         out.writeInt(completionTokens);
+        out.writeInt(truncated ? 1 : 0);
     }
 
     @Override public int describeContents() { return 0; }
