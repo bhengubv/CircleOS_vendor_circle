@@ -24,6 +24,14 @@ public final class SwitchResult implements Parcelable {
     /** Bundle id to download. Empty when {@link #requiresBundle} is false. */
     public String pendingBundleId;
 
+    /**
+     * Mode id created or affected by the operation. Populated by
+     * createCustomMode / updateMode / importModesJson / importModeFromUrl
+     * so the caller can show a "imported {modeId}" toast or activate the
+     * fresh mode immediately. Empty when not applicable.
+     */
+    public String newModeId;
+
     /** Human-readable failure reason when {@link #success}=false. */
     public String errorMessage;
 
@@ -31,6 +39,7 @@ public final class SwitchResult implements Parcelable {
         this.success         = false;
         this.requiresBundle  = false;
         this.pendingBundleId = "";
+        this.newModeId       = "";
         this.errorMessage    = "";
     }
 
@@ -38,6 +47,7 @@ public final class SwitchResult implements Parcelable {
         this.success         = in.readInt() != 0;
         this.requiresBundle  = in.readInt() != 0;
         this.pendingBundleId = in.readString();
+        this.newModeId       = in.readString();
         this.errorMessage    = in.readString();
     }
 
@@ -45,6 +55,7 @@ public final class SwitchResult implements Parcelable {
         out.writeInt(success        ? 1 : 0);
         out.writeInt(requiresBundle ? 1 : 0);
         out.writeString(pendingBundleId);
+        out.writeString(newModeId);
         out.writeString(errorMessage);
     }
 
