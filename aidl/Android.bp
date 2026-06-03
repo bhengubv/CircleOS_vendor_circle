@@ -11,6 +11,7 @@
 //        za.co.circleos.update            (CircleUpdate / OTA service)
 //        za.co.circleos.inference         (Inference / Butler back-end)
 //        za.co.circleos.personality       (Personality Engine)
+//        za.co.circleos.security          (Quarantine service)
 //
 //      Linked against by: CircleSettings (privacy + mesh + update
 //      panes), CircleOsSettings (vendor companion), Butler,
@@ -42,6 +43,7 @@ java_library {
         "za/co/circleos/inference/*.java",
         "za/co/circleos/personality/*.aidl",
         "za/co/circleos/personality/*.java",
+        "za/co/circleos/security/*.aidl",
     ],
     aidl: {
         local_include_dirs: ["."],

@@ -10,4 +10,10 @@ android_app {
     certificate: "platform",
     privileged: true,
     optimize: { enabled: false },
+    static_libs: [
+        // Pulls in za.co.circleos.security.ICircleQuarantine that
+        // TrafficLobbyVpnService binds to when its detector decides an
+        // app is exfiltrating data (line 352).
+        "android.circleos-java",
+    ],
 }
