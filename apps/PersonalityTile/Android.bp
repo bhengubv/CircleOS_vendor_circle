@@ -25,6 +25,12 @@ android_app {
     platform_apis: true,
     certificate: "platform",
     privileged: true,
+    static_libs: [
+        // za.co.circleos.personality.* AIDL stubs — the tile reads the
+        // active mode, the chooser activity activates / downloads
+        // bundles via ICirclePersonalityManager.
+        "android.circleos-java",
+    ],
     optimize: {
         enabled: false,
     },

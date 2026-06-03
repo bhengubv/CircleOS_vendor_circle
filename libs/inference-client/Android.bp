@@ -1,12 +1,31 @@
 // Copyright (C) 2024 CircleOS
 // SPDX-License-Identifier: Apache-2.0
-// Helper library for apps using the CircleOS Inference Service.
+//
+// circle_inference_client — high-level Java wrapper around the
+// ICircleInference binder. Hides AIDL boilerplate and exposes a
+// simple StreamingCallback interface to client apps.
+//
+// Depends on android.circleos-java for the za.co.circleos.inference
+// AIDL stubs + Parcelables (ICircleInference, IInferenceCallback,
+// InferenceRequest, InferenceResponse, InferenceError, Token,
+// ModelInfo, DeviceCapabilities, ResourceMetrics).
+//
+// Why platform_apis (and no sdk_version)? The wrapper calls
+// android.os.ServiceManager.getService("circle.inference"), which is
+// a @hide API only visible from platform_apis builds. AOSP 15 enforces
+// that platform_apis and sdk_version are mutually exclusive — declare
+// platform_apis, drop sdk_version, keep min_sdk_version.
 
 java_library {
     name: "circle_inference_client",
     srcs: ["src/**/*.java"],
-    sdk_version: "current",
     min_sdk_version: "33",
     platform_apis: true,
+    libs: [
+        "framework",
+    ],
+    static_libs: [
+        "android.circleos-java",
+    ],
     visibility: ["//visibility:public"],
 }

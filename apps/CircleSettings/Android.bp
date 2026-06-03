@@ -16,7 +16,12 @@ android_app {
     platform_apis: true,
     certificate: "platform",
     privileged: true,
-    static_libs: [],
+    static_libs: [
+        // Vendor companion settings UI links the privacy + mesh +
+        // update + personality AIDL stubs same as packages/apps/
+        // CircleSettings (the full shell). One umbrella library.
+        "android.circleos-java",
+    ],
     optimize: {
         enabled: false,
     },

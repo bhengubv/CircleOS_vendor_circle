@@ -6,6 +6,11 @@ android_app {
     platform_apis: true,
     certificate: "platform",
     privileged: true,
+    static_libs: [
+        // za.co.circleos.personality.* AIDL stubs + Parcelables for
+        // mode CRUD / community / managed-mode / learning-suggestions.
+        "android.circleos-java",
+    ],
     optimize: {
         enabled: false,
     },

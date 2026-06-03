@@ -15,6 +15,13 @@ android_app {
     certificate: "platform",
     privileged: true,
     platform_apis: true,
+    static_libs: [
+        // Pulls in the za.co.circleos.inference AIDL stubs that
+        // InferenceServiceConnection imports, plus the mesh /
+        // personality / privacy / update surfaces for Butler's
+        // chat / call-screening / wallet skill features.
+        "android.circleos-java",
+    ],
     optimize: {
         enabled: false,
     },

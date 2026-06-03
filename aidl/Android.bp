@@ -2,27 +2,25 @@
 //
 // Two java_libraries live here:
 //
-//   1. android.circleos-java  — the public AIDL umbrella for CircleOS
-//      framework services. Linked against by every system app that
-//      talks to a Circle service via binder, including:
-//        - packages/apps/CircleSettings (Privacy Dashboard, Mesh,
-//          Update settings panes)
-//      Covers interfaces in three Java packages:
-//          android.circleos.*       (privacy framework)
-//          za.co.circleos.mesh      (mesh service binder)
-//          za.co.circleos.update    (OTA service binder)
+//   1. android.circleos-java  — umbrella for every Circle service that
+//      apps invoke via binder. One library so each consumer adds just
+//      one static_libs entry. Covers four Java packages:
 //
-//   2. circleos-sdpkt-aidl    — the SDPKT Titanium wallet's binder
-//      surface. Linked against by:
-//        - vendor/circle/apps/SdpktTitanium  (WalletActivity, NFC HCE,
-//          QuickPay tile)
-//      All entries are in za.co.circleos.sdpkt.*.
+//        android.circleos.*               (privacy framework)
+//        za.co.circleos.mesh              (CircleMesh service)
+//        za.co.circleos.update            (CircleUpdate / OTA service)
+//        za.co.circleos.inference         (Inference / Butler back-end)
+//        za.co.circleos.personality       (Personality Engine)
 //
-// Why two libraries instead of one? android.circleos-java is the
-// general system-services contract; circleos-sdpkt-aidl is the wallet-
-// specific contract scoped to apps that hold CIRCLE_WALLET_* perms.
-// Splitting them keeps the SDPKT surface optional — apps that don't
-// touch the wallet don't pick up its Parcelables.
+//      Linked against by: CircleSettings (privacy + mesh + update
+//      panes), CircleOsSettings (vendor companion), Butler,
+//      PersonalityEditor, PersonalityTile, CircleMessages,
+//      circle_inference_client (lib).
+//
+//   2. circleos-sdpkt-aidl    — wallet-specific surface, scoped to
+//      apps that hold CIRCLE_WALLET_* permissions. Linked against by
+//      SdpktTitanium only. Splitting it keeps non-wallet apps from
+//      picking up the wallet Parcelables.
 //
 // AIDL interfaces are declared once and the Stub side gets code-gen'd
 // by Soong. Parcelables get a one-line .aidl marshalling stub plus a
@@ -39,6 +37,10 @@ java_library {
         "android/circleos/*.java",
         "za/co/circleos/mesh/*.aidl",
         "za/co/circleos/update/*.aidl",
+        "za/co/circleos/inference/*.aidl",
+        "za/co/circleos/inference/*.java",
+        "za/co/circleos/personality/*.aidl",
+        "za/co/circleos/personality/*.java",
     ],
     aidl: {
         local_include_dirs: ["."],

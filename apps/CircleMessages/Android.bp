@@ -9,6 +9,11 @@ android_app {
     certificate: "platform",
     privileged: true,
     platform_apis: true,
+    static_libs: [
+        // za.co.circleos.mesh.ICircleMeshService AIDL for the mesh-
+        // message receiver + conversation thread.
+        "android.circleos-java",
+    ],
     optimize: {
         enabled: false,
     },
