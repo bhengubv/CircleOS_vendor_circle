@@ -19,8 +19,15 @@ android_app {
         // Pulls in the za.co.circleos.inference AIDL stubs that
         // InferenceServiceConnection imports, plus the mesh /
         // personality / privacy / update surfaces for Butler's
-        // chat / call-screening / wallet skill features.
+        // chat / call-screening features.
         "android.circleos-java",
+        // WalletSkill.java imports za.co.circleos.sdpkt.* —
+        // IShongololoWallet, WalletKey, WalletBalance,
+        // ShongololoTransaction, CalibrationState, LocationContext,
+        // AnalyticsSummary. Those live in circleos-sdpkt-aidl rather
+        // than the umbrella library because the wallet surface is
+        // scoped to apps that hold CIRCLE_WALLET_* permissions.
+        "circleos-sdpkt-aidl",
     ],
     optimize: {
         enabled: false,
