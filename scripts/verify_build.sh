@@ -31,18 +31,18 @@ echo ""
 # ---- 1. System properties ----
 info "Checking system properties..."
 
-VERSION=$(adb shell getprop ro.vendor.circle.version 2>/dev/null | tr -d '\r')
+VERSION=$(adb shell getprop ro.circle.version 2>/dev/null | tr -d '\r')
 if [[ "$VERSION" == "0.1.0-alpha" ]]; then
-    pass "ro.vendor.circle.version = $VERSION"
+    pass "ro.circle.version = $VERSION"
 else
-    fail "ro.vendor.circle.version: expected '0.1.0-alpha', got '$VERSION'"
+    fail "ro.circle.version: expected '0.1.0-alpha', got '$VERSION'"
 fi
 
-BUILD_TYPE=$(adb shell getprop ro.vendor.circle.build.type 2>/dev/null | tr -d '\r')
+BUILD_TYPE=$(adb shell getprop ro.circle.build.type 2>/dev/null | tr -d '\r')
 if [[ -n "$BUILD_TYPE" ]]; then
-    pass "ro.vendor.circle.build.type = $BUILD_TYPE"
+    pass "ro.circle.build.type = $BUILD_TYPE"
 else
-    fail "ro.vendor.circle.build.type not set"
+    fail "ro.circle.build.type not set"
 fi
 
 # ---- 2. Binder services ----

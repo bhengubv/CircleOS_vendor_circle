@@ -10,8 +10,8 @@
 
 - [ ] `lunch circle_redmi_note12-userdebug && make -j$(nproc)` succeeds
 - [ ] `lunch circle_pixel6-userdebug && make -j$(nproc)` succeeds
-- [ ] `adb shell getprop ro.vendor.circle.version` → `0.1.0-alpha`
-- [ ] `adb shell getprop ro.vendor.circle.build.type` → `userdebug`
+- [ ] `adb shell getprop ro.circle.version` → `0.1.0-alpha`
+- [ ] `adb shell getprop ro.circle.build.type` → `userdebug`
 
 ## Privacy Services (adb shell service check)
 
