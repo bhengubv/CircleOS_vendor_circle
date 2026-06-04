@@ -9,8 +9,10 @@
 
 # ── File type declaration ─────────────────────────────────────────────────────
 
-# Type for all CircleMesh runtime data (SQLite DB, chunk files, prefs)
-type circle_mesh_data_file, file_type, data_file_type;
+# Type for all CircleMesh runtime data (SQLite DB, chunk files, prefs).
+# core_data_file_type is mandatory for /data/ types accessed by core
+# domains; see comment in circle_privacy.te for the underlying neverallow.
+type circle_mesh_data_file, file_type, data_file_type, core_data_file_type;
 
 # ── Data directory ────────────────────────────────────────────────────────────
 

@@ -3,8 +3,12 @@
 # CirclePrivacyManagerService runs within the system_server process.
 # This policy grants it access to Circle-specific data paths.
 
-# Type declaration for Circle privacy data files
-type circle_privacy_data_file, file_type, data_file_type;
+# Type declaration for Circle privacy data files.
+# core_data_file_type is mandatory for /data/ types accessed by core
+# domains (system_server is a coredomain). Without it, plat sepolicy's
+# Treble neverallow (system/sepolicy/private/domain.te:1018) rejects
+# system_server's dir/file/sock_file access to these labels.
+type circle_privacy_data_file, file_type, data_file_type, core_data_file_type;
 
 # Allow system_server to read/write Circle privacy data
 allow system_server circle_privacy_data_file:dir { create search add_name remove_name rw_dir_perms };
