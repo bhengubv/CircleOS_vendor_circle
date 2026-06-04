@@ -13,7 +13,7 @@
 # Patched into frameworks/base — not available to arbitrary apps
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.microg.enabled=true \
-    ro.circle.microg.signature_spoof=restricted
+    ro.vendor.circle.microg.signature_spoof=restricted
 
 # microG core components (must be built or prebuilt separately)
 PRODUCT_PACKAGES += \

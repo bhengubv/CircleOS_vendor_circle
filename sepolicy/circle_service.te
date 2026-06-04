@@ -23,7 +23,10 @@ allow platform_app circle_privacy_service:service_manager    find;
 allow platform_app circle_permission_service:service_manager find;
 allow platform_app circle_update_service:service_manager     find;
 
-# Allow system_server to set ro.circle.* and ro.circleos.* properties
+# Allow system_server to set ro.vendor.circle.* and ro.vendor.circleos.*
+# properties. Renamed from the un-namespaced ro.circle.* / ro.circleos.*
+# to satisfy AOSP's vendor_property_contexts namespace check (VTS-enforced);
+# vendor partition property labels MUST use a vendor-allowed prefix.
 allow system_server circle_prop:property_service set;
 
 # neverallow: only system_server may register Circle services

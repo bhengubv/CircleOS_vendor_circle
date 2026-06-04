@@ -1,11 +1,15 @@
 # Circle OS - Common product configuration
-# Verifiable: adb shell getprop ro.circle.version → 0.1.0-alpha
+# Verifiable: adb shell getprop ro.vendor.circle.version → 0.1.0-alpha
+#
+# Properties live under the ro.vendor.* namespace so the vendor partition's
+# property_contexts (vendor/circle/sepolicy/property_contexts) survives
+# AOSP's vendor_property_contexts namespace check (VTS-enforced).
 
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.circle.version=0.1.0-alpha \
-    ro.circle.build.type=userdebug \
-    ro.circleos.update.url=https://ota.circleos.co.za \
-    ro.circleos.channel=stable
+    ro.vendor.circle.version=0.1.0-alpha \
+    ro.vendor.circle.build.type=userdebug \
+    ro.vendor.circleos.update.url=https://ota.circleos.co.za \
+    ro.vendor.circleos.channel=stable
 
 # Circle OS applications
 PRODUCT_PACKAGES += \
