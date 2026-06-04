@@ -15,11 +15,18 @@ type circle_update_service,     service_manager_type;
 # label when these properties get set from build.prop at boot. No
 # `allow system_server circle_prop:property_service set` rule is
 # needed: every circle_* property is a read-only ro.* property set
-# once by init, never mutated by system_server. Adding such a rule
-# trips plat sepolicy's neverallow (coredomain cannot set
-# property_type without system_property_type / extended_core_property_type
-# attributes).
-type circle_prop, property_type;
+# once by init, never mutated by system_server.
+#
+# Declared via the canonical `system_public_prop` macro from
+# system/sepolicy/public/te_macros, which expands to
+#   define_prop(circle_prop, system, public)
+# attaching system_property_type + system_public_property_type so the
+# type satisfies plat sepolicy's enforce_sysprop_owner neverallow
+# (private/property.te:158, requires system_property_type or
+# product_property_type or vendor_property_type) AND the
+# coredomain/non-coredomain read neverallows (requires
+# system_public_property_type for cross-domain read).
+system_public_prop(circle_prop)
 
 # Allow system_server to register Circle services with servicemanager
 allow system_server circle_privacy_service:service_manager    { add find };
