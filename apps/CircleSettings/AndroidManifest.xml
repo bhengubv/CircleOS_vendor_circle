@@ -39,6 +39,23 @@
             </intent-filter>
         </receiver>
 
+    
+        <activity
+            android:name=".PrivacyDashboardActivity"
+            android:exported="true"
+            android:label="Privacy Dashboard">
+            <intent-filter>
+                <action android:name="com.circleos.action.OPEN_PRIVACY_DASHBOARD" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <provider
+            android:name="com.circleos.server.privacy.ScopedContactsProvider"
+            android:authorities="com.circleos.contacts"
+            android:exported="true"
+            android:readPermission="android.permission.READ_CONTACTS" />
+
     </application>
 
 </manifest>
