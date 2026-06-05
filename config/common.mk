@@ -49,3 +49,16 @@ PRODUCT_BUILD_RECOVERY_IMAGE := false
 # system_ext is the correct architectural home for OEM-branded
 # system-side sepolicy extensions.
 SYSTEM_EXT_PRIVATE_SEPOLICY_DIRS += vendor/circle/sepolicy
+
+# Round 22: DoH + Quad9 as Circle defaults.
+# net.dns1/2 set the default resolver IPs; ro.circleos.private_dns_*
+# is consumed by CircleSettings BootReceiver which writes them into
+# Settings.Global.PRIVATE_DNS_MODE + PRIVATE_DNS_SPECIFIER on first
+# boot. Note that PRIVATE_DNS_MODE itself cannot be set via
+# build.prop -- it lives in the SecureSettings db and needs a write
+# from a privileged caller.
+PRODUCT_SYSTEM_PROPERTIES += \
+    net.dns1=9.9.9.9 \
+    net.dns2=149.112.112.112 \
+    ro.circleos.private_dns_mode=hostname \
+    ro.circleos.private_dns_specifier=dns.quad9.net
