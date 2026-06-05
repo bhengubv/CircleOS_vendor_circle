@@ -4,6 +4,8 @@
     package="za.co.circleos.settings">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.REVOKE_RUNTIME_PERMISSIONS" />
@@ -55,6 +57,17 @@
             android:authorities="com.circleos.contacts"
             android:exported="true"
             android:readPermission="android.permission.READ_CONTACTS" />
+
+    
+        <receiver
+            android:name=".CircleDnsBootInitializer"
+            android:exported="true"
+            android:directBootAware="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
     </application>
 
