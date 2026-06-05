@@ -25,7 +25,7 @@ PRODUCT_PACKAGES += \
     InferenceBridge \
     PersonalityEditor \
     PersonalityTile \
-    HomeCinema \
+    \
     SdpktTitanium \
     CircleLauncher
 
