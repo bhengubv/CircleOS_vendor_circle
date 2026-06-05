@@ -42,3 +42,30 @@ allow platform_app circle_update_service:service_manager     find;
 neverallow { domain -system_server } circle_privacy_service:service_manager add;
 neverallow { domain -system_server } circle_permission_service:service_manager add;
 neverallow { domain -system_server } circle_update_service:service_manager add;
+
+# Alpha-1 additions: 5 new Circle service types
+type circle_analytics_service,             service_manager_type;
+type circle_camera_privacy_service,        service_manager_type;
+type circle_clipboard_privacy_service,     service_manager_type;
+type circle_notification_privacy_service,  service_manager_type;
+type circle_backup_service,                service_manager_type;
+
+# Registration: system_server publishes; platform_app finds.
+allow system_server circle_analytics_service:service_manager             { add find };
+allow system_server circle_camera_privacy_service:service_manager        { add find };
+allow system_server circle_clipboard_privacy_service:service_manager     { add find };
+allow system_server circle_notification_privacy_service:service_manager  { add find };
+allow system_server circle_backup_service:service_manager                { add find };
+
+allow platform_app circle_analytics_service:service_manager             find;
+allow platform_app circle_camera_privacy_service:service_manager        find;
+allow platform_app circle_clipboard_privacy_service:service_manager     find;
+allow platform_app circle_notification_privacy_service:service_manager  find;
+allow platform_app circle_backup_service:service_manager                find;
+
+# neverallow: only system_server may register these.
+neverallow { domain -system_server } circle_analytics_service:service_manager             add;
+neverallow { domain -system_server } circle_camera_privacy_service:service_manager        add;
+neverallow { domain -system_server } circle_clipboard_privacy_service:service_manager     add;
+neverallow { domain -system_server } circle_notification_privacy_service:service_manager  add;
+neverallow { domain -system_server } circle_backup_service:service_manager                add;

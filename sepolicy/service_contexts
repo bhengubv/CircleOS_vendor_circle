@@ -5,3 +5,8 @@ circle.privacy    u:object_r:circle_privacy_service:s0
 circle.permission u:object_r:circle_permission_service:s0
 circle.mesh       u:object_r:circle_mesh_service:s0
 circle.update     u:object_r:circle_update_service:s0
+circle.analytics            u:object_r:circle_analytics_service:s0
+circle.camera_privacy       u:object_r:circle_camera_privacy_service:s0
+circle.clipboard_privacy    u:object_r:circle_clipboard_privacy_service:s0
+circle.notification_privacy u:object_r:circle_notification_privacy_service:s0
+circle.backup               u:object_r:circle_backup_service:s0

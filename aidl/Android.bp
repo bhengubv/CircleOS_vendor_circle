@@ -44,6 +44,12 @@ java_library {
         "za/co/circleos/personality/*.aidl",
         "za/co/circleos/personality/*.java",
         "za/co/circleos/security/*.aidl",
+        "za/co/circleos/permission/*.aidl",
+        "za/co/circleos/analytics/*.aidl",
+        "za/co/circleos/camera/*.aidl",
+        "za/co/circleos/clipboard/*.aidl",
+        "za/co/circleos/notification/*.aidl",
+        "za/co/circleos/backup/*.aidl",
     ],
     aidl: {
         local_include_dirs: ["."],
