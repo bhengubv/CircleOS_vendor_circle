@@ -1,0 +1,32 @@
+# Circle OS init script. Installed to /system/etc/init/circle_init.rc
+# via PRODUCT_COPY_FILES in vendor/circle/circle.mk.
+#
+# Creates the on-disk directories the Circle services write to. SELinux
+# labels are applied by vendor/circle/sepolicy/file_contexts (registered
+# via SYSTEM_EXT_PRIVATE_SEPOLICY_DIRS in vendor/circle/config/common.mk).
+#
+# Verifiable from a shell on the booted device:
+#   adb shell ls -lZ /data/circle
+#
+# Expected output: drwxr-x--- system system u:object_r:circle_privacy_data_file:s0 ...
+
+on post-fs-data
+    # Top-level Circle data dir. system:system, 0750 — readable by system_server
+    # and shell (for debugging) but not by other app UIDs.
+    mkdir /data/circle 0750 system system
+
+    # Privacy framework data: AppPrivacyPolicy rows, usage_log, counters DB.
+    # 0700 — strictly system_server only. CirclePrivacyManagerService opens
+    # /data/circle/privacy/privacy.db on first call to getPolicy.
+    mkdir /data/circle/privacy 0700 system system
+
+    # Threat intelligence database (seeded read-only from /system at first
+    # boot, written by ThreatFeedSync from then on).
+    mkdir /data/circle/threat_intel 0750 system system
+
+    # Apply SELinux labels declared in vendor/circle/sepolicy/file_contexts:
+    #   /data/circle(/.*)? -> circle_privacy_data_file
+    #   /data/circle/privacy/audit.db -> circle_privacy_data_file
+    #   /data/circle/privacy/contact_scopes.db -> circle_privacy_data_file
+    #   /data/circle/privacy/network_grants.db -> circle_firewall_data_file
+    restorecon_recursive /data/circle

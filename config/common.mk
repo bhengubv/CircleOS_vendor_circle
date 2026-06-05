@@ -26,7 +26,8 @@ PRODUCT_PACKAGES += \
     PersonalityEditor \
     PersonalityTile \
     HomeCinema \
-    SdpktTitanium
+    SdpktTitanium \
+    CircleLauncher
 
 # A/B update engine (common to all Circle targets)
 PRODUCT_PACKAGES += \
