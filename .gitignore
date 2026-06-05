@@ -1,0 +1,5 @@
+
+# Private signing keys — NEVER commit
+release/security/*.pk8
+release/security/*.key
+microg/prebuilt/*.apk

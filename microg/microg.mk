@@ -21,7 +21,6 @@ PRODUCT_PACKAGES += \
     GsfProxy \
     FakeStore \
     IchnaeaNlpBackend \
-    NominatimGeocoderBackend
 
 # microG permissions
 PRODUCT_COPY_FILES += \
