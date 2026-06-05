@@ -5,7 +5,12 @@
 # which is in system_ext (see SYSTEM_EXT_PRIVATE_SEPOLICY_DIRS below)
 # rather than vendor — so the OEM brand prefix `ro.circle.*` is fine.
 
-PRODUCT_PROPERTY_OVERRIDES += \
+# Round 21: PRODUCT_SYSTEM_PROPERTIES instead of legacy
+# PRODUCT_PROPERTY_OVERRIDES. Round 20 (442644e) labelled
+# ro.circle.* / ro.circleos.* as system_property_type via
+# system_public_prop(circle_prop), so writes target /system/build.prop
+# via the partition-specific PRODUCT_SYSTEM_PROPERTIES variable.
+PRODUCT_SYSTEM_PROPERTIES += \
     ro.circle.version=0.1.0-alpha \
     ro.circle.build.type=userdebug \
     ro.circleos.update.url=https://ota.circleos.co.za \
