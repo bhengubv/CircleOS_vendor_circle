@@ -11,6 +11,7 @@ android_app_import {
     name: "FDroid",
     apk: "FDroid.apk",
     presigned: true,
+    preprocessed: true,
     privileged: false,
     dex_preopt: { enabled: false },
 }
@@ -19,6 +20,7 @@ android_app_import {
     name: "GmsCore",
     apk: "GmsCore.apk",
     presigned: true,
+    preprocessed: true,
     privileged: false,
     dex_preopt: { enabled: false },
 }
