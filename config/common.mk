@@ -28,7 +28,9 @@ PRODUCT_PACKAGES += \
     \
     SdpktTitanium \
     CircleLauncher \
-    CircleSetupWizard
+    CircleSetupWizard 
+    CircleSystemUIOverlay 
+    CircleLockscreenOverlay
 
 # A/B update engine (common to all Circle targets)
 PRODUCT_PACKAGES += \
