@@ -1,357 +1,310 @@
 /*
- * Copyright (C) 2024 CircleOS
+ * Copyright (C) 2026 CircleOS
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * CircleSettings main activity — HyperOS-inspired card-based layout.
+ *
+ * Design elements from Xiaomi HyperOS Settings:
+ *   - Profile/device header card at top with avatar + device name
+ *   - Category sections with rounded card backgrounds
+ *   - Each setting row: icon + title + subtitle + chevron
+ *   - Circle brand colors (Deep navy, Warm cream, Sage green, Gold accent)
+ *   - Privacy Dashboard prominent as first category
  */
 package za.co.circleos.settings;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
-import android.hardware.boot.IBootControl;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Looper;
-import android.os.PowerManager;
-import android.os.RemoteException;
-import android.os.ServiceManager;
-import android.util.Log;
+import android.os.SystemProperties;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
-import android.widget.Button;
-import android.widget.RadioGroup;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+public final class CircleSettingsActivity extends Activity {
 
-import za.co.circleos.update.ICircleUpdateService;
-
-/**
- * CircleOS main settings screen.
- *
- * Sections:
- *  1. OTA update status — current state, available version, check/install actions.
- *  2. Release channel — stable / beta / nightly selector.
- *  3. Privacy summary — permission denials, faked identifiers, network grants.
- *  4. Auto-revoke — job scheduler status and manual trigger.
- *  5. Rollback — "Revert to previous OS" (shown only when active slot is B).
- */
-public class CircleSettingsActivity extends Activity {
-
-    private static final String TAG = "CircleSettings";
-
-    private static final int POLL_INTERVAL_MS = 3_000;
-
-    // ── Views ──────────────────────────────────────────────────────────────────
-    private TextView    mTvUpdateState;
-    private TextView    mTvUpdateVersion;
-    private Button      mBtnCheckNow;
-    private Button      mBtnApplyUpdate;
-    private RadioGroup  mRgChannel;
-    private TextView    mTvPrivacyDenied;
-    private TextView    mTvPrivacyFaked;
-    private TextView    mTvPrivacyNetwork;
-    private TextView    mTvStatus;
-    private Button      mBtnRunNow;
-    // Rollback section (shown only on slot B)
-    private View        mRollbackSection;
-    private Button      mBtnRevertOs;
-
-    // ── Services ───────────────────────────────────────────────────────────────
-    private ICircleUpdateService mUpdateService;
-
-    // ── Polling ────────────────────────────────────────────────────────────────
-    private final Handler mHandler = new Handler(Looper.getMainLooper());
-    private final Runnable mPollRunnable = this::pollUpdateState;
-    private boolean mIgnoreChannelChange = false;
-
-    // ── Lifecycle ──────────────────────────────────────────────────────────────
+    private static final int DEEP    = 0xFF1A1F36;
+    private static final int WARM    = 0xFFF5F0EB;
+    private static final int GOLD    = 0xFFD4A574;
+    private static final int SAGE    = 0xFF7D9B8A;
+    private static final int TERRA   = 0xFFC17B5D;
+    private static final int CARD    = 0xFF243047;
+    private static final int DIVIDER = 0xFF2D3A52;
+    private static final int SUBTITLE = 0x99F5F0EB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        mTvUpdateState    = findViewById(R.id.tv_update_state);
-        mTvUpdateVersion  = findViewById(R.id.tv_update_version);
-        mBtnCheckNow      = findViewById(R.id.btn_check_now);
-        mBtnApplyUpdate   = findViewById(R.id.btn_apply_update);
-        mRgChannel        = findViewById(R.id.rg_channel);
-        mTvPrivacyDenied  = findViewById(R.id.tv_privacy_denied);
-        mTvPrivacyFaked   = findViewById(R.id.tv_privacy_faked);
-        mTvPrivacyNetwork = findViewById(R.id.tv_privacy_network);
-        mTvStatus         = findViewById(R.id.tv_status);
-        mBtnRunNow        = findViewById(R.id.btn_run_now);
-        mRollbackSection  = findViewById(R.id.section_rollback);
-        mBtnRevertOs      = findViewById(R.id.btn_revert_os);
+        ScrollView scroll = new ScrollView(this);
+        scroll.setBackgroundColor(DEEP);
+        scroll.setFillViewport(true);
 
-        mBtnCheckNow.setOnClickListener(v -> onCheckNow());
-        mBtnApplyUpdate.setOnClickListener(v -> onApplyUpdate());
-        mBtnRunNow.setOnClickListener(v -> onRunAutoRevoke());
-        mBtnRevertOs.setOnClickListener(v -> onRevertOs());
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(dp(16), dp(48), dp(16), dp(24));
+        scroll.addView(root, new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        mRgChannel.setOnCheckedChangeListener((group, checkedId) -> {
-            if (!mIgnoreChannelChange) onChannelSelected(checkedId);
+        // ---- Device header card ----
+        root.addView(buildHeaderCard());
+
+        // ---- Privacy & Security (primary category) ----
+        root.addView(sectionLabel("Privacy & Security"));
+        LinearLayout privacyCard = cardContainer();
+        privacyCard.addView(settingRow("Privacy Dashboard",
+                "View all privacy activity", SAGE, v -> openDashboard()));
+        privacyCard.addView(divider());
+        privacyCard.addView(settingRow("Network Permissions",
+                "Default deny — apps must ask", SAGE, null));
+        privacyCard.addView(divider());
+        privacyCard.addView(settingRow("Contact Scoping",
+                "Choose which contacts each app sees", SAGE, null));
+        privacyCard.addView(divider());
+        privacyCard.addView(settingRow("Fake Identifiers",
+                "Synthetic IMEI, MAC, Ad ID per app", SAGE, null));
+        privacyCard.addView(divider());
+        privacyCard.addView(settingRow("Auto-Revoke",
+                "Unused permissions revoked after 7 days", SAGE, null));
+        root.addView(privacyCard);
+
+        // ---- Network & Internet ----
+        root.addView(sectionLabel("Network & Internet"));
+        LinearLayout netCard = cardContainer();
+        netCard.addView(settingRow("DNS over HTTPS",
+                "Quad9 (dns.quad9.net) — encrypted", GOLD, null));
+        netCard.addView(divider());
+        netCard.addView(settingRow("Traffic Lobby",
+                "Quarantine suspicious connections", GOLD, null));
+        netCard.addView(divider());
+        netCard.addView(settingRow("Mesh Network",
+                "Phone-to-phone via WiFi Direct + BLE", GOLD, null));
+        root.addView(netCard);
+
+        // ---- AI & Personalisation ----
+        root.addView(sectionLabel("AI & Personalisation"));
+        LinearLayout aiCard = cardContainer();
+        aiCard.addView(settingRow("B! AI Assistant",
+                "On-device inference via CircleInference", TERRA, null));
+        aiCard.addView(divider());
+        aiCard.addView(settingRow("Personality Modes",
+                "Work, Personal, Kids — per-profile rules", TERRA, null));
+        root.addView(aiCard);
+
+        // ---- System ----
+        root.addView(sectionLabel("System"));
+        LinearLayout sysCard = cardContainer();
+        sysCard.addView(settingRow("Software Update",
+                "Check ota.circleos.co.za", WARM, null));
+        sysCard.addView(divider());
+        sysCard.addView(settingRow("Backup & Restore",
+                "Encrypted local backup (AES-256-GCM)", WARM, null));
+        sysCard.addView(divider());
+        sysCard.addView(settingRow("About Circle OS",
+                getVersionString(), WARM, null));
+        root.addView(sysCard);
+
+        setContentView(scroll);
+    }
+
+    // ------------------------------------------------------------------
+    //  Header card
+    // ------------------------------------------------------------------
+
+    private View buildHeaderCard() {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.HORIZONTAL);
+        card.setGravity(Gravity.CENTER_VERTICAL);
+        card.setBackgroundColor(CARD);
+        card.setPadding(dp(20), dp(20), dp(20), dp(20));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.bottomMargin = dp(16);
+        card.setLayoutParams(lp);
+        // Round corners via clip
+        card.setClipToOutline(true);
+        card.setOutlineProvider(new android.view.ViewOutlineProvider() {
+            @Override
+            public void getOutline(View view, android.graphics.Outline outline) {
+                outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), dp(16));
+            }
         });
 
-        bindUpdateService();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        refreshAutoRevokeStatus();
-        refreshPrivacySummary();
-        refreshRollbackSection();
-        mHandler.post(mPollRunnable);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mHandler.removeCallbacks(mPollRunnable);
-    }
-
-    // ── Update service ─────────────────────────────────────────────────────────
-
-    private void bindUpdateService() {
-        new Thread(() -> {
-            IBinder b = ServiceManager.getService("circle.update");
-            if (b != null) {
-                mUpdateService = ICircleUpdateService.Stub.asInterface(b);
-                mHandler.post(this::pollUpdateState);
-            } else {
-                mHandler.post(() -> {
-                    mTvUpdateState.setText(R.string.update_state_unknown);
-                    mTvUpdateVersion.setText("");
-                });
+        // Avatar placeholder — Circle logo circle
+        View avatar = new View(this);
+        avatar.setBackgroundColor(SAGE);
+        LinearLayout.LayoutParams avLp = new LinearLayout.LayoutParams(dp(48), dp(48));
+        avLp.rightMargin = dp(16);
+        avatar.setLayoutParams(avLp);
+        avatar.setClipToOutline(true);
+        avatar.setOutlineProvider(new android.view.ViewOutlineProvider() {
+            @Override
+            public void getOutline(View view, android.graphics.Outline outline) {
+                outline.setOval(0, 0, view.getWidth(), view.getHeight());
             }
-        }).start();
+        });
+        card.addView(avatar);
+
+        // Text block
+        LinearLayout text = new LinearLayout(this);
+        text.setOrientation(LinearLayout.VERTICAL);
+        TextView name = new TextView(this);
+        name.setText("Circle OS Device");
+        name.setTextColor(WARM);
+        name.setTextSize(18);
+        name.setTypeface(null, android.graphics.Typeface.BOLD);
+        text.addView(name);
+
+        TextView sub = new TextView(this);
+        sub.setText(getVersionString());
+        sub.setTextColor(SUBTITLE);
+        sub.setTextSize(13);
+        sub.setPadding(0, dp(2), 0, 0);
+        text.addView(sub);
+
+        card.addView(text, new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        // Chevron
+        TextView chevron = new TextView(this);
+        chevron.setText("›");
+        chevron.setTextColor(SUBTITLE);
+        chevron.setTextSize(24);
+        card.addView(chevron);
+
+        return card;
     }
 
-    private void pollUpdateState() {
-        if (mUpdateService == null) {
-            mHandler.postDelayed(mPollRunnable, POLL_INTERVAL_MS);
-            return;
+    // ------------------------------------------------------------------
+    //  UI building blocks
+    // ------------------------------------------------------------------
+
+    private TextView sectionLabel(String text) {
+        TextView t = new TextView(this);
+        t.setText(text);
+        t.setTextColor(SUBTITLE);
+        t.setTextSize(12);
+        t.setAllCaps(true);
+        t.setLetterSpacing(0.1f);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.topMargin = dp(20);
+        lp.bottomMargin = dp(8);
+        lp.leftMargin = dp(4);
+        t.setLayoutParams(lp);
+        return t;
+    }
+
+    private LinearLayout cardContainer() {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setBackgroundColor(CARD);
+        card.setPadding(dp(16), dp(4), dp(16), dp(4));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.bottomMargin = dp(8);
+        card.setLayoutParams(lp);
+        card.setClipToOutline(true);
+        card.setOutlineProvider(new android.view.ViewOutlineProvider() {
+            @Override
+            public void getOutline(View view, android.graphics.Outline outline) {
+                outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), dp(16));
+            }
+        });
+        return card;
+    }
+
+    private View settingRow(String title, String subtitle, int accentColor,
+                            View.OnClickListener onClick) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(0, dp(14), 0, dp(14));
+        if (onClick != null) {
+            row.setClickable(true);
+            row.setFocusable(true);
+            row.setOnClickListener(onClick);
         }
-        new Thread(() -> {
-            try {
-                int    state   = mUpdateService.getState();
-                String version = mUpdateService.getAvailableVersion();
-                String channel = mUpdateService.getChannel();
-                long   lastCheck = mUpdateService.getLastCheckTime();
-                int    progress  = mUpdateService.getDownloadProgress();
-                mHandler.post(() -> updateUi(state, version, channel, lastCheck, progress));
-            } catch (RemoteException e) {
-                Log.w(TAG, "pollUpdateState error: " + e.getMessage());
-            }
-            mHandler.postDelayed(mPollRunnable, POLL_INTERVAL_MS);
-        }).start();
-    }
 
-    private void updateUi(int state, String version, String channel,
-                          long lastCheckMs, int progress) {
-        // State label
-        int stateRes;
-        switch (state) {
-            case 1:  stateRes = R.string.update_state_checking;    break;
-            case 2:  stateRes = R.string.update_state_downloading; break;
-            case 3:  stateRes = R.string.update_state_ready;       break;
-            case 4:  stateRes = R.string.update_state_installing;  break;
-            case 5:  stateRes = R.string.update_state_failed;      break;
-            default: stateRes = R.string.update_state_idle;        break;
+        // Accent dot
+        View dot = new View(this);
+        dot.setBackgroundColor(accentColor);
+        LinearLayout.LayoutParams dotLp = new LinearLayout.LayoutParams(dp(4), dp(32));
+        dotLp.rightMargin = dp(14);
+        dot.setLayoutParams(dotLp);
+        dot.setClipToOutline(true);
+        dot.setOutlineProvider(new android.view.ViewOutlineProvider() {
+            @Override
+            public void getOutline(View view, android.graphics.Outline outline) {
+                outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), dp(2));
+            }
+        });
+        row.addView(dot);
+
+        // Text
+        LinearLayout text = new LinearLayout(this);
+        text.setOrientation(LinearLayout.VERTICAL);
+        TextView t = new TextView(this);
+        t.setText(title);
+        t.setTextColor(WARM);
+        t.setTextSize(15);
+        text.addView(t);
+        if (subtitle != null) {
+            TextView s = new TextView(this);
+            s.setText(subtitle);
+            s.setTextColor(SUBTITLE);
+            s.setTextSize(12);
+            s.setPadding(0, dp(2), 0, 0);
+            text.addView(s);
         }
-        String stateStr = getString(stateRes);
-        if (state == 2 && progress >= 0) stateStr += " (" + progress + "%)";
-        mTvUpdateState.setText(stateStr);
+        row.addView(text, new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-        // Version / channel / last-check line
-        if (version != null && !version.isEmpty() && state >= 3) {
-            mTvUpdateVersion.setText(getString(R.string.update_version_available, version));
-        } else {
-            String timeStr = lastCheckMs > 0
-                    ? new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date(lastCheckMs))
-                    : "never";
-            mTvUpdateVersion.setText(getString(R.string.update_channel_label,
-                    channel != null ? channel : "stable", timeStr));
-        }
+        // Chevron
+        TextView chevron = new TextView(this);
+        chevron.setText("›");
+        chevron.setTextColor(SUBTITLE);
+        chevron.setTextSize(20);
+        row.addView(chevron);
 
-        // Apply button visibility
-        mBtnApplyUpdate.setVisibility(state == 3 ? View.VISIBLE : View.GONE);
-
-        // Channel radio — don't trigger the listener
-        mIgnoreChannelChange = true;
-        if ("nightly".equals(channel)) mRgChannel.check(R.id.rb_nightly);
-        else if ("beta".equals(channel)) mRgChannel.check(R.id.rb_beta);
-        else mRgChannel.check(R.id.rb_stable);
-        mIgnoreChannelChange = false;
+        return row;
     }
 
-    private void onCheckNow() {
-        if (mUpdateService == null) return;
-        new Thread(() -> {
-            try { mUpdateService.checkNow(); } catch (RemoteException e) {
-                Log.w(TAG, "checkNow error", e);
-            }
-        }).start();
+    private View divider() {
+        View d = new View(this);
+        d.setBackgroundColor(DIVIDER);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 1);
+        lp.leftMargin = dp(18);
+        d.setLayoutParams(lp);
+        return d;
     }
 
-    private void onApplyUpdate() {
-        new AlertDialog.Builder(this)
-            .setTitle("Install Update")
-            .setMessage("The device will reboot to apply the update. Continue?")
-            .setPositiveButton("Install", (d, w) -> {
-                if (mUpdateService == null) return;
-                new Thread(() -> {
-                    try { mUpdateService.applyUpdate(); } catch (RemoteException e) {
-                        Log.w(TAG, "applyUpdate error", e);
-                    }
-                }).start();
-            })
-            .setNegativeButton("Cancel", null)
-            .show();
-    }
+    // ------------------------------------------------------------------
+    //  Navigation
+    // ------------------------------------------------------------------
 
-    private void onChannelSelected(int checkedId) {
-        if (mUpdateService == null) return;
-        String channel;
-        if (checkedId == R.id.rb_nightly)   channel = "nightly";
-        else if (checkedId == R.id.rb_beta) channel = "beta";
-        else                                channel = "stable";
-        final String selected = channel;
-        new Thread(() -> {
-            try { mUpdateService.setChannel(selected); } catch (RemoteException e) {
-                Log.w(TAG, "setChannel error", e);
-            }
-        }).start();
-    }
-
-    // ── Privacy summary ────────────────────────────────────────────────────────
-
-    private void refreshPrivacySummary() {
-        new Thread(() -> {
-            try {
-                IBinder b = ServiceManager.getService("circle.privacy");
-                if (b == null) {
-                    mHandler.post(() -> {
-                        mTvPrivacyDenied.setText(R.string.privacy_unavailable);
-                        mTvPrivacyFaked.setText("");
-                        mTvPrivacyNetwork.setText("");
-                    });
-                    return;
-                }
-                android.circleos.privacy.ICirclePrivacyManagerService svc =
-                        android.circleos.privacy.ICirclePrivacyManagerService.Stub.asInterface(b);
-                int denied   = svc.getDeniedPermissionCount();
-                int faked    = svc.getFakedIdentifierCount();
-                int network  = svc.getNetworkGrantCount();
-                mHandler.post(() -> {
-                    mTvPrivacyDenied.setText(getString(R.string.privacy_denied,   denied));
-                    mTvPrivacyFaked.setText(getString(R.string.privacy_faked,    faked));
-                    mTvPrivacyNetwork.setText(getString(R.string.privacy_network, network));
-                });
-            } catch (Exception e) {
-                Log.d(TAG, "Privacy summary: " + e.getMessage());
-                mHandler.post(() -> mTvPrivacyDenied.setText(R.string.privacy_unavailable));
-            }
-        }).start();
-    }
-
-    // ── Auto-revoke ────────────────────────────────────────────────────────────
-
-    private void refreshAutoRevokeStatus() {
-        JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
-        if (scheduler == null) { mTvStatus.setText(R.string.status_unavailable); return; }
-        List<JobInfo> jobs = scheduler.getAllPendingJobs();
-        boolean scheduled = false;
-        for (JobInfo job : jobs) {
-            if (job.getId() == BootReceiver.JOB_ID) { scheduled = true; break; }
-        }
-        mTvStatus.setText(scheduled ? R.string.status_scheduled : R.string.status_not_scheduled);
-    }
-
-    private void onRunAutoRevoke() {
-        JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
-        if (scheduler == null) return;
-        JobInfo immediate = new JobInfo.Builder(
-                BootReceiver.JOB_ID + 1,
-                new ComponentName(this, AutoRevokeJobService.class))
-                .setOverrideDeadline(0)
-                .build();
-        int result = scheduler.schedule(immediate);
-        mTvStatus.setText(result == JobScheduler.RESULT_SUCCESS
-                ? R.string.status_triggered : R.string.status_trigger_failed);
-    }
-
-    // ── Rollback — revert to slot A (stock OS) ─────────────────────────────────
-
-    /**
-     * Show the rollback section only when the active boot slot is B (CircleOS).
-     * On slot A (stock or after rollback) the section is hidden entirely.
-     */
-    private void refreshRollbackSection() {
-        new Thread(() -> {
-            boolean onSlotB = isActiveSlotB();
-            mHandler.post(() -> {
-                if (mRollbackSection != null) {
-                    mRollbackSection.setVisibility(onSlotB ? View.VISIBLE : View.GONE);
-                }
-            });
-        }).start();
-    }
-
-    /**
-     * Returns true when the device has booted from slot B (CircleOS slot).
-     * Uses the IBootControl HAL AIDL interface.
-     */
-    private boolean isActiveSlotB() {
-        try {
-            IBinder b = ServiceManager.waitForDeclaredService(
-                    "android.hardware.boot.IBootControl/default");
-            if (b == null) return false;
-            IBootControl bootControl = IBootControl.Stub.asInterface(b);
-            int activeSlot = bootControl.getCurrentSlot();
-            return activeSlot == 1; // 0=A, 1=B
-        } catch (Exception e) {
-            Log.w(TAG, "isActiveSlotB: " + e.getMessage());
-            return false;
+    private void openDashboard() {
+        Intent i = new Intent("com.circleos.action.OPEN_PRIVACY_DASHBOARD");
+        if (i.resolveActivity(getPackageManager()) != null) {
+            startActivity(i);
         }
     }
 
-    /**
-     * Confirm + execute rollback: set active slot to A and reboot.
-     * Stock Android resumes from slot A with user data intact.
-     */
-    private void onRevertOs() {
-        new AlertDialog.Builder(this)
-            .setTitle(R.string.rollback_title)
-            .setMessage(R.string.rollback_message)
-            .setPositiveButton(R.string.rollback_confirm, (d, w) -> doRollback())
-            .setNegativeButton(android.R.string.cancel, null)
-            .show();
+    private String getVersionString() {
+        String ver = SystemProperties.get("ro.circle.version", "0.1.0-alpha");
+        return "CircleOS " + ver + " — Android " + Build.VERSION.RELEASE;
     }
 
-    private void doRollback() {
-        new Thread(() -> {
-            try {
-                IBinder b = ServiceManager.waitForDeclaredService(
-                        "android.hardware.boot.IBootControl/default");
-                if (b == null) {
-                    Log.e(TAG, "doRollback: IBootControl not available");
-                    return;
-                }
-                IBootControl bootControl = IBootControl.Stub.asInterface(b);
-                bootControl.setActiveBootSlot(0); // slot A = stock
-                Log.i(TAG, "Active slot set to A — rebooting");
-                PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
-                if (pm != null) pm.reboot(null);
-            } catch (Exception e) {
-                Log.e(TAG, "doRollback failed", e);
-            }
-        }).start();
+    private int dp(int v) {
+        return (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, v, getResources().getDisplayMetrics());
     }
 }

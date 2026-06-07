@@ -27,7 +27,8 @@ PRODUCT_PACKAGES += \
     PersonalityTile \
     \
     SdpktTitanium \
-    CircleLauncher
+    CircleLauncher \
+    CircleSetupWizard
 
 # A/B update engine (common to all Circle targets)
 PRODUCT_PACKAGES += \

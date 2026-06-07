@@ -1,0 +1,15 @@
+// Circle OS SystemUI overlay — applies Circle brand colours + HyperOS
+// design language (rounded notifications, frosted QS tiles, dark navy
+// palette) to the stock AOSP SystemUI.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+runtime_resource_overlay {
+    name: "CircleSystemUIOverlay",
+    resource_dirs: ["res"],
+    sdk_version: "current",
+    certificate: "platform",
+    product_specific: true,
+}

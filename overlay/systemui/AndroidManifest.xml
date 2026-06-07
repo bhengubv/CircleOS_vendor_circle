@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Circle OS SystemUI Overlay.
+  Runtime Resource Overlay targeting com.android.systemui to apply
+  Circle brand colours and HyperOS-inspired spacing/radii.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.circleos.overlay.systemui">
+
+    <overlay
+        android:targetPackage="com.android.systemui"
+        android:isStatic="true"
+        android:priority="1" />
+
+</manifest>

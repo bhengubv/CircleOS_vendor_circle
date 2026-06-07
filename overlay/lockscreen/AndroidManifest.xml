@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Circle OS Keyguard/Lock screen overlay.
+  Merged with CircleSystemUIOverlay at build time — both target
+  com.android.systemui but this one carries only the lock screen
+  specific overrides. Keeping them separate makes the file diff
+  cleaner during AOSP rebases.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.circleos.overlay.lockscreen">
+
+    <overlay
+        android:targetPackage="com.android.systemui"
+        android:isStatic="true"
+        android:priority="2" />
+
+</manifest>

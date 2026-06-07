@@ -1,0 +1,17 @@
+// Circle OS Setup Wizard — first-boot onboarding.
+// 4-page flow: Welcome → Privacy → WiFi → Done.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "CircleSetupWizard",
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest.xml",
+    platform_apis: true,
+    certificate: "platform",
+    privileged: true,
+    optimize: { enabled: false },
+}

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.circleos.setup">
+
+    <uses-sdk android:minSdkVersion="34" android:targetSdkVersion="35" />
+
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+
+    <application
+        android:label="Circle Setup"
+        android:theme="@style/Theme.CircleSetup"
+        android:defaultToDeviceProtectedStorage="true"
+        android:directBootAware="true">
+
+        <activity
+            android:name=".CircleSetupWizardActivity"
+            android:exported="true"
+            android:immersive="true"
+            android:launchMode="singleTask"
+            android:configChanges="mcc|mnc|keyboard|keyboardHidden">
+
+            <!-- Android's provisioning hook — launched on first boot
+                 before the home screen if DEVICE_PROVISIONED=0 -->
+            <intent-filter android:priority="100">
+                <action android:name="android.intent.action.DEVICE_INITIALIZATION_WIZARD" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <!-- Also handle SUW_WELCOME for GMS-less devices -->
+            <intent-filter>
+                <action android:name="com.android.setupwizard.SETUP_WIZARD" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+        </activity>
+
+    </application>
+
+</manifest>

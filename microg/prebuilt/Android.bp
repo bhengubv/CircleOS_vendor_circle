@@ -12,7 +12,6 @@ android_app_import {
     apk: "FDroid.apk",
     presigned: true,
     preprocessed: true,
-    skip_preprocessed_apk_checks: true,
     privileged: false,
     dex_preopt: { enabled: false },
 }

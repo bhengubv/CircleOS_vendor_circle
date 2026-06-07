@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Circle OS SystemUI resource overlay.
+  Themes notification shade, quick settings, and status bar to match
+  HyperOS design language with Circle brand colours.
+
+  Installed via PRODUCT_PACKAGES as a runtime resource overlay (RRO).
+  Targets com.android.systemui.
+-->
+<resources>
+    <!-- Quick Settings background — Circle Deep with slight transparency -->
+    <color name="qs_background_dark">#E61A1F36</color>
+    <color name="qs_tile_background">#FF243047</color>
+
+    <!-- Notification shade -->
+    <color name="notification_shade_background_color">#FF1A1F36</color>
+    <color name="notification_guts_bg_color">#FF243047</color>
+
+    <!-- Notification card styling -->
+    <dimen name="notification_corner_radius">16dp</dimen>
+    <dimen name="notification_top_pad">12dp</dimen>
+
+    <!-- Quick settings tile corner radius (HyperOS uses large radius) -->
+    <dimen name="qs_tile_corner_radius">16dp</dimen>
+    <dimen name="qs_tile_margin_vertical">4dp</dimen>
+
+    <!-- Status bar -->
+    <color name="status_bar_background_semi_transparent">#661A1F36</color>
+
+    <!-- Accent colours for toggles -->
+    <color name="qs_tile_active_color">#FF7D9B8A</color>
+    <color name="qs_tile_inactive_color">#FF2D3A52</color>
+
+    <!-- Lock screen -->
+    <color name="lockscreen_clock_color">#FFF5F0EB</color>
+
+    <!-- Circle-specific quick settings defaults.
+         The default tile list is specified in SystemUI config and we
+         override it to include the Circle Privacy tile. -->
+    <string name="quick_settings_tiles_default" translatable="false">wifi,bt,dnd,flashlight,rotation,cell,airplane,circle_privacy</string>
+</resources>
