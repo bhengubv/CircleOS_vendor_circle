@@ -25,11 +25,10 @@ PRODUCT_PACKAGES += \
     InferenceBridge \
     PersonalityEditor \
     PersonalityTile \
-    \
     SdpktTitanium \
     CircleLauncher \
-    CircleSetupWizard 
-    CircleSystemUIOverlay 
+    CircleSetupWizard \
+    CircleSystemUIOverlay \
     CircleLockscreenOverlay
 
 # A/B update engine (common to all Circle targets)
