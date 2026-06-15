@@ -1,0 +1,9 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_import {
+    name: "aether-protocol",
+    jars: ["prebuilt/aethernet-protocol-1.0.3.jar"],
+    sdk_version: "core_platform",
+}

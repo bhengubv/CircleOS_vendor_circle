@@ -74,7 +74,7 @@
             android:name="com.circleos.systemui.qs.CirclePrivacyQSTile"
             android:exported="true"
             android:label="Circle Privacy"
-            android:icon="@drawable/ic_circle_launcher"
+            android:icon="@mipmap/ic_launcher"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />

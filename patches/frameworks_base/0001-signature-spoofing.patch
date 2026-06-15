@@ -1,0 +1,87 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Circle OS <os@circleos.co.za>
+Subject: [PATCH] Add restricted signature spoofing for microG
+
+Allow apps with the FAKE_PACKAGE_SIGNATURE permission (signature|privileged
+protection level) to spoof their package signature. This enables microG
+GmsCore to present itself as Google Play Services to apps that check the
+signing certificate.
+
+Only apps signed with the platform key AND installed as privileged can
+obtain this permission — it is not available to user-installed apps.
+
+The spoofed signature is read from the target package metadata key
+"fake-signature". If the requesting caller does not hold the permission,
+or the target has no such metadata, signatures are returned unmodified.
+
+Based on the signature spoofing patches from CalyxOS and LineageOS4microG,
+adapted for the AOSP 15 ComputerEngine architecture.
+---
+ core/res/AndroidManifest.xml                                  | 7 +++++++
+ services/core/java/com/android/server/pm/ComputerEngine.java  | 31 +++++++++++++++++++++++++++++++
+ 2 files changed, 38 insertions(+)
+
+diff --git a/core/res/AndroidManifest.xml b/core/res/AndroidManifest.xml
+--- a/core/res/AndroidManifest.xml
++++ b/core/res/AndroidManifest.xml
+@@ -8810,6 +8810,13 @@
+         android:protectionLevel="signature|role"
+         android:featureFlag="android.permission.flags.text_classifier_choice_api_enabled"/>
+ 
++    <!-- Allows an application to spoof its package signature.
++         Used by microG to present as Google Play Services.
++         @hide
++    -->
++    <permission android:name="android.permission.FAKE_PACKAGE_SIGNATURE"
++        android:protectionLevel="signature|privileged"/>
++
+     <!-- Attribution for Geofencing service. -->
+     <attribution android:tag="GeofencingService" android:label="@string/geofencing_service"/>
+diff --git a/services/core/java/com/android/server/pm/ComputerEngine.java b/services/core/java/com/android/server/pm/ComputerEngine.java
+--- a/services/core/java/com/android/server/pm/ComputerEngine.java
++++ b/services/core/java/com/android/server/pm/ComputerEngine.java
+@@ -1530,6 +1530,10 @@
+                 return null;
+             }
+ 
++            if ((flags & PackageManager.GET_SIGNATURES) != 0) {
++                maybeSpoofSignatures(packageInfo, ps);
++            }
++
+             packageInfo.packageName = packageInfo.applicationInfo.packageName =
+                     resolveExternalPackageName(p);
+ 
+@@ -1560,6 +1564,33 @@
+         }
+     }
+ 
++    /**
++     * If the caller holds FAKE_PACKAGE_SIGNATURE and the target package
++     * declares a "fake-signature" metadata value, replace the signatures
++     * in the returned PackageInfo with the spoofed value.
++     */
++    private void maybeSpoofSignatures(PackageInfo pi, PackageStateInternal ps) {
++        if (pi == null || pi.signatures == null || pi.signatures.length == 0) {
++            return;
++        }
++        final int callingUid = Binder.getCallingUid();
++        if (mContext.checkPermission("android.permission.FAKE_PACKAGE_SIGNATURE",
++                Binder.getCallingPid(), callingUid) != PackageManager.PERMISSION_GRANTED) {
++            return;
++        }
++        AndroidPackage pkg = ps.getPkg();
++        if (pkg == null) return;
++        android.os.Bundle metadata = pkg.getMetaData();
++        if (metadata == null) return;
++        String fakeSig = metadata.getString("fake-signature");
++        if (fakeSig == null || fakeSig.isEmpty()) return;
++        try {
++            android.content.pm.Signature sig = new android.content.pm.Signature(fakeSig);
++            pi.signatures = new android.content.pm.Signature[] { sig };
++        } catch (Exception e) {
++            android.util.Slog.w("ComputerEngine", "Invalid fake-signature in " + pi.packageName, e);
++        }
++    }
++
+     @Override
+     public final ApplicationInfo generateApplicationInfoFromSettings(String packageName,

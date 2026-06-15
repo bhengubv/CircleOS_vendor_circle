@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Panik</string>
+    <string name="sos_trigger">SOS</string>
+    <string name="trip_start">Start Trip</string>
+    <string name="trip_end">End Trip</string>
+    <string name="safe_zones">Safe Zones</string>
+    <string name="emergency_contacts">Emergency Contacts</string>
+    <string name="evidence">Evidence</string>
+    <string name="history">History</string>
+    <string name="community">Community Alerts</string>
+    <string name="cancel_alert">Cancel Alert</string>
+    <string name="resolve_alert">Resolve</string>
+    <string name="im_safe">I\'m Safe</string>
+</resources>

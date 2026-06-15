@@ -1,0 +1,35 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "HomeCinema",
+    srcs: ["src/**/*.kt", "src/**/*.java"],
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest.xml",
+    platform_apis: true,
+    certificate: "platform",
+    privileged: true,
+    static_libs: [
+        "android.circleos-java",
+        "androidx.compose.material3_material3",
+        "androidx.compose.ui_ui",
+        "androidx.compose.foundation_foundation",
+        "androidx.compose.runtime_runtime",
+        "androidx.compose.material_material-icons-core",
+        "androidx.compose.material_material-icons-extended",
+        "androidx.activity_activity-compose",
+        "androidx.lifecycle_lifecycle-runtime-ktx",
+        "androidx.lifecycle_lifecycle-viewmodel-compose",
+        "androidx.navigation_navigation-compose",
+        "androidx.media3.media3-exoplayer",
+        "androidx.media3.media3-ui",
+        "kotlinx_coroutines",
+        "aether-protocol",
+        "aether-media",
+        "circleai",
+        "com.google.android.material_material-nodeps",
+    ],
+    kotlincflags: ["-Xjvm-default=all", "-Xskip-metadata-version-check"],
+    optimize: { enabled: false },
+}

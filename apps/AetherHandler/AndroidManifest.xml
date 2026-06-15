@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.circleos.aether">
+
+    <uses-sdk android:minSdkVersion="34" android:targetSdkVersion="35" />
+
+    <application
+        android:icon="@mipmap/ic_launcher"
+        android:label="Aether"
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+
+        <activity
+            android:name=".AetherSchemeActivity"
+            android:exported="true"
+            android:label="Aether">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="aether" />
+            </intent-filter>
+        </activity>
+
+    </application>
+</manifest>

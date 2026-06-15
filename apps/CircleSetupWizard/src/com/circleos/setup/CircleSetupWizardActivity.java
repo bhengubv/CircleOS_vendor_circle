@@ -5,22 +5,16 @@
  * Circle OS Setup Wizard — first-boot onboarding flow.
  *
  * 4 screens:
- *   1. Welcome — "Welcome to the Circle" + brand identity
- *   2. Privacy Setup — explain default-deny, let user choose posture
- *   3. Network — WiFi setup (delegates to Android WiFi picker)
- *   4. Done — "You're protected" + finish
- *
- * HyperOS-inspired: full-bleed pages, large typography, minimal UI,
- * bottom "Next" button, page dots.
- *
- * Registered as the provisioning activity via intent-filter for
- * android.intent.action.DEVICE_INITIALIZATION_WIZARD. On first boot
- * Android launches this before the launcher.
+ *   1. Welcome — Shongololo logo + "Circle [logo] S" wordmark
+ *   2. Privacy Setup — shield icon, explain default-deny
+ *   3. Network — mesh icon, WiFi setup
+ *   4. Done — checkmark, "You are protected"
  */
 package com.circleos.setup;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.TypedValue;
@@ -29,15 +23,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public final class CircleSetupWizardActivity extends Activity {
 
-    private static final int DEEP = 0xFF1A1F36;
+    private static final int DEEP = 0xFF0A0A0A;
     private static final int WARM = 0xFFF5F0EB;
-    private static final int GOLD = 0xFFD4A574;
-    private static final int SAGE = 0xFF7D9B8A;
+    private static final int ACCENT = 0xFF2196F3;
 
     private static final int TOTAL_PAGES = 4;
     private int mCurrentPage = 0;
@@ -45,22 +39,27 @@ public final class CircleSetupWizardActivity extends Activity {
     private FrameLayout mContent;
     private LinearLayout mDots;
     private Button mNextButton;
+    private Typeface mComfortaa;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        try {
+            mComfortaa = Typeface.createFromAsset(getAssets(), "fonts/comfortaa_bold.ttf");
+        } catch (Throwable t) {
+            mComfortaa = Typeface.DEFAULT_BOLD;
+        }
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(DEEP);
         root.setPadding(dp(32), dp(80), dp(32), dp(40));
 
-        // Content area (swappable per page)
         mContent = new FrameLayout(this);
         root.addView(mContent, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 
-        // Page dots
         mDots = new LinearLayout(this);
         mDots.setGravity(Gravity.CENTER);
         mDots.setPadding(0, dp(24), 0, dp(24));
@@ -68,13 +67,13 @@ public final class CircleSetupWizardActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        // Next button — full width, pill shape, Sage green
         mNextButton = new Button(this);
         mNextButton.setText("Next");
         mNextButton.setTextColor(DEEP);
         mNextButton.setTextSize(16);
         mNextButton.setAllCaps(false);
-        mNextButton.setBackgroundColor(SAGE);
+        mNextButton.setTypeface(mComfortaa);
+        mNextButton.setBackgroundColor(ACCENT);
         mNextButton.setPadding(0, dp(14), 0, dp(14));
         mNextButton.setOnClickListener(v -> nextPage());
         LinearLayout.LayoutParams btnLp = new LinearLayout.LayoutParams(
@@ -95,13 +94,11 @@ public final class CircleSetupWizardActivity extends Activity {
 
     private void nextPage() {
         if (mCurrentPage == 2) {
-            // Page 2 = Network → open WiFi settings
             try {
                 startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
             } catch (Throwable t) { /* ignore */ }
         }
         if (mCurrentPage >= TOTAL_PAGES - 1) {
-            // Mark setup complete
             Settings.Global.putInt(getContentResolver(),
                     Settings.Global.DEVICE_PROVISIONED, 1);
             Settings.Secure.putInt(getContentResolver(),
@@ -127,30 +124,21 @@ public final class CircleSetupWizardActivity extends Activity {
         updateDots();
     }
 
-    // ------------------------------------------------------------------
-    //  Pages
-    // ------------------------------------------------------------------
-
     private View pageWelcome() {
         LinearLayout page = pageContainer();
-
-        TextView emoji = bigEmoji(page, "🛡️");
-        page.addView(emoji);
-
-        page.addView(title("Welcome to the Circle"));
+        page.addView(heroImage(R.drawable.setup_hero_welcome));
+        page.addView(title("Welcome to Circle OS"));
         page.addView(body(
                 "Circle OS puts you in control. Your data stays on your device. "
-                + "Apps can't access the internet, your contacts, or your sensors "
+                + "Apps cannot access the internet, your contacts, or your sensors "
                 + "without your explicit permission.\n\n"
-                + "You're NOT the product. Trust."));
-
+                + "You’re NOT the product. Trust."));
         return page;
     }
 
     private View pagePrivacy() {
         LinearLayout page = pageContainer();
-
-        page.addView(bigEmoji(page, "🔒"));
+        page.addView(heroImage(R.drawable.setup_hero_privacy));
         page.addView(title("Privacy by Default"));
         page.addView(body(
                 "Every app starts with zero permissions.\n\n"
@@ -160,14 +148,12 @@ public final class CircleSetupWizardActivity extends Activity {
                 + "• Unused permissions auto-revoke in 7 days\n"
                 + "• Camera and microphone indicators always on\n\n"
                 + "You can change any of these in Settings → Privacy."));
-
         return page;
     }
 
     private View pageNetwork() {
         LinearLayout page = pageContainer();
-
-        page.addView(bigEmoji(page, "📡"));
+        page.addView(heroImage(R.drawable.setup_hero_network));
         page.addView(title("Connect to WiFi"));
         page.addView(body(
                 "Tap Next to open WiFi settings. Once connected, "
@@ -176,27 +162,20 @@ public final class CircleSetupWizardActivity extends Activity {
                 + "• Check for system updates\n"
                 + "• Sync the threat intelligence database\n\n"
                 + "Your traffic is never profiled or sold."));
-
         return page;
     }
 
     private View pageDone() {
         LinearLayout page = pageContainer();
-
-        page.addView(bigEmoji(page, "✅"));
-        page.addView(title("You're Protected"));
+        page.addView(heroImage(R.drawable.setup_hero_done));
+        page.addView(title("You’re Protected"));
         page.addView(body(
                 "Circle OS is ready.\n\n"
                 + "The privacy shield on your home screen shows live status. "
                 + "Tap it anytime to see what your apps are doing.\n\n"
                 + "Welcome to the Circle."));
-
         return page;
     }
-
-    // ------------------------------------------------------------------
-    //  Reusable view builders
-    // ------------------------------------------------------------------
 
     private LinearLayout pageContainer() {
         LinearLayout page = new LinearLayout(this);
@@ -205,13 +184,15 @@ public final class CircleSetupWizardActivity extends Activity {
         return page;
     }
 
-    private TextView bigEmoji(ViewGroup parent, String emoji) {
-        TextView t = new TextView(this);
-        t.setText(emoji);
-        t.setTextSize(64);
-        t.setGravity(Gravity.CENTER);
-        t.setPadding(0, 0, 0, dp(24));
-        return t;
+    private ImageView heroImage(int resId) {
+        ImageView iv = new ImageView(this);
+        iv.setImageResource(resId);
+        iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(200), dp(200));
+        lp.gravity = Gravity.CENTER_HORIZONTAL;
+        lp.bottomMargin = dp(32);
+        iv.setLayoutParams(lp);
+        return iv;
     }
 
     private TextView title(String text) {
@@ -219,7 +200,7 @@ public final class CircleSetupWizardActivity extends Activity {
         t.setText(text);
         t.setTextColor(WARM);
         t.setTextSize(28);
-        t.setTypeface(null, android.graphics.Typeface.BOLD);
+        t.setTypeface(mComfortaa);
         t.setGravity(Gravity.CENTER);
         t.setPadding(0, 0, 0, dp(16));
         return t;
@@ -239,7 +220,7 @@ public final class CircleSetupWizardActivity extends Activity {
         for (int i = 0; i < TOTAL_PAGES; i++) {
             View dot = new View(this);
             int size = i == mCurrentPage ? dp(10) : dp(6);
-            int color = i == mCurrentPage ? SAGE : 0x44F5F0EB;
+            int color = i == mCurrentPage ? ACCENT : 0x44F5F0EB;
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(size, size);
             lp.setMargins(dp(4), 0, dp(4), 0);
             dot.setLayoutParams(lp);

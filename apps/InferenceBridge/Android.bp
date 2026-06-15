@@ -20,6 +20,7 @@ android_app {
     platform_apis: true,
     static_libs: [
         "circle_inference_client",
+        "circleai",
     ],
     optimize: {
         enabled: false,

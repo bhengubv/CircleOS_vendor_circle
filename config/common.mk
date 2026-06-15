@@ -26,10 +26,22 @@ PRODUCT_PACKAGES += \
     PersonalityEditor \
     PersonalityTile \
     SdpktTitanium \
-    CircleLauncher \
     CircleSetupWizard \
     CircleSystemUIOverlay \
-    CircleLockscreenOverlay
+    CircleLockscreenOverlay \
+    HomeCinema \
+    AetherHandler \
+    CircleWallpaperOverlay \
+    Panik \
+    TheJobCenter \
+    TrustSeal \
+    BidBaas \
+    SleptOn \
+    Bruh \
+    WhatWeWant \
+    Takemehome \
+    TagMe \
+    CircleMaps
 
 # A/B update engine (common to all Circle targets)
 PRODUCT_PACKAGES += \
@@ -64,3 +76,17 @@ PRODUCT_SYSTEM_PROPERTIES += \
     net.dns2=149.112.112.112 \
     ro.circleos.private_dns_mode=hostname \
     ro.circleos.private_dns_specifier=dns.quad9.net
+
+# Circle OS boot animation
+PRODUCT_COPY_FILES += \
+    vendor/circle/bootanimation/bootanimation.zip:$(TARGET_COPY_OUT_PRODUCT)/media/bootanimation.zip
+
+# Circle OS wallpapers
+PRODUCT_COPY_FILES += \
+    vendor/circle/wallpapers/default_dark.png:$(TARGET_COPY_OUT_PRODUCT)/media/wallpaper/default_dark.png \
+    vendor/circle/wallpapers/default_light.png:$(TARGET_COPY_OUT_PRODUCT)/media/wallpaper/default_light.png \
+    vendor/circle/wallpapers/mesh_dark.png:$(TARGET_COPY_OUT_PRODUCT)/media/wallpaper/mesh_dark.png
+
+
+# Circle OS vendor VINTF manifest (via DEVICE_MANIFEST_FILE, assemble_vintf sets target-level=legacy)
+DEVICE_MANIFEST_FILE += vendor/circle/vintf/manifest.xml

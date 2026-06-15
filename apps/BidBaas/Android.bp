@@ -1,0 +1,21 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "BidBaas",
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest.xml",
+    platform_apis: true,
+    certificate: "platform",
+    privileged: true,
+    static_libs: [
+        "android.circleos-java",
+        "aether-protocol",
+        "aether-media",
+        "circleai",
+    ],
+    kotlincflags: ["-Xskip-metadata-version-check"],
+    optimize: { enabled: false },
+}

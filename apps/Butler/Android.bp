@@ -21,6 +21,7 @@ android_app {
         // personality / privacy / update surfaces for Butler's
         // chat / call-screening features.
         "android.circleos-java",
+        "circleai",
         // WalletSkill.java imports za.co.circleos.sdpkt.* —
         // IShongololoWallet, WalletKey, WalletBalance,
         // ShongololoTransaction, CalibrationState, LocationContext,

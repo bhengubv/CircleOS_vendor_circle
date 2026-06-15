@@ -7,6 +7,7 @@
 <permissions>
     <!-- GmsCore: core microG service replacing com.google.android.gms -->
     <privapp-permissions package="com.google.android.gms">
+        <permission name="android.permission.FAKE_PACKAGE_SIGNATURE" />
         <permission name="android.permission.INTERACT_ACROSS_USERS" />
         <permission name="android.permission.MANAGE_USERS" />
         <permission name="android.permission.INSTALL_PACKAGES" />
