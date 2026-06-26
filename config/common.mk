@@ -26,6 +26,7 @@ PRODUCT_PACKAGES += \
     CirclePeople \
     CirclePodcasts \
     CircleReminders \
+    CircleReader \
     InferenceBridge \
     PersonalityEditor \
     PersonalityTile \
