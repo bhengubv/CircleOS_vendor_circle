@@ -1,0 +1,16 @@
+// Copyright (C) 2026 CircleOS
+// SPDX-License-Identifier: Apache-2.0
+//
+// Circle Security — File DMZ + Quarantine airlock (SEC-3/4 on-device piece).
+
+android_app {
+    name: "CircleSecurity",
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest.xml",
+    certificate: "platform",
+    platform_apis: true,
+    optimize: {
+        enabled: false,
+    },
+}
