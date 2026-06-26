@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Circle OS Design System - Metro skin (Windows-Phone-inspired, done clean).
+  True-black surfaces, flat fills, brand-blue accent (#2196F3), typography-forward.
+  Additive theme alongside the existing mode themes - not a replacement.
+-->
+<resources>
+    <style name="Theme.Circle.Mode.Metro" parent="Theme.Circle">
+        <item name="android:colorAccent">#FF2196F3</item>
+        <item name="android:colorBackground">#FF000000</item>
+        <item name="android:colorSurface">#FF000000</item>
+        <item name="android:statusBarColor">#FF000000</item>
+        <item name="android:navigationBarColor">#FF000000</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:textColorPrimary">#FFFFFFFF</item>
+        <item name="android:textColorSecondary">#B3FFFFFF</item>
+    </style>
+</resources>
