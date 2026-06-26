@@ -1,0 +1,17 @@
+// Copyright (C) 2026 CircleOS
+// SPDX-License-Identifier: Apache-2.0
+//
+// Circle Reminders (WP-28) — time-based reminders with exact alarms +
+// notifications. On-device only.
+
+android_app {
+    name: "CircleReminders",
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest.xml",
+    certificate: "platform",
+    platform_apis: true,
+    optimize: {
+        enabled: false,
+    },
+}
