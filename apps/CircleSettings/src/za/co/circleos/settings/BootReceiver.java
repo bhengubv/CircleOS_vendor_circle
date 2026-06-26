@@ -22,7 +22,7 @@ public class BootReceiver extends BroadcastReceiver {
     private static final String TAG = "BootReceiver";
 
     /** Unique job ID — 0xC1F0_A001 ("CircleOS AutoRevoke 1") */
-    public static final int JOB_ID = 0xC1F0A001;
+    public static final int JOB_ID = 0xC12196F3;
 
     @Override
     public void onReceive(Context context, Intent intent) {

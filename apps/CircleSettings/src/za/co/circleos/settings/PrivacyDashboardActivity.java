@@ -19,9 +19,9 @@
  *  - per-app list with computed privacy score (0..100)
  *
  * UI is built programmatically -- no XML layouts to drift out of sync
- * with the binder shapes. Dark navy theme matching the Circle brand
- * (Circle Deep #1A1F36 background, Circle Warm #F5F0EB text, Sage
- * #7D9B8A for protected status).
+ * with the binder shapes. True-black Circle OS theme
+ * (black background, white text, brand
+ * blue #2196F3 for protected status).
  */
 package za.co.circleos.settings;
 
@@ -69,13 +69,13 @@ public final class PrivacyDashboardActivity extends Activity {
 
     private static final String TAG = "CirclePrivacyDash";
 
-    private static final int CIRCLE_DEEP        = 0xFF1A1F36;
-    private static final int CIRCLE_WARM        = 0xFFF5F0EB;
-    private static final int CIRCLE_GOLD        = 0xFFD4A574;
-    private static final int CIRCLE_SAGE        = 0xFF7D9B8A;
-    private static final int CIRCLE_TERRACOTTA  = 0xFFC17B5D;
+    private static final int CIRCLE_DEEP        = 0xFF000000;
+    private static final int CIRCLE_WARM        = 0xFFFFFFFF;
+    private static final int CIRCLE_GOLD        = 0xFF2196F3;
+    private static final int CIRCLE_SAGE        = 0xFF2196F3;
+    private static final int CIRCLE_TERRACOTTA  = 0xFF2196F3;
     private static final int CIRCLE_BLOCKED     = 0xFFC45C5C;
-    private static final int CIRCLE_CARD        = 0xFF243047;
+    private static final int CIRCLE_CARD        = 0xFF161616;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -303,7 +303,7 @@ public final class PrivacyDashboardActivity extends Activity {
             label.setId(1); label.setTextColor(CIRCLE_WARM); label.setTextSize(15);
             label.setTypeface(Typeface.DEFAULT_BOLD);
             final TextView pkg = new TextView(PrivacyDashboardActivity.this);
-            pkg.setId(2); pkg.setTextColor(0x88F5F0EB); pkg.setTextSize(11);
+            pkg.setId(2); pkg.setTextColor(0x88FFFFFF); pkg.setTextSize(11);
             text.addView(label); text.addView(pkg);
             final TextView score = new TextView(PrivacyDashboardActivity.this);
             score.setId(3); score.setTextSize(22);

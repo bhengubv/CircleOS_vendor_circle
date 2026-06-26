@@ -2,13 +2,13 @@
  * Copyright (C) 2026 CircleOS
  * SPDX-License-Identifier: Apache-2.0
  *
- * CircleSettings main activity — HyperOS-inspired card-based layout.
+ * CircleSettings main activity — Circle OS card-based layout.
  *
- * Design elements from Xiaomi HyperOS Settings:
+ * Circle OS Settings design:
  *   - Profile/device header card at top with avatar + device name
  *   - Category sections with rounded card backgrounds
  *   - Each setting row: icon + title + subtitle + chevron
- *   - Circle brand colors (Deep navy, Warm cream, Sage green, Gold accent)
+ *   - Circle brand colours (true-black, white, brand blue #2196F3)
  *   - Privacy Dashboard prominent as first category
  */
 package za.co.circleos.settings;
@@ -29,14 +29,14 @@ import android.widget.TextView;
 
 public final class CircleSettingsActivity extends Activity {
 
-    private static final int DEEP    = 0xFF1A1F36;
-    private static final int WARM    = 0xFFF5F0EB;
-    private static final int GOLD    = 0xFFD4A574;
-    private static final int SAGE    = 0xFF7D9B8A;
-    private static final int TERRA   = 0xFFC17B5D;
-    private static final int CARD    = 0xFF243047;
-    private static final int DIVIDER = 0xFF2D3A52;
-    private static final int SUBTITLE = 0x99F5F0EB;
+    private static final int DEEP    = 0xFF000000;
+    private static final int WARM    = 0xFFFFFFFF;
+    private static final int GOLD    = 0xFF2196F3;
+    private static final int SAGE    = 0xFF2196F3;
+    private static final int TERRA   = 0xFF2196F3;
+    private static final int CARD    = 0xFF161616;
+    private static final int DIVIDER = 0xFF2A2A2A;
+    private static final int SUBTITLE = 0x99FFFFFF;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
