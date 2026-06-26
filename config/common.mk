@@ -22,6 +22,7 @@ PRODUCT_PACKAGES += \
     TrafficLobby \
     Butler \
     CircleMessages \
+    CircleNotes \
     InferenceBridge \
     PersonalityEditor \
     PersonalityTile \

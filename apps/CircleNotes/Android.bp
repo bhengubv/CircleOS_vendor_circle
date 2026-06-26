@@ -1,0 +1,17 @@
+// Copyright (C) 2026 CircleOS
+// SPDX-License-Identifier: Apache-2.0
+//
+// Circle Notes — a private, on-device notes app (WP-22). No cloud, no account;
+// notes are stored only in the app's filesDir. Bundled with Circle OS.
+
+android_app {
+    name: "CircleNotes",
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest.xml",
+    certificate: "platform",
+    platform_apis: true,
+    optimize: {
+        enabled: false,
+    },
+}
