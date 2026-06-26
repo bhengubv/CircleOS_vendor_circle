@@ -33,6 +33,7 @@ PRODUCT_PACKAGES += \
     CircleRooms \
     CirclePhotos \
     CircleMail \
+    CircleBackup \
     InferenceBridge \
     PersonalityEditor \
     PersonalityTile \
