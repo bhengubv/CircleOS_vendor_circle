@@ -1,0 +1,17 @@
+// Copyright (C) 2026 CircleOS
+// SPDX-License-Identifier: Apache-2.0
+//
+// Circle Podcasts (WP-69) — RSS podcast subscriber. On-device subscriptions,
+// system audio playback, no account or tracking.
+
+android_app {
+    name: "CirclePodcasts",
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest.xml",
+    certificate: "platform",
+    platform_apis: true,
+    optimize: {
+        enabled: false,
+    },
+}
