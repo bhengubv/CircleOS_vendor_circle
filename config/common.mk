@@ -41,6 +41,7 @@ PRODUCT_PACKAGES += \
     CircleNotebook \
     CircleQuietHours \
     CircleQuickShare \
+    CircleKeyboard \
     InferenceBridge \
     PersonalityEditor \
     PersonalityTile \
