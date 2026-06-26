@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="za.co.circleos.notebook">
+
+    <!-- Circle apps (B!, skills) read/write the user's Notebook only with this
+         signature-level grant; third-party apps can never touch it. -->
+    <permission
+        android:name="com.circleos.permission.ACCESS_NOTEBOOK"
+        android:protectionLevel="signature"
+        android:label="@string/perm_access_notebook" />
+
+    <application
+        android:label="@string/app_name"
+        android:icon="@drawable/ic_notebook"
+        android:allowBackup="false"
+        android:theme="@style/Theme.CircleNotebook">
+
+        <activity
+            android:name=".NotebookActivity"
+            android:exported="true"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <provider
+            android:name=".NotebookProvider"
+            android:authorities="za.co.circleos.notebook"
+            android:exported="true"
+            android:permission="com.circleos.permission.ACCESS_NOTEBOOK" />
+
+    </application>
+</manifest>

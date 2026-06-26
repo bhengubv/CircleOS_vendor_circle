@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Notebook</string>
+    <string name="perm_access_notebook">Read and write the B! Notebook</string>
+</resources>
