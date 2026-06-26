@@ -32,6 +32,7 @@ PRODUCT_PACKAGES += \
     CircleMe \
     CircleRooms \
     CirclePhotos \
+    CircleMail \
     InferenceBridge \
     PersonalityEditor \
     PersonalityTile \
