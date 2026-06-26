@@ -28,6 +28,7 @@ PRODUCT_PACKAGES += \
     CircleReminders \
     CircleReader \
     CircleFindMy \
+    CircleKids \
     InferenceBridge \
     PersonalityEditor \
     PersonalityTile \

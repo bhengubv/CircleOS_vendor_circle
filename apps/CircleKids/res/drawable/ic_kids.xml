@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Circle Kid's Corner launcher icon — brand-blue smiley face. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM8.5,10c0.83,0 1.5,0.67 1.5,1.5S9.33,13 8.5,13 7,12.33 7,11.5 7.67,10 8.5,10zM12,18c-2.28,0 -4.22,-1.66 -5,-4h10c-0.78,2.34 -2.72,4 -5,4zM15.5,13c-0.83,0 -1.5,-0.67 -1.5,-1.5s0.67,-1.5 1.5,-1.5 1.5,0.67 1.5,1.5 -0.67,1.5 -1.5,1.5z" />
+</vector>

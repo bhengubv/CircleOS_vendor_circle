@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="za.co.circleos.kids">
+
+    <!-- To list installed launcher apps for the parent's picker. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
+    <application
+        android:label="@string/app_name"
+        android:icon="@drawable/ic_kids"
+        android:allowBackup="false"
+        android:theme="@style/Theme.CircleKids">
+
+        <activity
+            android:name=".KidsCornerActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+    </application>
+</manifest>
