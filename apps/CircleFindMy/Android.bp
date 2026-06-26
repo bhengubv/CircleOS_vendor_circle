@@ -1,0 +1,17 @@
+// Copyright (C) 2026 CircleOS
+// SPDX-License-Identifier: Apache-2.0
+//
+// Circle Find My Phone (WP-55) — SMS-triggered ring + locate. On-device,
+// PIN-gated, opt-in. No backend.
+
+android_app {
+    name: "CircleFindMy",
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest.xml",
+    certificate: "platform",
+    platform_apis: true,
+    optimize: {
+        enabled: false,
+    },
+}
