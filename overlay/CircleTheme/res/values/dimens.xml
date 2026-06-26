@@ -36,10 +36,10 @@
 
     <!-- ── Corner Radii ───────────────────────────────────────────────────── -->
     <dimen name="circle_radius_icon">2dp</dimen>       <!-- Icon corner radius -->
-    <dimen name="circle_radius_card">12dp</dimen>      <!-- Cards -->
-    <dimen name="circle_radius_qs_tile">16dp</dimen>   <!-- Quick Settings tiles -->
-    <dimen name="circle_radius_notif_card">16dp</dimen><!-- Notification cards -->
-    <dimen name="circle_radius_button">8dp</dimen>     <!-- Buttons -->
+    <dimen name="circle_radius_card">4dp</dimen>      <!-- Cards -->
+    <dimen name="circle_radius_qs_tile">4dp</dimen>   <!-- Quick Settings tiles -->
+    <dimen name="circle_radius_notif_card">4dp</dimen><!-- Notification cards -->
+    <dimen name="circle_radius_button">6dp</dimen>     <!-- Buttons -->
 
     <!-- ── Card & Surface ─────────────────────────────────────────────────── -->
     <dimen name="circle_card_padding">16dp</dimen>
