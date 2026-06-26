@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  *
  * Circle Camera (WP-34..37) - Camera2 capture. Live preview, full-resolution
- * JPEG capture saved to Pictures/Circle, flash toggle, front/back switch.
- * Manual ISO/shutter "pro" controls and creative modes layer on top of this.
+ * JPEG capture saved to Pictures/Circle, flash toggle, front/back switch, and a
+ * PRO mode with manual ISO + shutter (live preview). Creative modes (pano,
+ * refocus, living photo) layer on top of this.
  */
 package za.co.circleos.camera;
 
@@ -30,6 +31,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.provider.MediaStore;
+import android.util.Range;
 import android.util.Size;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -37,6 +39,8 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,6 +67,16 @@ public final class CameraActivity extends Activity {
     private int mSensorOrientation = 90;
     private HandlerThread mThread;
     private Handler mHandler;
+
+    // Pro mode — manual ISO + shutter (WP-35..37).
+    private boolean mProMode = false;
+    private Range<Integer> mIsoRange;
+    private Range<Long> mExpRange;
+    private int mIso = 100;
+    private long mShutterNs = 16_666_666L; // ~1/60s
+    private LinearLayout mProPanel;
+    private TextView mIsoLabel;
+    private TextView mShutterLabel;
 
     @Override
     protected void onCreate(Bundle b) {
@@ -106,6 +120,32 @@ public final class CameraActivity extends Activity {
             openCamera();
         });
         root.addView(swap);
+
+        final TextView pro = circleButton("PRO", 13);
+        FrameLayout.LayoutParams prlp = new FrameLayout.LayoutParams(dp(58), dp(40));
+        prlp.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+        prlp.topMargin = dp(44);
+        pro.setLayoutParams(prlp);
+        pro.setAlpha(0.6f);
+        pro.setOnClickListener(v -> {
+            mProMode = !mProMode;
+            pro.setAlpha(mProMode ? 1f : 0.6f);
+            pro.setTextColor(mProMode ? 0xFF2196F3 : 0xFFFFFFFF);
+            if (mProPanel != null) {
+                mProPanel.setVisibility(mProMode ? android.view.View.VISIBLE : android.view.View.GONE);
+            }
+            restartPreview();
+        });
+        root.addView(pro);
+
+        mProPanel = buildProPanel();
+        FrameLayout.LayoutParams pplp = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        pplp.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+        pplp.setMargins(dp(24), 0, dp(24), dp(128));
+        mProPanel.setLayoutParams(pplp);
+        mProPanel.setVisibility(android.view.View.GONE);
+        root.addView(mProPanel);
 
         setContentView(root);
 
@@ -172,6 +212,15 @@ public final class CameraActivity extends Activity {
             CameraCharacteristics ch = mManager.getCameraCharacteristics(mCameraId);
             Integer so = ch.get(CameraCharacteristics.SENSOR_ORIENTATION);
             if (so != null) mSensorOrientation = so;
+            mIsoRange = ch.get(CameraCharacteristics.SENSOR_INFO_SENSITIVITY_RANGE);
+            mExpRange = ch.get(CameraCharacteristics.SENSOR_INFO_EXPOSURE_TIME_RANGE);
+            if (mIsoRange != null) {
+                mIso = (mIsoRange.getLower() + mIsoRange.getUpper()) / 2;
+            }
+            if (mExpRange != null) {
+                mShutterNs = Math.max(mExpRange.getLower(),
+                        Math.min(16_666_666L, mExpRange.getUpper()));
+            }
             StreamConfigurationMap map =
                     ch.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
             mJpegSize = largest(map.getOutputSizes(ImageFormat.JPEG));
@@ -223,8 +272,7 @@ public final class CameraActivity extends Activity {
                         @Override public void onConfigured(CameraCaptureSession s) {
                             mSession = s;
                             try {
-                                req.set(CaptureRequest.CONTROL_MODE,
-                                        CameraMetadata.CONTROL_MODE_AUTO);
+                                applyManual(req);
                                 req.set(CaptureRequest.FLASH_MODE, mFlash
                                         ? CameraMetadata.FLASH_MODE_TORCH
                                         : CameraMetadata.FLASH_MODE_OFF);
@@ -246,7 +294,7 @@ public final class CameraActivity extends Activity {
             CaptureRequest.Builder req =
                     mDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
             req.addTarget(mReader.getSurface());
-            req.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
+            applyManual(req);
             req.set(CaptureRequest.FLASH_MODE, mFlash
                     ? CameraMetadata.FLASH_MODE_SINGLE : CameraMetadata.FLASH_MODE_OFF);
             req.set(CaptureRequest.JPEG_ORIENTATION, mBack ? mSensorOrientation
@@ -255,6 +303,98 @@ public final class CameraActivity extends Activity {
         } catch (Throwable t) {
             toast("Capture failed");
         }
+    }
+
+    /** Apply manual ISO/shutter when in pro mode and the device supports it; else auto. */
+    private void applyManual(CaptureRequest.Builder req) {
+        if (!mProMode || mIsoRange == null || mExpRange == null) {
+            req.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
+            return;
+        }
+        int iso = Math.max(mIsoRange.getLower(), Math.min(mIsoRange.getUpper(), mIso));
+        long exp = Math.max(mExpRange.getLower(), Math.min(mExpRange.getUpper(), mShutterNs));
+        req.set(CaptureRequest.CONTROL_AE_MODE, CameraMetadata.CONTROL_AE_MODE_OFF);
+        req.set(CaptureRequest.SENSOR_SENSITIVITY, iso);
+        req.set(CaptureRequest.SENSOR_EXPOSURE_TIME, exp);
+        req.set(CaptureRequest.SENSOR_FRAME_DURATION, exp);
+    }
+
+    /** Update the live preview's repeating request without rebuilding the session. */
+    private void restartPreview() {
+        if (mDevice == null || mSession == null) return;
+        try {
+            SurfaceTexture st = mTexture.getSurfaceTexture();
+            if (st == null) return;
+            Surface preview = new Surface(st);
+            CaptureRequest.Builder req = mDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+            req.addTarget(preview);
+            applyManual(req);
+            req.set(CaptureRequest.FLASH_MODE, mFlash
+                    ? CameraMetadata.FLASH_MODE_TORCH : CameraMetadata.FLASH_MODE_OFF);
+            mSession.setRepeatingRequest(req.build(), null, mHandler);
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private LinearLayout buildProPanel() {
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setBackgroundColor(0x99000000);
+        panel.setPadding(dp(16), dp(12), dp(16), dp(12));
+
+        mIsoLabel = proLabel("ISO  auto");
+        panel.addView(mIsoLabel);
+        SeekBar isoBar = new SeekBar(this);
+        isoBar.setMax(100);
+        isoBar.setProgress(50);
+        isoBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override public void onProgressChanged(SeekBar sb, int p, boolean fromUser) {
+                if (mIsoRange == null) return;
+                mIso = mIsoRange.getLower()
+                        + Math.round((mIsoRange.getUpper() - mIsoRange.getLower()) * (p / 100f));
+                mIsoLabel.setText("ISO  " + mIso);
+                if (fromUser && mProMode) restartPreview();
+            }
+            @Override public void onStartTrackingTouch(SeekBar sb) {}
+            @Override public void onStopTrackingTouch(SeekBar sb) {}
+        });
+        panel.addView(isoBar);
+
+        mShutterLabel = proLabel("Shutter  auto");
+        panel.addView(mShutterLabel);
+        SeekBar expBar = new SeekBar(this);
+        expBar.setMax(100);
+        expBar.setProgress(50);
+        expBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override public void onProgressChanged(SeekBar sb, int p, boolean fromUser) {
+                if (mExpRange == null) return;
+                long lo = Math.max(1L, mExpRange.getLower());
+                long hi = Math.min(mExpRange.getUpper(), 250_000_000L); // cap ~1/4 s
+                if (hi <= lo) hi = mExpRange.getUpper();
+                mShutterNs = (long) (lo * Math.pow((double) hi / lo, p / 100.0));
+                mShutterLabel.setText("Shutter  " + shutterLabel(mShutterNs));
+                if (fromUser && mProMode) restartPreview();
+            }
+            @Override public void onStartTrackingTouch(SeekBar sb) {}
+            @Override public void onStopTrackingTouch(SeekBar sb) {}
+        });
+        panel.addView(expBar);
+        return panel;
+    }
+
+    private TextView proLabel(String text) {
+        TextView t = new TextView(this);
+        t.setText(text);
+        t.setTextColor(0xFFFFFFFF);
+        t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+        t.setPadding(0, dp(6), 0, dp(2));
+        return t;
+    }
+
+    private String shutterLabel(long ns) {
+        double sec = ns / 1e9;
+        if (sec >= 1) return String.format(java.util.Locale.US, "%.1fs", sec);
+        return "1/" + Math.max(1, Math.round(1.0 / sec)) + "s";
     }
 
     private final ImageReader.OnImageAvailableListener mOnImage = reader -> {
