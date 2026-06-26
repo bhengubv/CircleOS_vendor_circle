@@ -1,37 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Circle OS lock screen overlay resources.
-  Themes the AOSP Keyguard clock, status line, and bottom shortcuts
-  to match Circle brand + HyperOS design language.
+  Themes the AOSP Keyguard clock, status line, and bottom shortcuts to the
+  Circle OS identity: true-black, brand-blue accent, clean large clock.
 
-  Applied as an RRO targeting com.android.systemui (Keyguard lives
-  inside SystemUI on AOSP 15).
+  Applied as an RRO targeting com.android.systemui (Keyguard lives inside
+  SystemUI on AOSP 15).
 -->
 <resources>
-    <!-- Clock styling — large, clean, Circle Warm colour -->
-    <color name="lockscreen_clock_color">#FFF5F0EB</color>
+    <!-- Clock styling — large, clean, white -->
+    <color name="lockscreen_clock_color">#FFFFFFFF</color>
     <dimen name="lockscreen_clock_font_size">64sp</dimen>
 
     <!-- Date line below clock -->
-    <color name="lockscreen_date_color">#99F5F0EB</color>
+    <color name="lockscreen_date_color">#99FFFFFF</color>
 
     <!-- Bottom shortcuts area -->
-    <color name="keyguard_bottom_area_background">#001A1F36</color>
+    <color name="keyguard_bottom_area_background">#00000000</color>
 
-    <!-- Lock screen wallpaper dim overlay — subtle Circle Deep tint -->
-    <color name="lockscreen_scrim_color">#801A1F36</color>
+    <!-- Lock screen wallpaper dim overlay — true-black scrim -->
+    <color name="lockscreen_scrim_color">#80000000</color>
 
     <!-- Emergency/owner info text -->
-    <color name="keyguard_owner_info_text_color">#99F5F0EB</color>
+    <color name="keyguard_owner_info_text_color">#99FFFFFF</color>
 
-    <!-- Notification appearance on lock screen -->
-    <dimen name="keyguard_notification_corner_radius">16dp</dimen>
+    <!-- Notification appearance on lock screen — flat Metro -->
+    <dimen name="keyguard_notification_corner_radius">4dp</dimen>
 
     <!-- Circle privacy status on lock screen.
-         The actual status text is written by CircleKeyguardStatusView
-         which reads circle.privacy binder and updates the owner info
-         line. For alpha-1 we set the static owner info default to the
-         Circle brand tagline — the dynamic binder-reading version
-         lands when we patch KeyguardStatusView.java. -->
+         The actual status text is written by CircleKeyguardStatusView which
+         reads the circle.privacy binder and updates the owner info line. For
+         alpha-1 we set the static owner info default to the Circle brand
+         tagline — the dynamic binder-reading version lands when we patch
+         KeyguardStatusView.java. -->
     <string name="default_owner_info">Circle OS — You\'re NOT the product. Trust.</string>
 </resources>

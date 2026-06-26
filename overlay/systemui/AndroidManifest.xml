@@ -2,7 +2,7 @@
 <!--
   Circle OS SystemUI Overlay.
   Runtime Resource Overlay targeting com.android.systemui to apply
-  Circle brand colours and HyperOS-inspired spacing/radii.
+  Circle brand colours and true-black surfaces and flat Metro radii.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.circleos.overlay.systemui">
