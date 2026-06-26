@@ -23,6 +23,7 @@ PRODUCT_PACKAGES += \
     Butler \
     CircleMessages \
     CircleNotes \
+    CirclePeople \
     InferenceBridge \
     PersonalityEditor \
     PersonalityTile \

@@ -1,0 +1,17 @@
+// Copyright (C) 2026 CircleOS
+// SPDX-License-Identifier: Apache-2.0
+//
+// Circle People — the WP-18 "People Hub": one card per person from on-device
+// contacts, with one-tap call / SMS. No cloud, no social scraping.
+
+android_app {
+    name: "CirclePeople",
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest.xml",
+    certificate: "platform",
+    platform_apis: true,
+    optimize: {
+        enabled: false,
+    },
+}
