@@ -1,0 +1,17 @@
+// Copyright (C) 2026 CircleOS
+// SPDX-License-Identifier: Apache-2.0
+//
+// Circle Rooms (WP-20) — shared rooms (chat thread) over the Circle rooms
+// bridge. platform_apis for SystemProperties (bridge URL).
+
+android_app {
+    name: "CircleRooms",
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest.xml",
+    certificate: "platform",
+    platform_apis: true,
+    optimize: {
+        enabled: false,
+    },
+}

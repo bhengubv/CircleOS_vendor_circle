@@ -30,6 +30,7 @@ PRODUCT_PACKAGES += \
     CircleFindMy \
     CircleKids \
     CircleMe \
+    CircleRooms \
     InferenceBridge \
     PersonalityEditor \
     PersonalityTile \
