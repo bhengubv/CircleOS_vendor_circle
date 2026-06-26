@@ -39,6 +39,7 @@ PRODUCT_PACKAGES += \
     CircleDataSense \
     CircleCamera \
     CircleNotebook \
+    CircleQuietHours \
     InferenceBridge \
     PersonalityEditor \
     PersonalityTile \
