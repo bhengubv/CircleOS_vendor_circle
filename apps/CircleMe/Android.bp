@@ -1,0 +1,17 @@
+// Copyright (C) 2026 CircleOS
+// SPDX-License-Identifier: Apache-2.0
+//
+// Circle "Me" (WP-19) — post to all connected networks via the Circle social
+// bridge, and read replies. platform_apis for SystemProperties (bridge URL).
+
+android_app {
+    name: "CircleMe",
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest.xml",
+    certificate: "platform",
+    platform_apis: true,
+    optimize: {
+        enabled: false,
+    },
+}
