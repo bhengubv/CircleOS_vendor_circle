@@ -109,6 +109,23 @@ public class ChatActivity extends Activity {
             return;
         }
 
+        // Notebook: let the user tell B! what to remember / forget / recall
+        String noteAnswer = NotebookSkill.tryHandle(this, text);
+        if (noteAnswer != null) {
+            final String answer = noteAnswer;
+            mUiHandler.post(() -> {
+                if (mPendingIndex >= 0 && mPendingIndex < mMessages.size()) {
+                    mMessages.get(mPendingIndex).text = answer;
+                    mMessages.get(mPendingIndex).isThinking = false;
+                    mAdapter.notifyDataSetChanged();
+                }
+                mPendingIndex = -1;
+                mGenerating = false;
+                mBtnSend.setEnabled(true);
+            });
+            return;
+        }
+
         mInference.generate(text, SYSTEM_PROMPT, new InferenceServiceConnection.GenerateCallback() {
             private final StringBuilder mBuffer = new StringBuilder();
 

@@ -7,6 +7,7 @@
     package="za.co.circleos.butler">
 
     <uses-permission android:name="com.circleos.permission.ACCESS_INFERENCE" />
+    <uses-permission android:name="com.circleos.permission.ACCESS_NOTEBOOK" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
