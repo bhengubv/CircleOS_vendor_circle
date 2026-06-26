@@ -40,6 +40,7 @@ PRODUCT_PACKAGES += \
     CircleCamera \
     CircleNotebook \
     CircleQuietHours \
+    CircleQuickShare \
     InferenceBridge \
     PersonalityEditor \
     PersonalityTile \
