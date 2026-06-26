@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Circle OS Design System — Secure Mode accent override -->
 <resources>
-    <color name="circle_accent">#B71C1C</color>
-    <color name="circle_accent_pressed">#CCB71C1C</color>
-    <color name="circle_accent_ripple">#1AB71C1C</color>
-    <color name="circle_focus_outline">#B71C1C</color>
+    <color name="circle_accent">#2196F3</color>
+    <color name="circle_accent_pressed">#CC2196F3</color>
+    <color name="circle_accent_ripple">#1A2196F3</color>
+    <color name="circle_focus_outline">#2196F3</color>
     <bool name="circle_secure_indicator_visible">true</bool>
 </resources>
