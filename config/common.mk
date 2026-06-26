@@ -48,6 +48,7 @@ PRODUCT_PACKAGES += \
     CircleDesktop \
     CircleGlance \
     CircleHeyB \
+    CirclePlay \
     InferenceBridge \
     PersonalityEditor \
     PersonalityTile \
