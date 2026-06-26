@@ -46,6 +46,7 @@ PRODUCT_PACKAGES += \
     CircleProjectScreen \
     CircleAR \
     CircleDesktop \
+    CircleGlance \
     InferenceBridge \
     PersonalityEditor \
     PersonalityTile \

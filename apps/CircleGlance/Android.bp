@@ -1,0 +1,16 @@
+// Copyright (C) 2026 CircleOS
+// SPDX-License-Identifier: Apache-2.0
+//
+// Circle Glance (WP-54/74) — always-on display surface + notification count.
+
+android_app {
+    name: "CircleGlance",
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest.xml",
+    certificate: "platform",
+    platform_apis: true,
+    optimize: {
+        enabled: false,
+    },
+}

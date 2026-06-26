@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="za.co.circleos.glance">
+
+    <application
+        android:label="@string/app_name"
+        android:icon="@drawable/ic_glance"
+        android:allowBackup="false"
+        android:theme="@style/Theme.CircleGlance">
+
+        <activity
+            android:name=".GlanceSettingsActivity"
+            android:exported="true"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".GlanceActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.CircleGlance.Screen" />
+
+        <service
+            android:name=".GlanceListener"
+            android:label="@string/listener_label"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <receiver
+            android:name=".GlanceReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.POWER_CONNECTED" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+</manifest>
