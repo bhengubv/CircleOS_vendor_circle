@@ -15,9 +15,13 @@
         android:paddingEnd="8dp">
 
         <TextView
+            android:id="@+id/toolbar_title"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true"
             android:text="Butler"
             android:textColor="#FFFFFF"
             android:textSize="20sp"

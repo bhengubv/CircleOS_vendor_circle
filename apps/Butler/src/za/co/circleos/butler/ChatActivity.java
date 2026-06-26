@@ -6,6 +6,7 @@ package za.co.circleos.butler;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -84,6 +85,12 @@ public class ChatActivity extends Activity {
 
         mBtnSend.setOnClickListener(v -> sendMessage());
         if (mBtnMic != null) mBtnMic.setOnClickListener(v -> onMicTapped());
+
+        TextView toolbarTitle = findViewById(R.id.toolbar_title);
+        if (toolbarTitle != null) {
+            toolbarTitle.setText(Personality.name(this));
+            toolbarTitle.setOnClickListener(v -> showPersonalityPicker(toolbarTitle));
+        }
 
         // Text-to-speech for spoken replies (no-op if no engine is installed).
         mTts = new TextToSpeech(this, status -> {
@@ -273,7 +280,7 @@ public class ChatActivity extends Activity {
             return;
         }
 
-        mInference.generate(text, SYSTEM_PROMPT, new InferenceServiceConnection.GenerateCallback() {
+        mInference.generate(text, Personality.systemPrompt(this), new InferenceServiceConnection.GenerateCallback() {
             private final StringBuilder mBuffer = new StringBuilder();
 
             @Override
@@ -330,6 +337,18 @@ public class ChatActivity extends Activity {
 
     private void toast(String s) {
         Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
+    }
+
+    private void showPersonalityPicker(TextView titleView) {
+        new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                .setTitle("Choose B!'s personality")
+                .setItems(Personality.NAMES, (d, which) -> {
+                    Personality.set(this, which);
+                    if (titleView != null) titleView.setText(Personality.name(this));
+                    Toast.makeText(this, "B! is now " + Personality.name(this), Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     @Override
