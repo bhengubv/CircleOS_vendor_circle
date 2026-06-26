@@ -44,6 +44,7 @@ PRODUCT_PACKAGES += \
     CircleKeyboard \
     CircleCommute \
     CircleProjectScreen \
+    CircleAR \
     InferenceBridge \
     PersonalityEditor \
     PersonalityTile \
