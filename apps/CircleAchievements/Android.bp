@@ -1,0 +1,20 @@
+// Copyright (C) 2026 CircleOS
+// SPDX-License-Identifier: Apache-2.0
+//
+// Circle Achievements (WP-25) — privacy badges from the circle.privacy binder.
+
+android_app {
+    name: "CircleAchievements",
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest.xml",
+    certificate: "platform",
+    platform_apis: true,
+    static_libs: [
+        // za.co.circleos privacy AIDL stubs (ICirclePrivacyManagerService).
+        "android.circleos-java",
+    ],
+    optimize: {
+        enabled: false,
+    },
+}

@@ -34,6 +34,7 @@ PRODUCT_PACKAGES += \
     CirclePhotos \
     CircleMail \
     CircleBackup \
+    CircleAchievements \
     InferenceBridge \
     PersonalityEditor \
     PersonalityTile \
