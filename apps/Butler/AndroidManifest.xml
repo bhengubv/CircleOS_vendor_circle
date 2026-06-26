@@ -9,6 +9,7 @@
     <uses-permission android:name="com.circleos.permission.ACCESS_INFERENCE" />
     <uses-permission android:name="com.circleos.permission.ACCESS_NOTEBOOK" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
