@@ -30,7 +30,7 @@ import android.widget.TextView;
 public final class CircleSetupWizardActivity extends Activity {
 
     private static final int DEEP = 0xFF0A0A0A;
-    private static final int WARM = 0xFFF5F0EB;
+    private static final int WARM = 0xFFFFFFFF;
     private static final int ACCENT = 0xFF2196F3;
 
     private static final int TOTAL_PAGES = 4;
@@ -209,7 +209,7 @@ public final class CircleSetupWizardActivity extends Activity {
     private TextView body(String text) {
         TextView t = new TextView(this);
         t.setText(text);
-        t.setTextColor(0xCCF5F0EB);
+        t.setTextColor(0xCCFFFFFF);
         t.setTextSize(15);
         t.setLineSpacing(dp(4), 1f);
         return t;
@@ -220,7 +220,7 @@ public final class CircleSetupWizardActivity extends Activity {
         for (int i = 0; i < TOTAL_PAGES; i++) {
             View dot = new View(this);
             int size = i == mCurrentPage ? dp(10) : dp(6);
-            int color = i == mCurrentPage ? ACCENT : 0x44F5F0EB;
+            int color = i == mCurrentPage ? ACCENT : 0x44FFFFFF;
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(size, size);
             lp.setMargins(dp(4), 0, dp(4), 0);
             dot.setLayoutParams(lp);
