@@ -35,6 +35,7 @@ PRODUCT_PACKAGES += \
     CircleMail \
     CircleBackup \
     CircleAchievements \
+    CircleMusic \
     InferenceBridge \
     PersonalityEditor \
     PersonalityTile \
