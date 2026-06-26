@@ -43,6 +43,7 @@ PRODUCT_PACKAGES += \
     CircleQuickShare \
     CircleKeyboard \
     CircleCommute \
+    CircleProjectScreen \
     InferenceBridge \
     PersonalityEditor \
     PersonalityTile \
