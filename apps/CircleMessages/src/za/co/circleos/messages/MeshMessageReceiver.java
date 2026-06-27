@@ -50,8 +50,14 @@ public class MeshMessageReceiver extends BroadcastReceiver {
 
         // ── Key exchange ──
         if (MeshCrypto.isKeyExchange(wire)) {
-            boolean isNew = crypto.storePeerKey(senderId, wire);
-            if (isNew && crypto.isReady()) {
+            int status = crypto.storePeerKeyStatus(senderId, wire);
+            if (status == MeshCrypto.KEY_CHANGED) {
+                // Possible MITM: accept the new key (TOFU) but warn, and DON'T auto-send
+                // queued messages until the user re-verifies the security code.
+                warnKeyChanged(context, senderId);
+                return;
+            }
+            if (status == MeshCrypto.KEY_NEW && crypto.isReady()) {
                 sendWire(context, senderId, crypto.keyExchangeMessage()); // reply so they can encrypt to us
             }
             // We can now encrypt to this peer — flush anything that was waiting.
@@ -124,6 +130,26 @@ public class MeshMessageReceiver extends BroadcastReceiver {
                 .build();
 
         nm.notify(NOTIF_BASE_ID + Math.abs(senderId.hashCode() % 1000), notif);
+    }
+
+    private void warnKeyChanged(Context context, String senderId) {
+        NotificationManager nm = context.getSystemService(NotificationManager.class);
+        if (nm == null) return;
+        ensureChannel(nm);
+        Intent open = new Intent(context, ConversationActivity.class);
+        open.putExtra(ConversationActivity.EXTRA_PEER_ID, senderId);
+        open.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pi = PendingIntent.getActivity(context, senderId.hashCode(), open,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        String shortId = senderId.length() > 8 ? senderId.substring(0, 8) : senderId;
+        Notification n = new Notification.Builder(context, CHANNEL_ID)
+                .setSmallIcon(android.R.drawable.stat_sys_warning)
+                .setContentTitle("⚠ Security code changed")
+                .setContentText(shortId + "…'s key changed — verify before trusting this chat")
+                .setContentIntent(pi)
+                .setAutoCancel(true)
+                .build();
+        nm.notify(NOTIF_BASE_ID + 900 + Math.abs(senderId.hashCode() % 90), n);
     }
 
     private void ensureChannel(NotificationManager nm) {

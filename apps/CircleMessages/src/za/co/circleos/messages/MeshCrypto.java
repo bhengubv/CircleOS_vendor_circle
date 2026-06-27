@@ -28,6 +28,7 @@ import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
+import java.security.MessageDigest;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.NamedParameterSpec;
@@ -41,10 +42,16 @@ import javax.crypto.Mac;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import java.util.Locale;
+
 public final class MeshCrypto {
 
     public static final String PREFIX_ENC = "CE1:";  // encrypted message
     public static final String PREFIX_KEX = "CKX:";  // key-exchange handshake
+
+    public static final int KEY_UNCHANGED = 0;
+    public static final int KEY_NEW = 1;
+    public static final int KEY_CHANGED = 2;          // suspicious — possible MITM
 
     private static final String PREFS = "mesh_e2e";
     private static final String K_PRIV = "id_priv";
@@ -89,17 +96,78 @@ public final class MeshCrypto {
 
     /** Store a peer's key from a received "CKX:". Returns true if it was new or changed. */
     public boolean storePeerKey(String peerId, String kexMessage) {
+        return storePeerKeyStatus(peerId, kexMessage) != KEY_UNCHANGED;
+    }
+
+    /**
+     * Store a peer's key and report whether it was {@link #KEY_NEW}, {@link #KEY_UNCHANGED},
+     * or {@link #KEY_CHANGED}. A changed key is accepted (TOFU) but flagged for re-verification —
+     * the caller should warn the user (possible MITM).
+     */
+    public int storePeerKeyStatus(String peerId, String kexMessage) {
         try {
             byte[] x509 = b64d(kexMessage.substring(PREFIX_KEX.length()));
             KeyFactory.getInstance("XDH").generatePublic(new X509EncodedKeySpec(x509)); // validate
             String now = b64e(x509);
             String existing = mPrefs.getString(PEER_PREFIX + peerId, null);
-            if (now.equals(existing)) return false;
-            mPrefs.edit().putString(PEER_PREFIX + peerId, now).apply();
-            return true;
+            if (existing == null) {
+                mPrefs.edit().putString(PEER_PREFIX + peerId, now).apply();
+                return KEY_NEW;
+            }
+            if (now.equals(existing)) return KEY_UNCHANGED;
+            mPrefs.edit().putString(PEER_PREFIX + peerId, now)
+                    .putBoolean("changed_" + peerId, true).apply();
+            return KEY_CHANGED;
         } catch (Throwable t) {
-            return false;
+            return KEY_UNCHANGED;
         }
+    }
+
+    /** Returns true (and clears the flag) if this peer's key changed since last verified. */
+    public boolean consumeKeyChanged(String peerId) {
+        if (!mPrefs.getBoolean("changed_" + peerId, false)) return false;
+        mPrefs.edit().remove("changed_" + peerId).apply();
+        return true;
+    }
+
+    /**
+     * A stable 60-digit security code for the pair — identical on both devices. The two users
+     * compare it out-of-band; if it matches, there is no man-in-the-middle. Returns null until a
+     * peer key is known.
+     */
+    public String safetyNumber(String peerId) {
+        try {
+            if (mPub == null) return null;
+            String pb = mPrefs.getString(PEER_PREFIX + peerId, null);
+            if (pb == null) return null;
+            byte[] mine = mPub.getEncoded();
+            byte[] theirs = b64d(pb);
+            byte[] first, second;
+            if (lexCompare(mine, theirs) <= 0) { first = mine; second = theirs; }
+            else { first = theirs; second = mine; }
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(first);
+            md.update(second);
+            byte[] h = md.digest();
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < 12; i++) {
+                int v = (((h[i * 2] & 0xFF) << 8) | (h[i * 2 + 1] & 0xFF)) % 100000;
+                sb.append(String.format(Locale.US, "%05d", v));
+                sb.append((i % 4 == 3) ? "\n" : "  ");
+            }
+            return sb.toString().trim();
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    private static int lexCompare(byte[] a, byte[] b) {
+        int n = Math.min(a.length, b.length);
+        for (int i = 0; i < n; i++) {
+            int d = (a[i] & 0xFF) - (b[i] & 0xFF);
+            if (d != 0) return d;
+        }
+        return a.length - b.length;
     }
 
     /** Encrypt {@code text} to {@code peerId} -> "CE1:base64", or null (no key / not ready). */

@@ -5,12 +5,15 @@
 package za.co.circleos.messages;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.ServiceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -91,6 +94,49 @@ public class ConversationActivity extends Activity {
         loadMessages();
         refreshTitle();
         mDb.markRead(mPeerId);
+        if (mCrypto != null && mCrypto.consumeKeyChanged(mPeerId)) {
+            showKeyChangedWarning();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(0, 1, 0, "Verify security code");
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == 1) {
+            showSecurityCode();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void showSecurityCode() {
+        String code = (mCrypto != null) ? mCrypto.safetyNumber(mPeerId) : null;
+        String msg = (code != null)
+                ? "Compare this code with your contact — read it aloud or in person. If both phones "
+                  + "show the same code, your chat is verified end-to-end with no one in the middle.\n\n"
+                  + code
+                : "No secure channel yet. Send a message first to exchange keys, then check again.";
+        new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                .setTitle("🔒 Security code")
+                .setMessage(msg)
+                .setPositiveButton("Done", null)
+                .show();
+    }
+
+    private void showKeyChangedWarning() {
+        new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                .setTitle("⚠ Security code changed")
+                .setMessage("This contact's encryption key changed. That's normal if they reinstalled "
+                        + "or switched phone — but it can also mean someone is intercepting. Verify the "
+                        + "new security code with them before sharing anything sensitive.")
+                .setPositiveButton("View code", (d, w) -> showSecurityCode())
+                .setNegativeButton("Later", null)
+                .show();
     }
 
     private void refreshTitle() {
