@@ -5,16 +5,24 @@
  * Blind-to-us E2E for Circle mesh messages. The mesh layer ships an opaque
  * byte[] payload and delivers it as a String, so messages are encrypted and
  * wrapped in a Base64 ASCII envelope: the mesh, every relay node, and the
- * operator only ever see "CE1:<ciphertext>".
+ * operator only ever see "CE1:<ciphertext>" or "CE2:<ciphertext>".
  *
- * Construction: per-device X25519 identity (persisted app-private) -> ECDH with
- * the peer -> HKDF-SHA256 -> ChaCha20-Poly1305 AEAD. Standard JCA/Conscrypt
- * primitives, composed; nothing rolls its own primitive. Trust-on-first-use key
- * exchange. Forward secrecy (Double Ratchet) + fingerprint verification are
- * follow-ups; this is the blind-to-us floor.
+ * Two layers:
+ *   CE1 — static X25519 identity ECDH -> HKDF -> ChaCha20-Poly1305. The
+ *         bootstrap floor and back-compat path. No forward secrecy on its own.
+ *   CE2 — Double Ratchet ({@link DoubleRatchet}) seeded from the same identity
+ *         ECDH. Forward secrecy + break-in recovery: every message gets a fresh
+ *         key that is deleted after use, and a DH ratchet step is folded in each
+ *         round-trip. This is the default the moment a sending chain exists.
  *
- * Fail-closed: if XDH is unavailable or no peer key is known, encrypt() returns
- * null and the caller must NOT fall back to plaintext.
+ * Roles are assigned deterministically (lexicographic identity-key compare), so
+ * two peers that send at the same moment never desync. The responder cannot
+ * ratchet-send until it has received once, so its very first message (only) may
+ * go out as CE1; everything after is CE2.
+ *
+ * Trust-on-first-use key exchange. Fail-closed: if XDH is unavailable or no peer
+ * key is known, encrypt() returns null and the caller must NOT fall back to
+ * plaintext. Fingerprint verification is via safetyNumber().
  */
 package za.co.circleos.messages;
 
@@ -46,8 +54,9 @@ import java.util.Locale;
 
 public final class MeshCrypto {
 
-    public static final String PREFIX_ENC = "CE1:";  // encrypted message
+    public static final String PREFIX_ENC = "CE1:";  // static-key encrypted message
     public static final String PREFIX_KEX = "CKX:";  // key-exchange handshake
+    // CE2 (DoubleRatchet.PREFIX) is the forward-secret envelope.
 
     public static final int KEY_UNCHANGED = 0;
     public static final int KEY_NEW = 1;
@@ -57,10 +66,15 @@ public final class MeshCrypto {
     private static final String K_PRIV = "id_priv";
     private static final String K_PUB = "id_pub";
     private static final String PEER_PREFIX = "peer_";
+    private static final String RAT_PREFIX = "rat_";   // per-peer Double Ratchet state
     private static final byte VERSION = 1;
     private static final int NONCE_LEN = 12;
     private static final int TAG_LEN = 16;
     private static final byte[] INFO = "circle-mesh-e2e-v1".getBytes(StandardCharsets.UTF_8);
+    private static final byte[] INFO_RATCHET = "circle-mesh-ratchet-seed".getBytes(StandardCharsets.UTF_8);
+
+    /** Guards the load-mutate-save of ratchet state (Activity + receiver share this process). */
+    private static final Object RATCHET_LOCK = new Object();
 
     private final SharedPreferences mPrefs;
     private PrivateKey mPriv;
@@ -80,8 +94,9 @@ public final class MeshCrypto {
         return s != null && s.startsWith(PREFIX_KEX);
     }
 
+    /** True for either encrypted envelope — static (CE1) or forward-secret (CE2). */
     public static boolean isEncrypted(String s) {
-        return s != null && s.startsWith(PREFIX_ENC);
+        return s != null && (s.startsWith(PREFIX_ENC) || s.startsWith(DoubleRatchet.PREFIX));
     }
 
     /** The "CKX:" message announcing my public key, or null if E2E isn't available. */
@@ -102,7 +117,8 @@ public final class MeshCrypto {
     /**
      * Store a peer's key and report whether it was {@link #KEY_NEW}, {@link #KEY_UNCHANGED},
      * or {@link #KEY_CHANGED}. A changed key is accepted (TOFU) but flagged for re-verification —
-     * the caller should warn the user (possible MITM).
+     * the caller should warn the user (possible MITM). A changed key also resets the ratchet so a
+     * fresh session is negotiated against the new identity.
      */
     public int storePeerKeyStatus(String peerId, String kexMessage) {
         try {
@@ -116,7 +132,9 @@ public final class MeshCrypto {
             }
             if (now.equals(existing)) return KEY_UNCHANGED;
             mPrefs.edit().putString(PEER_PREFIX + peerId, now)
-                    .putBoolean("changed_" + peerId, true).apply();
+                    .putBoolean("changed_" + peerId, true)
+                    .remove(RAT_PREFIX + peerId)   // drop the old ratchet; renegotiate vs new key
+                    .apply();
             return KEY_CHANGED;
         } catch (Throwable t) {
             return KEY_UNCHANGED;
@@ -170,8 +188,49 @@ public final class MeshCrypto {
         return a.length - b.length;
     }
 
-    /** Encrypt {@code text} to {@code peerId} -> "CE1:base64", or null (no key / not ready). */
+    /**
+     * Encrypt {@code text} to {@code peerId}. Uses the forward-secret ratchet (CE2) once a sending
+     * chain exists, otherwise the static envelope (CE1). Returns null (no key / not ready); the
+     * caller must NOT fall back to plaintext.
+     */
     public String encrypt(String peerId, String text) {
+        if (!isReady() || !hasPeerKey(peerId)) return null;
+        synchronized (RATCHET_LOCK) {
+            try {
+                DoubleRatchet.State st = ensureRatchet(peerId);
+                if (DoubleRatchet.canSend(st)) {
+                    String ce2 = DoubleRatchet.encrypt(st, text);
+                    saveRatchet(peerId, st);
+                    return ce2;
+                }
+            } catch (Throwable t) {
+                // fall through to the static floor
+            }
+        }
+        return encryptStatic(peerId, text);
+    }
+
+    /** Decrypt a "CE1:"/"CE2:" message from {@code peerId} -> text, or null on any failure. */
+    public String decrypt(String peerId, String body) {
+        if (DoubleRatchet.isRatchet(body)) {
+            synchronized (RATCHET_LOCK) {
+                try {
+                    DoubleRatchet.State st = ensureRatchet(peerId);
+                    if (st == null) return null;
+                    String pt = DoubleRatchet.decrypt(st, body);
+                    saveRatchet(peerId, st);
+                    return pt;
+                } catch (Throwable t) {
+                    return null;
+                }
+            }
+        }
+        return decryptStatic(peerId, body);
+    }
+
+    /* ── static (CE1) layer ── */
+
+    private String encryptStatic(String peerId, String text) {
         try {
             if (!isReady()) return null;
             PublicKey peer = peerKey(peerId);
@@ -191,10 +250,9 @@ public final class MeshCrypto {
         }
     }
 
-    /** Decrypt a "CE1:" message from {@code peerId} -> text, or null on any failure. */
-    public String decrypt(String peerId, String body) {
+    private String decryptStatic(String peerId, String body) {
         try {
-            if (!isReady()) return null;
+            if (!isReady() || !body.startsWith(PREFIX_ENC)) return null;
             PublicKey peer = peerKey(peerId);
             if (peer == null) return null;
             byte[] env = b64d(body.substring(PREFIX_ENC.length()));
@@ -212,7 +270,48 @@ public final class MeshCrypto {
         }
     }
 
-    /* ── internals ── */
+    /* ── ratchet (CE2) session management ── */
+
+    /** Load the peer's ratchet, or bootstrap one from the identity ECDH if the peer key is known. */
+    private DoubleRatchet.State ensureRatchet(String peerId) throws Exception {
+        String packed = mPrefs.getString(RAT_PREFIX + peerId, null);
+        if (packed != null) {
+            try {
+                return DoubleRatchet.unpack(b64d(packed));
+            } catch (Throwable t) {
+                mPrefs.edit().remove(RAT_PREFIX + peerId).apply(); // corrupt -> rebuild
+            }
+        }
+        if (!isReady()) return null;
+        PublicKey peer = peerKey(peerId);
+        if (peer == null) return null;
+        byte[] seed = seedSecret(peer);
+        KeyPair selfId = new KeyPair(mPub, mPriv);
+        DoubleRatchet.State st = DoubleRatchet.init(seed, mPub, selfId, peer);
+        saveRatchet(peerId, st);
+        return st;
+    }
+
+    private void saveRatchet(String peerId, DoubleRatchet.State st) {
+        try {
+            mPrefs.edit().putString(RAT_PREFIX + peerId, b64e(DoubleRatchet.pack(st))).apply();
+        } catch (Throwable t) {
+            // best-effort; a lost save just means a fresh session next time
+        }
+    }
+
+    /** Initial shared secret for the ratchet — identity ECDH under a distinct info label. */
+    private byte[] seedSecret(PublicKey peer) throws Exception {
+        KeyAgreement ka = KeyAgreement.getInstance("XDH");
+        ka.init(mPriv);
+        ka.doPhase(peer, true);
+        byte[] shared = ka.generateSecret();
+        byte[] seed = hkdfSha256(shared, null, INFO_RATCHET, 32);
+        Arrays.fill(shared, (byte) 0);
+        return seed;
+    }
+
+    /* ── identity + static internals ── */
 
     private void loadOrCreateIdentity() {
         try {
