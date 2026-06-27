@@ -10,7 +10,6 @@ import android.os.IBinder;
 import android.os.ServiceManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,8 +28,10 @@ import java.util.List;
 /**
  * Chat thread for a single mesh peer.
  *
- * Inbound messages appear on the left; outbound on the right.
- * Sends via ICircleMeshService.sendMessage() using msgType 0x10 (TYPE_MSG_TEXT).
+ * Every message is end-to-end encrypted ({@link MeshCrypto}) before it touches
+ * the mesh — the operator and every relay node see only ciphertext (blind-to-us).
+ * On first contact a CKX key-exchange establishes the channel; the message is
+ * queued until the peer's key arrives. Plaintext is never sent.
  */
 public class ConversationActivity extends Activity {
 
@@ -44,6 +45,7 @@ public class ConversationActivity extends Activity {
 
     private String mPeerId;
     private MessageDatabase mDb;
+    private MeshCrypto mCrypto;
     private ListView mListView;
     private EditText mInput;
     private MessageAdapter mAdapter;
@@ -60,10 +62,7 @@ public class ConversationActivity extends Activity {
         }
 
         mDb = new MessageDatabase(this);
-
-        // Action bar title
-        String shortId = mPeerId.length() > 12 ? mPeerId.substring(0, 12) + "…" : mPeerId;
-        setTitle(shortId);
+        mCrypto = new MeshCrypto(this);
 
         mListView = findViewById(R.id.list_messages);
         mInput    = findViewById(R.id.et_input);
@@ -75,15 +74,29 @@ public class ConversationActivity extends Activity {
             return true;
         });
 
+        refreshTitle();
         loadMessages();
         mDb.markRead(mPeerId);
+
+        // Announce our key so the peer can encrypt to us (idempotent on their side).
+        if (mCrypto.isReady() && !mCrypto.hasPeerKey(mPeerId)) {
+            sendWire(mCrypto.keyExchangeMessage());
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        flushPending();
         loadMessages();
+        refreshTitle();
         mDb.markRead(mPeerId);
+    }
+
+    private void refreshTitle() {
+        String shortId = mPeerId.length() > 12 ? mPeerId.substring(0, 12) + "…" : mPeerId;
+        boolean secured = mCrypto != null && mCrypto.isReady() && mCrypto.hasPeerKey(mPeerId);
+        setTitle((secured ? "🔒 " : "🔓 ") + shortId);
     }
 
     private void loadMessages() {
@@ -97,24 +110,58 @@ public class ConversationActivity extends Activity {
         String text = mInput.getText().toString().trim();
         if (TextUtils.isEmpty(text)) return;
 
-        boolean sent = false;
-        try {
-            IBinder binder = ServiceManager.getService("circle.mesh");
-            if (binder != null) {
-                ICircleMeshService mesh = ICircleMeshService.Stub.asInterface(binder);
-                byte[] payload = text.getBytes("UTF-8");
-                sent = mesh.sendMessage(mPeerId, payload, TYPE_MSG_TEXT);
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "sendMessage failed", e);
+        if (mCrypto == null || !mCrypto.isReady()) {
+            Toast.makeText(this, "Secure messaging isn't available on this device", Toast.LENGTH_LONG).show();
+            return;
         }
 
-        if (sent) {
-            mDb.insertMessage(mPeerId, MessageDatabase.DIR_OUTBOUND, text);
+        // No secure channel yet: send our key, queue the text, never send plaintext.
+        if (!mCrypto.hasPeerKey(mPeerId)) {
+            sendWire(mCrypto.keyExchangeMessage());
+            PendingStore.queue(this, mPeerId, text);
+            mInput.setText("");
+            Toast.makeText(this, "🔒 Securing channel — your message will send the moment the key arrives",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String envelope = mCrypto.encrypt(mPeerId, text);
+        if (envelope == null) {
+            Toast.makeText(this, "Couldn't encrypt — message not sent", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (sendWire(envelope)) {
+            mDb.insertMessage(mPeerId, MessageDatabase.DIR_OUTBOUND, text); // plaintext stays on-device only
             mInput.setText("");
             loadMessages();
         } else {
             Toast.makeText(this, "Could not send — peer may be offline", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /** If a message was queued during the handshake and the key has since arrived, send it now. */
+    private void flushPending() {
+        if (mCrypto == null || !mCrypto.isReady() || !mCrypto.hasPeerKey(mPeerId)) return;
+        String pending = PendingStore.take(this, mPeerId);
+        if (pending == null) return;
+        String env = mCrypto.encrypt(mPeerId, pending);
+        if (env != null && sendWire(env)) {
+            mDb.insertMessage(mPeerId, MessageDatabase.DIR_OUTBOUND, pending);
+        } else {
+            PendingStore.queue(this, mPeerId, pending); // re-queue on failure
+        }
+    }
+
+    private boolean sendWire(String wire) {
+        if (wire == null) return false;
+        try {
+            IBinder binder = ServiceManager.getService("circle.mesh");
+            if (binder == null) return false;
+            ICircleMeshService mesh = ICircleMeshService.Stub.asInterface(binder);
+            return mesh.sendMessage(mPeerId, wire.getBytes("UTF-8"), TYPE_MSG_TEXT);
+        } catch (Exception e) {
+            Log.e(TAG, "sendWire failed", e);
+            return false;
         }
     }
 
@@ -142,13 +189,11 @@ public class ConversationActivity extends Activity {
             ViewGroup.MarginLayoutParams params =
                     (ViewGroup.MarginLayoutParams) bubble.getLayoutParams();
             if (msg.direction == MessageDatabase.DIR_OUTBOUND) {
-                // Right-align: outbound
                 bubble.setBackgroundResource(R.drawable.bg_bubble_outbound);
                 tvBody.setTextColor(0xFFFFFFFF);
                 params.leftMargin  = dpToPx(48);
                 params.rightMargin = dpToPx(8);
             } else {
-                // Left-align: inbound
                 bubble.setBackgroundResource(R.drawable.bg_bubble_inbound);
                 tvBody.setTextColor(0xFF212121);
                 params.leftMargin  = dpToPx(8);
