@@ -4,6 +4,7 @@
  */
 package za.co.circleos.butler;
 
+import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceManager;
@@ -12,32 +13,33 @@ import android.util.Log;
 import za.co.circleos.mesh.ICircleMeshService;
 
 /**
- * Manages the connection to {@code circle.mesh} system service.
+ * Connection to the {@code circle.mesh} system service, and the blind-to-us E2E
+ * gateway for Butler's mesh traffic.
  *
- * Usage:
- * <pre>
- *   MeshServiceConnection mesh = new MeshServiceConnection();
- *   if (mesh.connect()) {
- *       mesh.sendMessage(peerId, "hello".getBytes(), 0x10);
- *   }
- * </pre>
+ * Outbound text is end-to-end encrypted ({@link MeshCrypto}) before it touches
+ * the mesh; the operator and every relay see only ciphertext. On first contact a
+ * CKX handshake establishes the channel and the message queues until the peer key
+ * arrives. Plaintext is never sent. Inbound wire strings are run through
+ * {@link #handleIncoming} which decrypts CE1 messages and absorbs handshakes.
  */
 public class MeshServiceConnection {
 
     private static final String TAG = "Butler.MeshConn";
 
-    /** Message type: plain text (MeshProtocol.TYPE_MSG_TEXT = 0x10) */
+    /** MeshProtocol.TYPE_MSG_TEXT */
     public static final int TYPE_MSG_TEXT = 0x10;
 
+    private final Context mCtx;
+    private final MeshCrypto mCrypto;
     private ICircleMeshService mService;
 
-    // ── Connection ────────────────────────────────────────────────────────────
+    public MeshServiceConnection(Context ctx) {
+        mCtx = ctx.getApplicationContext();
+        mCrypto = new MeshCrypto(mCtx);
+    }
 
-    /**
-     * Acquires the Binder from ServiceManager.
-     *
-     * @return true if the service is available and connected.
-     */
+    // ── Connection ──
+
     public boolean connect() {
         IBinder binder = ServiceManager.getService("circle.mesh");
         if (binder == null) {
@@ -45,57 +47,97 @@ public class MeshServiceConnection {
             return false;
         }
         mService = ICircleMeshService.Stub.asInterface(binder);
-        Log.i(TAG, "Connected to circle.mesh");
         return true;
     }
 
     public boolean isConnected() { return mService != null; }
 
-    // ── Queries ───────────────────────────────────────────────────────────────
+    // ── Queries ──
 
-    /**
-     * Returns the number of mesh peers currently visible.
-     */
     public int getPeerCount() {
         if (mService == null) return 0;
-        try { return mService.getPeerCount(); }
-        catch (RemoteException e) { Log.e(TAG, "getPeerCount", e); return 0; }
+        try { return mService.getPeerCount(); } catch (RemoteException e) { return 0; }
     }
 
-    /**
-     * Returns whether the mesh stack is currently running.
-     */
     public boolean isRunning() {
         if (mService == null) return false;
-        try { return mService.isRunning(); }
-        catch (RemoteException e) { Log.e(TAG, "isRunning", e); return false; }
+        try { return mService.isRunning(); } catch (RemoteException e) { return false; }
     }
 
-    /**
-     * Returns this device's current rotating ID (16-char hex).
-     */
     public String getDeviceId() {
         if (mService == null) return null;
-        try { return mService.getDeviceId(); }
-        catch (RemoteException e) { Log.e(TAG, "getDeviceId", e); return null; }
+        try { return mService.getDeviceId(); } catch (RemoteException e) { return null; }
     }
 
-    // ── Messaging ─────────────────────────────────────────────────────────────
+    // ── Messaging (E2E) ──
 
     /**
-     * Sends a text message to a peer device.
+     * Send text to a peer, end-to-end encrypted. Never sends plaintext: if there is no peer key
+     * yet it sends the CKX handshake and queues the message, flushing it once the key arrives.
      *
-     * @param recipientDeviceId 16-char hex rotating device ID of the recipient.
-     * @param text              UTF-8 message text.
-     * @return true if the message was dispatched or queued.
+     * @return true if encrypted-and-dispatched, or queued behind a handshake; false on failure.
      */
     public boolean sendTextMessage(String recipientDeviceId, String text) {
-        if (mService == null || text == null || recipientDeviceId == null) return false;
+        if (mService == null || recipientDeviceId == null || text == null) return false;
+        if (!mCrypto.isReady()) { Log.w(TAG, "E2E unavailable on this device"); return false; }
+        if (!mCrypto.hasPeerKey(recipientDeviceId)) {
+            sendWire(recipientDeviceId, mCrypto.keyExchangeMessage());
+            PendingStore.queue(mCtx, recipientDeviceId, text);
+            return true; // securing the channel; flushes on key arrival
+        }
+        String env = mCrypto.encrypt(recipientDeviceId, text);
+        if (env == null) return false;
+        return sendWire(recipientDeviceId, env);
+    }
+
+    /**
+     * Process an incoming wire string. Returns the decrypted plaintext to display, or null if it
+     * was a handshake (CKX) or could not be decrypted — both handled internally, no UI for them.
+     */
+    public String handleIncoming(String senderId, String wire) {
+        if (senderId == null || wire == null) return null;
+        if (mService == null) connect();
+
+        if (MeshCrypto.isKeyExchange(wire)) {
+            int status = mCrypto.storePeerKeyStatus(senderId, wire);
+            if (status == MeshCrypto.KEY_CHANGED) {
+                Log.w(TAG, "Peer key changed for " + senderId + " — holding queued messages");
+                return null;
+            }
+            if (status == MeshCrypto.KEY_NEW) {
+                sendWire(senderId, mCrypto.keyExchangeMessage());
+            }
+            String pending = PendingStore.take(mCtx, senderId);
+            if (pending != null) {
+                String env = mCrypto.encrypt(senderId, pending);
+                if (env == null || !sendWire(senderId, env)) {
+                    PendingStore.queue(mCtx, senderId, pending);
+                }
+            }
+            return null;
+        }
+        if (MeshCrypto.isEncrypted(wire)) {
+            String text = mCrypto.decrypt(senderId, wire);
+            if (text == null) {
+                sendWire(senderId, mCrypto.keyExchangeMessage()); // ask for their key, drop
+                return null;
+            }
+            return text;
+        }
+        return wire; // legacy plaintext (back-compat)
+    }
+
+    /** 60-digit security code for a peer — compare out-of-band to rule out a MITM. */
+    public String safetyNumber(String peerId) {
+        return mCrypto.safetyNumber(peerId);
+    }
+
+    private boolean sendWire(String peerId, String wire) {
+        if (mService == null || wire == null) return false;
         try {
-            byte[] payload = text.getBytes("UTF-8");
-            return mService.sendMessage(recipientDeviceId, payload, TYPE_MSG_TEXT);
+            return mService.sendMessage(peerId, wire.getBytes("UTF-8"), TYPE_MSG_TEXT);
         } catch (Exception e) {
-            Log.e(TAG, "sendTextMessage failed", e);
+            Log.e(TAG, "sendWire failed", e);
             return false;
         }
     }

@@ -85,8 +85,10 @@ public class MeshActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String senderId = intent.getStringExtra(EXTRA_SENDER_ID);
-            String text     = intent.getStringExtra(EXTRA_MSG_TEXT);
-            if (text == null) return;
+            String wire     = intent.getStringExtra(EXTRA_MSG_TEXT);
+            if (wire == null) return;
+            String text = mMesh.handleIncoming(senderId, wire);
+            if (text == null) return; // handshake / undecryptable
             String label = (senderId != null && senderId.length() >= 8)
                     ? senderId.substring(0, 8) + "…"
                     : "Peer";
@@ -111,7 +113,7 @@ public class MeshActivity extends Activity {
         mBtnSend.setOnClickListener(v -> sendMessage());
 
         // Connect to mesh service
-        mMesh = new MeshServiceConnection();
+        mMesh = new MeshServiceConnection(this);
         new Thread(() -> {
             boolean ok = mMesh.connect();
             mUiHandler.post(() -> {

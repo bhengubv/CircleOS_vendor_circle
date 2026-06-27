@@ -30,8 +30,13 @@ public class MeshMessageReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String senderId = intent.getStringExtra(MeshActivity.EXTRA_SENDER_ID);
-        String text     = intent.getStringExtra(MeshActivity.EXTRA_MSG_TEXT);
-        if (text == null || text.isEmpty()) return;
+        String wire     = intent.getStringExtra(MeshActivity.EXTRA_MSG_TEXT);
+        if (wire == null || wire.isEmpty()) return;
+
+        MeshServiceConnection conn = new MeshServiceConnection(context);
+        conn.connect();
+        String text = conn.handleIncoming(senderId, wire);
+        if (text == null) return; // handshake / undecryptable - no notification
 
         String label = (senderId != null && senderId.length() >= 8)
                 ? senderId.substring(0, 8) + "…" : "Peer";
