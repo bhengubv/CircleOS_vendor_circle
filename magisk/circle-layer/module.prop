@@ -1,0 +1,6 @@
+id=circle_layer
+name=Circle Layer
+version=v0.1.0-alpha
+versionCode=1
+author=The Geek Network
+description=Systemless Circle OS layer for rooted stock Android — installs the Circle apps, sets the Circle feature props, and runs the Circle boot hooks. Framework-level features (mesh system service, privacy manager, wallet settlement) still require the full Circle OS image.

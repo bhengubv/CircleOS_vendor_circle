@@ -1,0 +1,10 @@
+# Circle Layer feature props. Magisk resetprops each line at boot, so the Circle
+# apps see the same ro.circle.* surface they would on the full Circle OS — minus
+# the framework services, which a userspace overlay cannot provide.
+ro.circle.layer=1
+ro.circle.layer.version=0.1.0-alpha
+ro.circle.brand=Circle
+# Default endpoints (overridable by the apps' own settings).
+ro.circle.social.url=https://social.circleos.co.za
+ro.circle.rooms.url=https://rooms.circleos.co.za
+ro.circle.mail.url=https://mail.circleos.co.za

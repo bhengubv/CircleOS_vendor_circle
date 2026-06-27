@@ -1,0 +1,5 @@
+# Circle Layer SELinux rules (#152).
+# The systemless apps run in standard app domains and need no extra policy in the
+# scaffold. A future Zygisk companion (privacy hooks) will add its rules here, e.g.:
+#   allow circle_layer system_file file { read open execute }
+# Keep this file present (Magisk loads it via magiskpolicy) even when empty.
