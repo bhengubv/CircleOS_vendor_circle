@@ -1,0 +1,15 @@
+// Copyright (C) 2026 CircleOS
+// SPDX-License-Identifier: Apache-2.0
+//
+// Circle Start (WP-04/05/10/11/12/13) — the Circle OS live-tile home screen.
+
+android_app {
+    name: "CircleStart",
+    srcs: ["src/**/*.java"],
+    manifest: "AndroidManifest.xml",
+    certificate: "platform",
+    platform_apis: true,
+    optimize: {
+        enabled: false,
+    },
+}

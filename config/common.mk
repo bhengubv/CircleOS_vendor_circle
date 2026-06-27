@@ -32,6 +32,7 @@ PRODUCT_PACKAGES += \
     CircleMe \
     CircleRooms \
     CirclePhotos \
+    CircleStart \
     CircleMail \
     CircleBackup \
     CircleAchievements \
