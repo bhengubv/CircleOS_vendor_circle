@@ -77,11 +77,13 @@ public final class MeshCrypto {
     private static final Object RATCHET_LOCK = new Object();
 
     private final SharedPreferences mPrefs;
+    private final KeyVault mVault;
     private PrivateKey mPriv;
     private PublicKey mPub;
 
     public MeshCrypto(Context ctx) {
         mPrefs = ctx.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        mVault = new KeyVault();   // TEE/StrongBox sealing of persisted key material
         loadOrCreateIdentity();
     }
 
@@ -274,7 +276,7 @@ public final class MeshCrypto {
 
     /** Load the peer's ratchet, or bootstrap one from the identity ECDH if the peer key is known. */
     private DoubleRatchet.State ensureRatchet(String peerId) throws Exception {
-        String packed = mPrefs.getString(RAT_PREFIX + peerId, null);
+        String packed = mVault.unseal(mPrefs.getString(RAT_PREFIX + peerId, null));
         if (packed != null) {
             try {
                 return DoubleRatchet.unpack(b64d(packed));
@@ -294,7 +296,7 @@ public final class MeshCrypto {
 
     private void saveRatchet(String peerId, DoubleRatchet.State st) {
         try {
-            mPrefs.edit().putString(RAT_PREFIX + peerId, b64e(DoubleRatchet.pack(st))).apply();
+            mPrefs.edit().putString(RAT_PREFIX + peerId, mVault.seal(b64e(DoubleRatchet.pack(st)))).apply();
         } catch (Throwable t) {
             // best-effort; a lost save just means a fresh session next time
         }
@@ -316,8 +318,8 @@ public final class MeshCrypto {
     private void loadOrCreateIdentity() {
         try {
             KeyFactory kf = KeyFactory.getInstance("XDH");
-            String privB64 = mPrefs.getString(K_PRIV, null);
-            String pubB64 = mPrefs.getString(K_PUB, null);
+            String privB64 = mVault.unseal(mPrefs.getString(K_PRIV, null)); // sealed at rest
+            String pubB64 = mPrefs.getString(K_PUB, null);                  // public: not secret
             if (privB64 != null && pubB64 != null) {
                 mPriv = kf.generatePrivate(new PKCS8EncodedKeySpec(b64d(privB64)));
                 mPub = kf.generatePublic(new X509EncodedKeySpec(b64d(pubB64)));
@@ -329,7 +331,7 @@ public final class MeshCrypto {
             mPriv = kp.getPrivate();
             mPub = kp.getPublic();
             mPrefs.edit()
-                    .putString(K_PRIV, b64e(mPriv.getEncoded()))
+                    .putString(K_PRIV, mVault.seal(b64e(mPriv.getEncoded())))
                     .putString(K_PUB, b64e(mPub.getEncoded()))
                     .apply();
         } catch (Throwable t) {
