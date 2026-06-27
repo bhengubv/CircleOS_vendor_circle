@@ -2,11 +2,16 @@
  * Copyright (C) 2026 CircleOS
  * SPDX-License-Identifier: Apache-2.0
  *
- * Circle Play (#24) — the game library / launcher front-end. Lists Windows games
- * dropped into the Circle Play folder with their cover art, and drives the
+ * Circle Play (#24, #150) — the game library / launcher front-end. Lists Windows
+ * games dropped into the Circle Play folder with their cover art, and drives the
  * compatibility runtime through a clean contract (broadcast intent to the
  * runtime package). The runtime itself — Box64 + Wine/Proton + DXVK + FEX — is
  * the multi-week native drop; this is the front door it plugs into.
+ *
+ * Circle-native pass (#150): every game is OWNED, not licensed. Claiming a game
+ * writes a device-rooted entitlement ({@link Ownership}) that needs no server to
+ * prove and can be shared peer-to-peer over the mesh — own once, keep forever,
+ * uncensorable. Your library never leaves the device.
  */
 package za.co.circleos.circleplay;
 
@@ -29,6 +34,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONObject;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,14 +54,23 @@ public final class CirclePlayActivity extends Activity {
     private static final String RUNTIME_PKG = "za.co.circleos.circleplay.runtime";
     private static final String ACTION_LAUNCH = "za.co.circleos.circleplay.LAUNCH";
 
+    // Mesh share routes through AetherHandler (uncensorable peer-to-peer transfer).
+    private static final String AETHER_PKG = "za.co.circleos.aetherhandler";
+    private static final String ACTION_MESH_SHARE = "za.co.circleos.aether.action.SHARE";
+    // Paid titles settle through the SDPKT wallet; drop-in games are free to claim.
+    private static final String SDPKT_PKG = "za.co.circleos.sdpkt";
+    private static final String ACTION_PAY = "za.co.circleos.sdpkt.action.PAY";
+
     private final Handler mUi = new Handler(Looper.getMainLooper());
     private LinearLayout mList;
     private File mGamesDir;
+    private Ownership mOwn;
 
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
         mGamesDir = new File(getExternalFilesDir(null), "Games");
+        mOwn = new Ownership(this);
 
         ScrollView scroll = new ScrollView(this);
         scroll.setBackgroundColor(BG);
@@ -73,7 +89,7 @@ public final class CirclePlayActivity extends Activity {
         root.addView(title);
 
         TextView sub = new TextView(this);
-        sub.setText("Your PC games, on your phone.");
+        sub.setText("Games you own — forever. No account. No recall.");
         sub.setTextColor(MUTED);
         sub.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
         sub.setPadding(0, dp(6), 0, dp(18));
@@ -109,8 +125,12 @@ public final class CirclePlayActivity extends Activity {
     }
 
     private boolean runtimeInstalled() {
+        return isPkg(RUNTIME_PKG);
+    }
+
+    private boolean isPkg(String pkg) {
         try {
-            getPackageManager().getPackageInfo(RUNTIME_PKG, 0);
+            getPackageManager().getPackageInfo(pkg, 0);
             return true;
         } catch (Throwable t) {
             return false;
@@ -161,6 +181,8 @@ public final class CirclePlayActivity extends Activity {
     }
 
     private View gameCard(Game g) {
+        final String gameId = Ownership.gameId(g.name);
+
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.HORIZONTAL);
         card.setBackgroundColor(CARD);
@@ -191,22 +213,111 @@ public final class CirclePlayActivity extends Activity {
         name.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
         name.setTypeface(Typeface.DEFAULT_BOLD);
         col.addView(name);
-        TextView path = new TextView(this);
-        path.setText(g.exe.getName());
-        path.setTextColor(MUTED);
-        path.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-        col.addView(path);
+
+        TextView meta = new TextView(this);
+        boolean owned = mOwn.isOwned(gameId);
+        meta.setText(owned ? "✓ Owned · yours forever" : g.exe.getName());
+        meta.setTextColor(owned ? ACCENT : MUTED);
+        meta.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        col.addView(meta);
         card.addView(col);
+
+        // Ownership chip — claim it (own-once) or view the device-rooted receipt.
+        final TextView chip = new TextView(this);
+        styleChip(chip, owned);
+        chip.setOnClickListener(v -> {
+            if (mOwn.isOwned(gameId)) {
+                showReceipt(g.name, gameId);
+            } else {
+                mOwn.claim(gameId, g.name, Ownership.SRC_CLAIMED);
+                styleChip(chip, true);
+                meta.setText("✓ Owned · yours forever");
+                meta.setTextColor(ACCENT);
+                toast("You own " + g.name + " — forever. Long-press to share over mesh.");
+            }
+        });
+        card.addView(chip);
 
         TextView play = new TextView(this);
         play.setText("▶");
         play.setTextColor(ACCENT);
         play.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
         play.setPadding(dp(12), 0, dp(8), 0);
+        play.setOnClickListener(v -> play(g));
         card.addView(play);
 
         card.setOnClickListener(v -> play(g));
+        card.setOnLongClickListener(v -> {
+            if (mOwn.isOwned(gameId)) {
+                shareOverMesh(g, gameId);
+            } else {
+                toast("Claim it first — then it's yours to share.");
+            }
+            return true;
+        });
         return card;
+    }
+
+    private void styleChip(TextView chip, boolean owned) {
+        chip.setText(owned ? "Receipt" : "Claim");
+        chip.setTextColor(owned ? MUTED : ACCENT);
+        chip.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        chip.setTypeface(Typeface.DEFAULT_BOLD);
+        chip.setPadding(dp(10), dp(6), dp(10), dp(6));
+        chip.setBackgroundColor(owned ? 0xFF101010 : 0xFF101826);
+    }
+
+    private void showReceipt(String title, String gameId) {
+        JSONObject rec = mOwn.get(gameId);
+        String owner = mOwn.ownerFingerprint();
+        String source = rec != null ? rec.optString("source", "claimed") : "claimed";
+        String proof = rec != null ? rec.optString("proof", "") : mOwn.proof(gameId);
+        String origin = rec != null ? rec.optString("origin", "") : "";
+        StringBuilder msg = new StringBuilder();
+        msg.append("This receipt lives on your device. No server can revoke it.\n\n");
+        msg.append("Title:  ").append(title).append("\n");
+        msg.append("Owner:  ").append(owner).append("   (your device / SDPKT identity)\n");
+        msg.append("Source: ").append(source).append("\n");
+        if (!origin.isEmpty()) msg.append("From:   ").append(origin).append("   (shared over mesh)\n");
+        msg.append("\nProof:\n").append(proof);
+        new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                .setTitle("✓ Ownership receipt")
+                .setMessage(msg.toString())
+                .setPositiveButton("Done", null)
+                .setNeutralButton("Share over mesh", (d, w) -> shareOverMeshById(title, gameId))
+                .show();
+    }
+
+    private void shareOverMesh(Game g, String gameId) {
+        shareOverMeshById(g.name, gameId, g.exe);
+    }
+
+    private void shareOverMeshById(String title, String gameId) {
+        shareOverMeshById(title, gameId, null);
+    }
+
+    private void shareOverMeshById(String title, String gameId, File exe) {
+        if (!isPkg(AETHER_PKG)) {
+            new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                    .setTitle("Share over mesh")
+                    .setMessage("AetherNet isn't available on this device yet. Once it is, you can hand a "
+                            + "game and its ownership straight to a nearby Circle phone — no store, no internet.")
+                    .setPositiveButton("OK", null)
+                    .show();
+            return;
+        }
+        try {
+            Intent i = new Intent(ACTION_MESH_SHARE).setPackage(AETHER_PKG);
+            i.putExtra("kind", "circle-play-game");
+            i.putExtra("game_id", gameId);
+            i.putExtra("title", title);
+            i.putExtra("owner", mOwn.ownerFingerprint());
+            if (exe != null) i.putExtra("path", exe.getAbsolutePath());
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
+        } catch (Throwable t) {
+            toast("Couldn't reach the mesh share");
+        }
     }
 
     private void loadCover(ImageView iv, File file) {
