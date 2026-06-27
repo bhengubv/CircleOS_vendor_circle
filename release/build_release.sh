@@ -77,6 +77,17 @@ MANIFEST
 # Checksums
 sha256sum "${RELEASE_DIR_DEVICE}/payload.bin" > "${RELEASE_DIR_DEVICE}/payload.bin.sha256"
 
+# Sanity-verify the built boot image with magiskboot (#151). Non-fatal: skips
+# cleanly if magiskboot is not installed (run vendor/circle/dist/boot/fetch-magiskboot.sh).
+BOOT_IMG="${OUT_DIR}/boot.img"
+MAGISKBOOT_SH="vendor/circle/dist/boot/magiskboot.sh"
+if [ -f "${BOOT_IMG}" ] && "${MAGISKBOOT_SH}" path >/dev/null 2>&1; then
+    echo "Verifying boot image with magiskboot..."
+    "${MAGISKBOOT_SH}" verify "${BOOT_IMG}" || echo "WARN: boot image failed magiskboot verify"
+else
+    echo "Skipping magiskboot boot-image check (not installed or no boot.img)."
+fi
+
 echo ""
 echo "Build complete:"
 echo "  Directory  : ${RELEASE_DIR_DEVICE}/"
