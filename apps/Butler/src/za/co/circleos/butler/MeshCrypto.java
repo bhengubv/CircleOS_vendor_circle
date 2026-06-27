@@ -67,6 +67,7 @@ public final class MeshCrypto {
     private static final String K_PUB = "id_pub";
     private static final String PEER_PREFIX = "peer_";
     private static final String RAT_PREFIX = "rat_";   // per-peer Double Ratchet state
+    private static final String K_STRICT = "strict_receive";
     private static final byte VERSION = 1;
     private static final int NONCE_LEN = 12;
     private static final int TAG_LEN = 16;
@@ -99,6 +100,19 @@ public final class MeshCrypto {
     /** True for either encrypted envelope — static (CE1) or forward-secret (CE2). */
     public static boolean isEncrypted(String s) {
         return s != null && (s.startsWith(PREFIX_ENC) || s.startsWith(DoubleRatchet.PREFIX));
+    }
+
+    /**
+     * Strict receive mode (default ON): incoming messages that are not end-to-end encrypted are
+     * dropped instead of shown. Every legitimate Circle peer encrypts, so plaintext on the wire is
+     * either a pre-E2E build or an injection/downgrade attempt; refusing it closes that surface.
+     */
+    public boolean isStrictReceive() {
+        return mPrefs.getBoolean(K_STRICT, true);
+    }
+
+    public void setStrictReceive(boolean strict) {
+        mPrefs.edit().putBoolean(K_STRICT, strict).apply();
     }
 
     /** The "CKX:" message announcing my public key, or null if E2E isn't available. */

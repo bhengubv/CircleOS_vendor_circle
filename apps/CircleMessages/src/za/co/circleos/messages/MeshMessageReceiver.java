@@ -87,7 +87,11 @@ public class MeshMessageReceiver extends BroadcastReceiver {
             return;
         }
 
-        // ── Legacy plaintext (back-compat) ──
+        // ── Unencrypted: a pre-E2E build or an injection attempt ──
+        if (crypto.isStrictReceive()) {
+            Log.w(TAG, "Dropped unencrypted message from " + senderId + " (strict mode)");
+            return;
+        }
         deliver(context, senderId, wire);
     }
 

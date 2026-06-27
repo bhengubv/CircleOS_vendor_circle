@@ -124,7 +124,11 @@ public class MeshServiceConnection {
             }
             return text;
         }
-        return wire; // legacy plaintext (back-compat)
+        if (mCrypto.isStrictReceive()) {
+            Log.w(TAG, "Dropped unencrypted message from " + senderId + " (strict mode)");
+            return null;
+        }
+        return wire; // legacy plaintext (back-compat, strict mode off)
     }
 
     /** 60-digit security code for a peer — compare out-of-band to rule out a MITM. */

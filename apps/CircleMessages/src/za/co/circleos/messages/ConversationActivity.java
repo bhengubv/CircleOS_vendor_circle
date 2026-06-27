@@ -102,6 +102,9 @@ public class ConversationActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.add(0, 1, 0, "Verify security code");
+        MenuItem strict = menu.add(0, 2, 1, "Block unencrypted messages");
+        strict.setCheckable(true);
+        strict.setChecked(mCrypto != null && mCrypto.isStrictReceive());
         return true;
     }
 
@@ -109,6 +112,14 @@ public class ConversationActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == 1) {
             showSecurityCode();
+            return true;
+        }
+        if (item.getItemId() == 2) {
+            boolean now = !item.isChecked();
+            item.setChecked(now);
+            if (mCrypto != null) mCrypto.setStrictReceive(now);
+            Toast.makeText(this, now ? "Unencrypted messages will be blocked"
+                    : "Unencrypted messages will be shown", Toast.LENGTH_SHORT).show();
             return true;
         }
         return super.onOptionsItemSelected(item);
