@@ -34,6 +34,7 @@ PRODUCT_PACKAGES += \
     CirclePhotos \
     CircleStart \
     CirclePlayRuntime \
+    CircleConsole \
     CircleMail \
     CircleBackup \
     CircleAchievements \
