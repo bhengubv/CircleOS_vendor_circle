@@ -645,9 +645,36 @@ public final class PanikActivity extends Activity implements LocationListener {
 
     // ── Emergency Contact Management ─────────────────────────────────
     private void addEmergencyContact() {
-        // TODO: show dialog for name + phone input
-        // For now, load from API
-        loadContacts();
+        final android.widget.EditText name = new android.widget.EditText(this);
+        name.setHint("Name");
+        final android.widget.EditText phone = new android.widget.EditText(this);
+        phone.setHint("Phone number");
+        phone.setInputType(android.text.InputType.TYPE_CLASS_PHONE);
+        android.widget.LinearLayout box = new android.widget.LinearLayout(this);
+        box.setOrientation(android.widget.LinearLayout.VERTICAL);
+        final int pad = Math.round(20 * getResources().getDisplayMetrics().density);
+        box.setPadding(pad, pad, pad, 0);
+        box.addView(name);
+        box.addView(phone);
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Add emergency contact")
+                .setView(box)
+                .setPositiveButton("Add", (d, w) -> {
+                    final String n = name.getText().toString().trim();
+                    final String p = phone.getText().toString().trim();
+                    if (n.isEmpty() || p.isEmpty()) return;
+                    mExecutor.execute(() -> {
+                        try {
+                            JSONObject body = new JSONObject();
+                            body.put("name", n);
+                            body.put("phone", p);
+                            httpPost(API_BASE + "/contacts", body.toString());
+                        } catch (Exception ignored) {}
+                        runOnUiThread(this::loadContacts);
+                    });
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     // ── Location ─────────────────────────────────────────────────────
