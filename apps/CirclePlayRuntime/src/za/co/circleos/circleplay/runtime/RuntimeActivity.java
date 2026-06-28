@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -25,6 +26,8 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+
+import java.io.File;
 
 public final class RuntimeActivity extends Activity implements SurfaceHolder.Callback {
 
@@ -105,7 +108,16 @@ public final class RuntimeActivity extends Activity implements SurfaceHolder.Cal
         if (mStarted || !mPack.isReady()) return;
         mStarted = true;
         SurfaceBridge.init(mPack.renderBackendSo());
+        File tmp = new File(getFilesDir(), "tmp");
+        SurfaceBridge.configure(new File(tmp, "circle_fb").getAbsolutePath(),
+                new File(tmp, "circle_input").getAbsolutePath());
         startSession(holder);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent e) {
+        SurfaceBridge.sendMotion((int) e.getX(), (int) e.getY(), e.getActionMasked());
+        return true;
     }
 
     @Override

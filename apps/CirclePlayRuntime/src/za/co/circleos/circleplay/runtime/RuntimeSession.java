@@ -134,6 +134,9 @@ final class RuntimeSession {
         e.put("PATH", new File(mPack.root(), "bin").getAbsolutePath() + ":/system/bin");
         e.put("LD_LIBRARY_PATH", new File(mPack.root(), "lib").getAbsolutePath());
         e.put("BOX64_LD_LIBRARY_PATH", new File(mPack.root(), "lib/x86_64").getAbsolutePath());
+        // Shared framebuffer + input socket the X server uses; the render bridge maps the same.
+        e.put("CIRCLE_FB", new File(mDataDir, "tmp/circle_fb").getAbsolutePath());
+        e.put("CIRCLE_INPUT", new File(mDataDir, "tmp/circle_input").getAbsolutePath());
         return e;
     }
 

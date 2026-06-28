@@ -12,7 +12,25 @@ android_app {
     manifest: "AndroidManifest.xml",
     certificate: "platform",
     platform_apis: true,
+    jni_libs: ["libcircleplay_render"],
     optimize: {
         enabled: false,
     },
+}
+
+// The render bridge: blits the X server's shared framebuffer onto the Android
+// Surface and forwards input. The X server (circle-xserver) is vendored by
+// tools/fetch-runtime.sh; this is the Circle-specific Android-facing half.
+cc_library_shared {
+    name: "libcircleplay_render",
+    srcs: ["jni/libcircleplay_render.cpp"],
+    shared_libs: [
+        "libandroid",
+        "liblog",
+    ],
+    cflags: [
+        "-Wall",
+        "-Wno-unused-parameter",
+        "-std=c++17",
+    ],
 }
