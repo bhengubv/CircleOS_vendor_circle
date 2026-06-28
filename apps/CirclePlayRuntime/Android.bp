@@ -1,0 +1,18 @@
+// Copyright (C) 2026 CircleOS
+// SPDX-License-Identifier: Apache-2.0
+//
+// Circle Play Runtime (#24) — Box64 + Wine compatibility backend for the
+// Circle Play library. Java orchestration only; the native pack (Box64, Wine,
+// DXVK, X server, render backend) is built by tools/fetch-runtime.sh and
+// installed at runtime under the app's files dir.
+
+android_app {
+    name: "CirclePlayRuntime",
+    srcs: ["src/**/*.java"],
+    manifest: "AndroidManifest.xml",
+    certificate: "platform",
+    platform_apis: true,
+    optimize: {
+        enabled: false,
+    },
+}

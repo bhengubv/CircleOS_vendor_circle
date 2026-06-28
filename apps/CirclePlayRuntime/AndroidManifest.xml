@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Circle Play Runtime — the Box64 + Wine compatibility backend that the Circle
+  Play library drives via za.co.circleos.circleplay.LAUNCH.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="za.co.circleos.circleplay.runtime">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:label="Circle Play Runtime"
+        android:allowBackup="false"
+        android:extractNativeLibs="true"
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen">
+
+        <activity
+            android:name=".RuntimeActivity"
+            android:exported="true"
+            android:label="Circle Play"
+            android:screenOrientation="sensorLandscape"
+            android:launchMode="singleInstance"
+            android:resizeableActivity="true"
+            android:configChanges="orientation|screenSize|keyboardHidden|keyboard|navigation|smallestScreenSize|screenLayout|density">
+            <intent-filter>
+                <action android:name="za.co.circleos.circleplay.LAUNCH" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

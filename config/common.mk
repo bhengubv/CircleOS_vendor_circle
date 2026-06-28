@@ -33,6 +33,7 @@ PRODUCT_PACKAGES += \
     CircleRooms \
     CirclePhotos \
     CircleStart \
+    CirclePlayRuntime \
     CircleMail \
     CircleBackup \
     CircleAchievements \
