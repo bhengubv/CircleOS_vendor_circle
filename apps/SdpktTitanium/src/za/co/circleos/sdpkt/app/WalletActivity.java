@@ -351,7 +351,10 @@ public class WalletActivity extends Activity {
                     long amtCents = Math.round(amtDouble * 100);
                     mSendAmountCents = amtCents;
                     String memo = etMemo.getText().toString().trim();
-                    startSendSession(amtCents, memo, lockScreen);
+                    CircleBiometricAuth.require(this,
+                            getString(R.string.wallet_tap_to_pay),
+                            "Authorise payment of " + formatCents(amtCents),
+                            () -> startSendSession(amtCents, memo, lockScreen));
                 } catch (NumberFormatException ignored) {
                     Toast.makeText(this, "Invalid amount", Toast.LENGTH_SHORT).show();
                 }
@@ -537,7 +540,9 @@ public class WalletActivity extends Activity {
         new AlertDialog.Builder(this)
             .setTitle(getString(R.string.nfc_receiving))
             .setMessage(prompt)
-            .setPositiveButton(getString(R.string.nfc_accept), (d, w) -> {
+            .setPositiveButton(getString(R.string.nfc_accept), (d, w) ->
+                CircleBiometricAuth.require(this, getString(R.string.nfc_receiving),
+                        "Authorise accepting " + formatCents(tx.amountCents), () -> {
                 new Thread(() -> {
                     try {
                         TransactionResult res = mWallet.acceptIncomingTransfer(sessionId);
@@ -554,7 +559,7 @@ public class WalletActivity extends Activity {
                         Log.e(TAG, "acceptIncomingTransfer error", e);
                     }
                 }).start();
-            })
+            }))
             .setNegativeButton(getString(R.string.nfc_decline), (d, w) -> {
                 new Thread(() -> {
                     try {

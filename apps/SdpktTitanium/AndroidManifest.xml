@@ -10,6 +10,7 @@
 
     <!-- NFC -->
     <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <!-- HCE service binding -->
     <uses-permission android:name="android.permission.BIND_NFC_HCE_SERVICE" />
     <!-- Boot-complete receiver to refresh wallet state -->
