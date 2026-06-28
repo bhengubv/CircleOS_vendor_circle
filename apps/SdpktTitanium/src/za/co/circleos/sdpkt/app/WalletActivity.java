@@ -86,6 +86,20 @@ public class WalletActivity extends Activity {
     private TextView  mTvStatus;
     private TextView  mTvLocationContext;
     private Button    mBtnPay;
+    private boolean   mIncomingRegistered;
+    private final android.content.BroadcastReceiver mIncomingReceiver =
+            new android.content.BroadcastReceiver() {
+        @Override public void onReceive(Context ctx, android.content.Intent intent) {
+            if (intent == null) return;
+            String sid = intent.getStringExtra("session_id");
+            if (sid == null) return;
+            ShongololoTransaction tx = new ShongololoTransaction();
+            tx.amountCents = intent.getLongExtra("amount_cents", 0);
+            tx.senderDeviceId = intent.getStringExtra("sender_id");
+            tx.type = ShongololoTransaction.TYPE_RECV;
+            showIncomingTransferDialog(sid, tx);
+        }
+    };
     private Button    mBtnRequest;
     private ListView  mLvTransactions;
 
@@ -161,6 +175,12 @@ public class WalletActivity extends Activity {
         refreshWallet();
         // Phase 4: Quick Pay tile launched us — start NFC reader immediately
         handleQuickPayIntent(getIntent());
+        if (!mIncomingRegistered) {
+            registerReceiver(mIncomingReceiver, new android.content.IntentFilter(
+                    "za.co.circleos.sdpkt.action.INCOMING_TRANSFER"),
+                    Context.RECEIVER_NOT_EXPORTED);
+            mIncomingRegistered = true;
+        }
     }
 
     @Override
@@ -198,6 +218,10 @@ public class WalletActivity extends Activity {
     protected void onPause() {
         super.onPause();
         disableNfcReader();
+        if (mIncomingRegistered) {
+            try { unregisterReceiver(mIncomingReceiver); } catch (Throwable ignored) {}
+            mIncomingRegistered = false;
+        }
     }
 
     /* ── Wallet binding ────────────────────────────────── */
