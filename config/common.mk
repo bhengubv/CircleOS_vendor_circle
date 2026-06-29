@@ -118,6 +118,10 @@ PRODUCT_COPY_FILES += \
     vendor/circle/wallpapers/default_light.png:$(TARGET_COPY_OUT_PRODUCT)/media/wallpaper/default_light.png \
     vendor/circle/wallpapers/mesh_dark.png:$(TARGET_COPY_OUT_PRODUCT)/media/wallpaper/mesh_dark.png
 
+# Circle OS central API endpoint -- read at runtime; repointable via OTA/config push (no rebuild)
+PRODUCT_COPY_FILES += \
+    vendor/circle/config/endpoints.json:$(TARGET_COPY_OUT_SYSTEM)/etc/circle/endpoints.json
+
 
 # Circle OS vendor VINTF manifest (via DEVICE_MANIFEST_FILE, assemble_vintf sets target-level=legacy)
 DEVICE_MANIFEST_FILE += vendor/circle/vintf/manifest.xml

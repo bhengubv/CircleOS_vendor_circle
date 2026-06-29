@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "central_api": "https://media.circleos.co.za",
+  "fallbacks": [],
+  "note": "Central Circle OS <-> The Geek Network API. This file is read at runtime; repoint by writing /data/system/circle/endpoints.json via an OTA/config push -- no OS rebuild required.",
+  "updated_at": "2026-06-29"
+}
