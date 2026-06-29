@@ -31,9 +31,9 @@ import java.util.List;
  *   default  (shipped, fallback)  /system/etc/circle/endpoints.json
  * </pre>
  *
- * The reader prefers the override, falls back to the shipped default, and to a
- * compiled-in last resort if both are missing. Nothing in the OS should hardcode
- * a TGN URL — ask {@link #getCentralApi()}.
+ * The reader prefers the override; a missing/empty/malformed override falls
+ * through to the shipped default, and finally to a compiled-in last resort.
+ * Nothing in the OS should hardcode a TGN URL — ask {@link #getCentralApi()}.
  */
 public final class CircleEndpoints {
 
@@ -41,7 +41,7 @@ public final class CircleEndpoints {
     private static final String DEFAULT  = "/system/etc/circle/endpoints.json";
 
     /** Last-resort default if both config files are missing/unreadable. */
-    private static final String FALLBACK_CENTRAL = "https://media.circleos.co.za";
+    static final String FALLBACK_CENTRAL = "https://media.circleos.co.za";
 
     private static volatile String sCentral;
     private static volatile List<String> sFallbacks;
@@ -69,36 +69,58 @@ public final class CircleEndpoints {
 
     private static void ensureLoaded() {
         if (sCentral != null && sLoadedAt != 0) return;
-        String central = FALLBACK_CENTRAL;
-        List<String> fb = new ArrayList<>();
-        String raw = readFirst(OVERRIDE, DEFAULT);
-        if (raw != null) {
-            try {
-                JSONObject o = new JSONObject(raw);
-                String c = o.optString("central_api", "").trim();
-                if (!c.isEmpty()) central = c;
-                JSONArray arr = o.optJSONArray("fallbacks");
-                if (arr != null) {
-                    for (int i = 0; i < arr.length(); i++) {
-                        String f = arr.optString(i, "").trim();
-                        if (!f.isEmpty()) fb.add(f);
-                    }
-                }
-            } catch (Throwable ignored) {
-                // malformed config -> keep the safe compiled-in fallback
-            }
-        }
-        sCentral = stripTrailingSlash(central);
-        sFallbacks = Collections.unmodifiableList(fb);
+        Resolved r = resolve(readFile(OVERRIDE), readFile(DEFAULT));
+        sCentral = r.central;
+        sFallbacks = r.fallbacks;
         sLoadedAt = System.currentTimeMillis();
     }
 
-    private static String readFirst(String... paths) {
-        for (String p : paths) {
-            String s = readFile(p);
-            if (s != null && !s.trim().isEmpty()) return s;
+    // ── pure config resolution (package-visible for unit tests) ──
+
+    static final class Resolved {
+        final String central;
+        final List<String> fallbacks;
+        Resolved(String central, List<String> fallbacks) {
+            this.central = central;
+            this.fallbacks = fallbacks;
         }
-        return null;
+    }
+
+    /**
+     * Resolve the effective config from the two raw file contents. The override
+     * wins; a null/empty/malformed override (or one with no central_api) falls
+     * through to the default, then to the compiled-in fallback.
+     */
+    static Resolved resolve(String rawOverride, String rawDefault) {
+        Resolved r = parseOne(rawOverride);
+        if (r == null || r.central == null || r.central.isEmpty()) {
+            Resolved dft = parseOne(rawDefault);
+            if (dft != null && dft.central != null && !dft.central.isEmpty()) r = dft;
+        }
+        String central = (r != null && r.central != null && !r.central.isEmpty())
+                ? stripTrailingSlash(r.central) : FALLBACK_CENTRAL;
+        List<String> fb = (r != null && r.fallbacks != null) ? r.fallbacks : new ArrayList<>();
+        return new Resolved(central, Collections.unmodifiableList(fb));
+    }
+
+    /** Parse one raw JSON config; null if null/empty/malformed. central may be "". */
+    static Resolved parseOne(String raw) {
+        if (raw == null || raw.trim().isEmpty()) return null;
+        try {
+            JSONObject o = new JSONObject(raw);
+            String c = o.optString("central_api", "").trim();
+            List<String> fb = new ArrayList<>();
+            JSONArray arr = o.optJSONArray("fallbacks");
+            if (arr != null) {
+                for (int i = 0; i < arr.length(); i++) {
+                    String f = arr.optString(i, "").trim();
+                    if (!f.isEmpty()) fb.add(f);
+                }
+            }
+            return new Resolved(c, fb);
+        } catch (Throwable t) {
+            return null;
+        }
     }
 
     private static String readFile(String path) {
@@ -115,7 +137,7 @@ public final class CircleEndpoints {
         }
     }
 
-    private static String stripTrailingSlash(String s) {
+    static String stripTrailingSlash(String s) {
         return (s != null && s.endsWith("/")) ? s.substring(0, s.length() - 1) : s;
     }
 }
