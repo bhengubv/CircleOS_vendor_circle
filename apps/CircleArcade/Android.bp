@@ -1,0 +1,10 @@
+// Circle Arcade — Godot 4.7.1 game runtime (console-MVP proof).
+// Prebuilt, debug-signed APK exported headless from Godot on the build box.
+android_app_import {
+    name: "CircleArcade",
+    apk: "CircleArcade.apk",
+    presigned: true,
+    dex_preopt: {
+        enabled: false,
+    },
+}

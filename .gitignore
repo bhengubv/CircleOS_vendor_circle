@@ -3,3 +3,5 @@
 release/security/*.pk8
 release/security/*.key
 microg/prebuilt/*.apk
+__pycache__/
+*.bak
