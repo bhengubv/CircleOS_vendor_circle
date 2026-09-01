@@ -1,0 +1,10 @@
+// SPDX-License-Identifier: Apache-2.0
+// Circle Start (Watch) - round glanceable home for circle_wear.
+android_app {
+    name: "CircleStartWatch",
+    srcs: ["src/**/*.java"],
+    manifest: "AndroidManifest.xml",
+    certificate: "platform",
+    platform_apis: true,
+    optimize: { enabled: false },
+}

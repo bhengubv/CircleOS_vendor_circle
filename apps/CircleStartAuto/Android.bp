@@ -1,0 +1,10 @@
+// SPDX-License-Identifier: Apache-2.0
+// Circle Start (Auto) - driving-safe car home for circle_auto.
+android_app {
+    name: "CircleStartAuto",
+    srcs: ["src/**/*.java"],
+    manifest: "AndroidManifest.xml",
+    certificate: "platform",
+    platform_apis: true,
+    optimize: { enabled: false },
+}

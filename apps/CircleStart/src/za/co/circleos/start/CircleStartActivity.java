@@ -62,7 +62,7 @@ public final class CircleStartActivity extends Activity {
     private TextView mClockView, mDateView, mBatteryView;
     private GestureDetector mGestures;
 
-    private int mCell, mGap, mPad;
+    private int mCell, mGap, mPad, mCols;
 
     @Override
     protected void onCreate(Bundle b) {
@@ -72,7 +72,9 @@ public final class CircleStartActivity extends Activity {
         mGap = dp(8);
         mPad = dp(16);
         int screenW = getResources().getDisplayMetrics().widthPixels;
-        mCell = (screenW - mPad * 2 - mGap * 3) / 4; // 4 columns
+        int swDp = getResources().getConfiguration().smallestScreenWidthDp;
+        mCols = swDp >= 840 ? 8 : (swDp >= 600 ? 6 : 4);
+        mCell = (screenW - mPad * 2 - mGap * (mCols - 1)) / mCols;
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
@@ -218,7 +220,7 @@ public final class CircleStartActivity extends Activity {
         sv.setVerticalScrollBarEnabled(false);
         FrameLayout grid = new FrameLayout(this);
 
-        boolean[][] occ = new boolean[64][4]; // plenty of rows
+        boolean[][] occ = new boolean[64][mCols];
         int maxRow = 0;
         for (TileStore.Tile t : mTiles) {
             int[] wh = spanOf(t.size);
@@ -470,7 +472,7 @@ public final class CircleStartActivity extends Activity {
 
     private static int[] firstFree(boolean[][] occ, int w, int h) {
         for (int r = 0; r + h <= occ.length; r++) {
-            for (int c = 0; c + w <= 4; c++) {
+            for (int c = 0; c + w <= occ[0].length; c++) {
                 boolean ok = true;
                 for (int rr = r; rr < r + h && ok; rr++)
                     for (int cc = c; cc < c + w; cc++)
