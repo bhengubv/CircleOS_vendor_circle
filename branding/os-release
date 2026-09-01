@@ -1,0 +1,10 @@
+NAME="CircleOS"
+VERSION="0.1.0-alpha"
+ID=circleos
+ID_LIKE=openharmony
+PRETTY_NAME="CircleOS 0.1.0-alpha (built on OpenHarmony)"
+VERSION_ID="0.1.0"
+HOME_URL="https://thegeek.co.za"
+BUG_REPORT_URL="https://github.com/bhengubv/aether-protocol/issues"
+CIRCLEOS_BUILD_HOST="amarula"
+CIRCLEOS_TARGETS="rk3568,qemu-x86_64"
